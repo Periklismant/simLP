@@ -1,0 +1,606 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    COMPLEMENTALL
+    ENTITYDOMAIN
+    EVENT
+    FLUENT
+    GROUNDING
+    INDEX
+    INTERSECTALL
+    LINECOMMENT
+    LISTEND
+    LISTSTART
+    MULTILINECOMMENT
+    NL
+    UNIONALL
+
+Grammar
+
+Rule 0     S' -> event_description
+Rule 1     event_description -> domain_rule
+Rule 2     event_description -> domain_rule event_description
+Rule 3     domain_rule -> simple_fluent_rule
+Rule 4     domain_rule -> statically_determined_fluent_rule
+Rule 5     simple_fluent_rule -> init_or_term_atom IMPL body
+Rule 6     statically_determined_fluent_rule -> holdsFor_atom IMPL body
+Rule 7     holdsFor_atom -> HOLDSFOR LPAREN fluent_value_pair COMMA interval_list_var RPAREN
+Rule 8     init_or_term_atom -> init_or_term LPAREN fluent_value_pair COMMA time_var RPAREN
+Rule 9     fluent_value_pair -> atom EQUAL atom
+Rule 10    time_var -> VAR
+Rule 11    interval_list_var -> VAR
+Rule 12    body -> literal DOT
+Rule 13    body -> literal COMMA body
+Rule 14    literal -> atom
+Rule 15    literal -> NOT atom
+Rule 16    atom -> term
+Rule 17    atom -> atom EQUAL atom
+Rule 18    args_list -> term
+Rule 19    args_list -> atom
+Rule 20    args_list -> atom COMMA args_list
+Rule 21    term -> LOWCASESTR
+Rule 22    term -> VAR
+Rule 23    term -> NUMBER
+Rule 24    init_or_term -> INITIATEDAT
+Rule 25    init_or_term -> TERMINATEDAT
+Rule 26    predicate_name -> LOWCASESTR
+Rule 27    predicate_name -> HAPPENSAT
+Rule 28    predicate_name -> INITIATEDAT
+Rule 29    predicate_name -> TERMINATEDAT
+Rule 30    predicate_name -> HOLDSFOR
+Rule 31    predicate_name -> HOLDSAT
+
+Terminals, with rules where they appear
+
+COMMA                : 7 8 13 20
+COMPLEMENTALL        : 
+DOT                  : 12
+ENTITYDOMAIN         : 
+EQUAL                : 9 17
+EVENT                : 
+FLUENT               : 
+GROUNDING            : 
+HAPPENSAT            : 27
+HOLDSAT              : 31
+HOLDSFOR             : 7 30
+IMPL                 : 5 6
+INDEX                : 
+INITIATEDAT          : 24 28
+INTERSECTALL         : 
+LINECOMMENT          : 
+LISTEND              : 
+LISTSTART            : 
+LOWCASESTR           : 21 26
+LPAREN               : 7 8
+MULTILINECOMMENT     : 
+NL                   : 
+NOT                  : 15
+NUMBER               : 23
+RPAREN               : 7 8
+TERMINATEDAT         : 25 29
+UNIONALL             : 
+VAR                  : 10 11 22
+error                : 
+
+Nonterminals, with rules where they appear
+
+args_list            : 20
+atom                 : 9 9 14 15 17 17 19 20
+body                 : 5 6 13
+domain_rule          : 1 2
+event_description    : 2 0
+fluent_value_pair    : 7 8
+holdsFor_atom        : 6
+init_or_term         : 8
+init_or_term_atom    : 5
+interval_list_var    : 7
+literal              : 12 13
+predicate_name       : 
+simple_fluent_rule   : 3
+statically_determined_fluent_rule : 4
+term                 : 16 18
+time_var             : 8
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . event_description
+    (1) event_description -> . domain_rule
+    (2) event_description -> . domain_rule event_description
+    (3) domain_rule -> . simple_fluent_rule
+    (4) domain_rule -> . statically_determined_fluent_rule
+    (5) simple_fluent_rule -> . init_or_term_atom IMPL body
+    (6) statically_determined_fluent_rule -> . holdsFor_atom IMPL body
+    (8) init_or_term_atom -> . init_or_term LPAREN fluent_value_pair COMMA time_var RPAREN
+    (7) holdsFor_atom -> . HOLDSFOR LPAREN fluent_value_pair COMMA interval_list_var RPAREN
+    (24) init_or_term -> . INITIATEDAT
+    (25) init_or_term -> . TERMINATEDAT
+
+    HOLDSFOR        shift and go to state 8
+    INITIATEDAT     shift and go to state 9
+    TERMINATEDAT    shift and go to state 10
+
+    event_description              shift and go to state 1
+    domain_rule                    shift and go to state 2
+    simple_fluent_rule             shift and go to state 3
+    statically_determined_fluent_rule shift and go to state 4
+    init_or_term_atom              shift and go to state 5
+    holdsFor_atom                  shift and go to state 6
+    init_or_term                   shift and go to state 7
+
+state 1
+
+    (0) S' -> event_description .
+
+
+
+state 2
+
+    (1) event_description -> domain_rule .
+    (2) event_description -> domain_rule . event_description
+    (1) event_description -> . domain_rule
+    (2) event_description -> . domain_rule event_description
+    (3) domain_rule -> . simple_fluent_rule
+    (4) domain_rule -> . statically_determined_fluent_rule
+    (5) simple_fluent_rule -> . init_or_term_atom IMPL body
+    (6) statically_determined_fluent_rule -> . holdsFor_atom IMPL body
+    (8) init_or_term_atom -> . init_or_term LPAREN fluent_value_pair COMMA time_var RPAREN
+    (7) holdsFor_atom -> . HOLDSFOR LPAREN fluent_value_pair COMMA interval_list_var RPAREN
+    (24) init_or_term -> . INITIATEDAT
+    (25) init_or_term -> . TERMINATEDAT
+
+    $end            reduce using rule 1 (event_description -> domain_rule .)
+    HOLDSFOR        shift and go to state 8
+    INITIATEDAT     shift and go to state 9
+    TERMINATEDAT    shift and go to state 10
+
+    domain_rule                    shift and go to state 2
+    event_description              shift and go to state 11
+    simple_fluent_rule             shift and go to state 3
+    statically_determined_fluent_rule shift and go to state 4
+    init_or_term_atom              shift and go to state 5
+    holdsFor_atom                  shift and go to state 6
+    init_or_term                   shift and go to state 7
+
+state 3
+
+    (3) domain_rule -> simple_fluent_rule .
+
+    HOLDSFOR        reduce using rule 3 (domain_rule -> simple_fluent_rule .)
+    INITIATEDAT     reduce using rule 3 (domain_rule -> simple_fluent_rule .)
+    TERMINATEDAT    reduce using rule 3 (domain_rule -> simple_fluent_rule .)
+    $end            reduce using rule 3 (domain_rule -> simple_fluent_rule .)
+
+
+state 4
+
+    (4) domain_rule -> statically_determined_fluent_rule .
+
+    HOLDSFOR        reduce using rule 4 (domain_rule -> statically_determined_fluent_rule .)
+    INITIATEDAT     reduce using rule 4 (domain_rule -> statically_determined_fluent_rule .)
+    TERMINATEDAT    reduce using rule 4 (domain_rule -> statically_determined_fluent_rule .)
+    $end            reduce using rule 4 (domain_rule -> statically_determined_fluent_rule .)
+
+
+state 5
+
+    (5) simple_fluent_rule -> init_or_term_atom . IMPL body
+
+    IMPL            shift and go to state 12
+
+
+state 6
+
+    (6) statically_determined_fluent_rule -> holdsFor_atom . IMPL body
+
+    IMPL            shift and go to state 13
+
+
+state 7
+
+    (8) init_or_term_atom -> init_or_term . LPAREN fluent_value_pair COMMA time_var RPAREN
+
+    LPAREN          shift and go to state 14
+
+
+state 8
+
+    (7) holdsFor_atom -> HOLDSFOR . LPAREN fluent_value_pair COMMA interval_list_var RPAREN
+
+    LPAREN          shift and go to state 15
+
+
+state 9
+
+    (24) init_or_term -> INITIATEDAT .
+
+    LPAREN          reduce using rule 24 (init_or_term -> INITIATEDAT .)
+
+
+state 10
+
+    (25) init_or_term -> TERMINATEDAT .
+
+    LPAREN          reduce using rule 25 (init_or_term -> TERMINATEDAT .)
+
+
+state 11
+
+    (2) event_description -> domain_rule event_description .
+
+    $end            reduce using rule 2 (event_description -> domain_rule event_description .)
+
+
+state 12
+
+    (5) simple_fluent_rule -> init_or_term_atom IMPL . body
+    (12) body -> . literal DOT
+    (13) body -> . literal COMMA body
+    (14) literal -> . atom
+    (15) literal -> . NOT atom
+    (16) atom -> . term
+    (17) atom -> . atom EQUAL atom
+    (21) term -> . LOWCASESTR
+    (22) term -> . VAR
+    (23) term -> . NUMBER
+
+    NOT             shift and go to state 19
+    LOWCASESTR      shift and go to state 21
+    VAR             shift and go to state 22
+    NUMBER          shift and go to state 23
+
+    body                           shift and go to state 16
+    literal                        shift and go to state 17
+    atom                           shift and go to state 18
+    term                           shift and go to state 20
+
+state 13
+
+    (6) statically_determined_fluent_rule -> holdsFor_atom IMPL . body
+    (12) body -> . literal DOT
+    (13) body -> . literal COMMA body
+    (14) literal -> . atom
+    (15) literal -> . NOT atom
+    (16) atom -> . term
+    (17) atom -> . atom EQUAL atom
+    (21) term -> . LOWCASESTR
+    (22) term -> . VAR
+    (23) term -> . NUMBER
+
+    NOT             shift and go to state 19
+    LOWCASESTR      shift and go to state 21
+    VAR             shift and go to state 22
+    NUMBER          shift and go to state 23
+
+    body                           shift and go to state 24
+    literal                        shift and go to state 17
+    atom                           shift and go to state 18
+    term                           shift and go to state 20
+
+state 14
+
+    (8) init_or_term_atom -> init_or_term LPAREN . fluent_value_pair COMMA time_var RPAREN
+    (9) fluent_value_pair -> . atom EQUAL atom
+    (16) atom -> . term
+    (17) atom -> . atom EQUAL atom
+    (21) term -> . LOWCASESTR
+    (22) term -> . VAR
+    (23) term -> . NUMBER
+
+    LOWCASESTR      shift and go to state 21
+    VAR             shift and go to state 22
+    NUMBER          shift and go to state 23
+
+    fluent_value_pair              shift and go to state 25
+    atom                           shift and go to state 26
+    term                           shift and go to state 20
+
+state 15
+
+    (7) holdsFor_atom -> HOLDSFOR LPAREN . fluent_value_pair COMMA interval_list_var RPAREN
+    (9) fluent_value_pair -> . atom EQUAL atom
+    (16) atom -> . term
+    (17) atom -> . atom EQUAL atom
+    (21) term -> . LOWCASESTR
+    (22) term -> . VAR
+    (23) term -> . NUMBER
+
+    LOWCASESTR      shift and go to state 21
+    VAR             shift and go to state 22
+    NUMBER          shift and go to state 23
+
+    fluent_value_pair              shift and go to state 27
+    atom                           shift and go to state 26
+    term                           shift and go to state 20
+
+state 16
+
+    (5) simple_fluent_rule -> init_or_term_atom IMPL body .
+
+    HOLDSFOR        reduce using rule 5 (simple_fluent_rule -> init_or_term_atom IMPL body .)
+    INITIATEDAT     reduce using rule 5 (simple_fluent_rule -> init_or_term_atom IMPL body .)
+    TERMINATEDAT    reduce using rule 5 (simple_fluent_rule -> init_or_term_atom IMPL body .)
+    $end            reduce using rule 5 (simple_fluent_rule -> init_or_term_atom IMPL body .)
+
+
+state 17
+
+    (12) body -> literal . DOT
+    (13) body -> literal . COMMA body
+
+    DOT             shift and go to state 28
+    COMMA           shift and go to state 29
+
+
+state 18
+
+    (14) literal -> atom .
+    (17) atom -> atom . EQUAL atom
+
+    DOT             reduce using rule 14 (literal -> atom .)
+    COMMA           reduce using rule 14 (literal -> atom .)
+    EQUAL           shift and go to state 30
+
+
+state 19
+
+    (15) literal -> NOT . atom
+    (16) atom -> . term
+    (17) atom -> . atom EQUAL atom
+    (21) term -> . LOWCASESTR
+    (22) term -> . VAR
+    (23) term -> . NUMBER
+
+    LOWCASESTR      shift and go to state 21
+    VAR             shift and go to state 22
+    NUMBER          shift and go to state 23
+
+    atom                           shift and go to state 31
+    term                           shift and go to state 20
+
+state 20
+
+    (16) atom -> term .
+
+    EQUAL           reduce using rule 16 (atom -> term .)
+    DOT             reduce using rule 16 (atom -> term .)
+    COMMA           reduce using rule 16 (atom -> term .)
+
+
+state 21
+
+    (21) term -> LOWCASESTR .
+
+    EQUAL           reduce using rule 21 (term -> LOWCASESTR .)
+    DOT             reduce using rule 21 (term -> LOWCASESTR .)
+    COMMA           reduce using rule 21 (term -> LOWCASESTR .)
+
+
+state 22
+
+    (22) term -> VAR .
+
+    EQUAL           reduce using rule 22 (term -> VAR .)
+    DOT             reduce using rule 22 (term -> VAR .)
+    COMMA           reduce using rule 22 (term -> VAR .)
+
+
+state 23
+
+    (23) term -> NUMBER .
+
+    EQUAL           reduce using rule 23 (term -> NUMBER .)
+    DOT             reduce using rule 23 (term -> NUMBER .)
+    COMMA           reduce using rule 23 (term -> NUMBER .)
+
+
+state 24
+
+    (6) statically_determined_fluent_rule -> holdsFor_atom IMPL body .
+
+    HOLDSFOR        reduce using rule 6 (statically_determined_fluent_rule -> holdsFor_atom IMPL body .)
+    INITIATEDAT     reduce using rule 6 (statically_determined_fluent_rule -> holdsFor_atom IMPL body .)
+    TERMINATEDAT    reduce using rule 6 (statically_determined_fluent_rule -> holdsFor_atom IMPL body .)
+    $end            reduce using rule 6 (statically_determined_fluent_rule -> holdsFor_atom IMPL body .)
+
+
+state 25
+
+    (8) init_or_term_atom -> init_or_term LPAREN fluent_value_pair . COMMA time_var RPAREN
+
+    COMMA           shift and go to state 32
+
+
+state 26
+
+    (9) fluent_value_pair -> atom . EQUAL atom
+    (17) atom -> atom . EQUAL atom
+
+    EQUAL           shift and go to state 33
+
+
+state 27
+
+    (7) holdsFor_atom -> HOLDSFOR LPAREN fluent_value_pair . COMMA interval_list_var RPAREN
+
+    COMMA           shift and go to state 34
+
+
+state 28
+
+    (12) body -> literal DOT .
+
+    HOLDSFOR        reduce using rule 12 (body -> literal DOT .)
+    INITIATEDAT     reduce using rule 12 (body -> literal DOT .)
+    TERMINATEDAT    reduce using rule 12 (body -> literal DOT .)
+    $end            reduce using rule 12 (body -> literal DOT .)
+
+
+state 29
+
+    (13) body -> literal COMMA . body
+    (12) body -> . literal DOT
+    (13) body -> . literal COMMA body
+    (14) literal -> . atom
+    (15) literal -> . NOT atom
+    (16) atom -> . term
+    (17) atom -> . atom EQUAL atom
+    (21) term -> . LOWCASESTR
+    (22) term -> . VAR
+    (23) term -> . NUMBER
+
+    NOT             shift and go to state 19
+    LOWCASESTR      shift and go to state 21
+    VAR             shift and go to state 22
+    NUMBER          shift and go to state 23
+
+    literal                        shift and go to state 17
+    body                           shift and go to state 35
+    atom                           shift and go to state 18
+    term                           shift and go to state 20
+
+state 30
+
+    (17) atom -> atom EQUAL . atom
+    (16) atom -> . term
+    (17) atom -> . atom EQUAL atom
+    (21) term -> . LOWCASESTR
+    (22) term -> . VAR
+    (23) term -> . NUMBER
+
+    LOWCASESTR      shift and go to state 21
+    VAR             shift and go to state 22
+    NUMBER          shift and go to state 23
+
+    atom                           shift and go to state 36
+    term                           shift and go to state 20
+
+state 31
+
+    (15) literal -> NOT atom .
+    (17) atom -> atom . EQUAL atom
+
+    DOT             reduce using rule 15 (literal -> NOT atom .)
+    COMMA           reduce using rule 15 (literal -> NOT atom .)
+    EQUAL           shift and go to state 30
+
+
+state 32
+
+    (8) init_or_term_atom -> init_or_term LPAREN fluent_value_pair COMMA . time_var RPAREN
+    (10) time_var -> . VAR
+
+    VAR             shift and go to state 38
+
+    time_var                       shift and go to state 37
+
+state 33
+
+    (9) fluent_value_pair -> atom EQUAL . atom
+    (17) atom -> atom EQUAL . atom
+    (16) atom -> . term
+    (17) atom -> . atom EQUAL atom
+    (21) term -> . LOWCASESTR
+    (22) term -> . VAR
+    (23) term -> . NUMBER
+
+    LOWCASESTR      shift and go to state 21
+    VAR             shift and go to state 22
+    NUMBER          shift and go to state 23
+
+    atom                           shift and go to state 39
+    term                           shift and go to state 20
+
+state 34
+
+    (7) holdsFor_atom -> HOLDSFOR LPAREN fluent_value_pair COMMA . interval_list_var RPAREN
+    (11) interval_list_var -> . VAR
+
+    VAR             shift and go to state 41
+
+    interval_list_var              shift and go to state 40
+
+state 35
+
+    (13) body -> literal COMMA body .
+
+    HOLDSFOR        reduce using rule 13 (body -> literal COMMA body .)
+    INITIATEDAT     reduce using rule 13 (body -> literal COMMA body .)
+    TERMINATEDAT    reduce using rule 13 (body -> literal COMMA body .)
+    $end            reduce using rule 13 (body -> literal COMMA body .)
+
+
+state 36
+
+    (17) atom -> atom EQUAL atom .
+    (17) atom -> atom . EQUAL atom
+
+  ! shift/reduce conflict for EQUAL resolved as shift
+    DOT             reduce using rule 17 (atom -> atom EQUAL atom .)
+    COMMA           reduce using rule 17 (atom -> atom EQUAL atom .)
+    EQUAL           shift and go to state 30
+
+  ! EQUAL           [ reduce using rule 17 (atom -> atom EQUAL atom .) ]
+
+
+state 37
+
+    (8) init_or_term_atom -> init_or_term LPAREN fluent_value_pair COMMA time_var . RPAREN
+
+    RPAREN          shift and go to state 42
+
+
+state 38
+
+    (10) time_var -> VAR .
+
+    RPAREN          reduce using rule 10 (time_var -> VAR .)
+
+
+state 39
+
+    (9) fluent_value_pair -> atom EQUAL atom .
+    (17) atom -> atom EQUAL atom .
+    (17) atom -> atom . EQUAL atom
+
+  ! shift/reduce conflict for EQUAL resolved as shift
+    COMMA           reduce using rule 9 (fluent_value_pair -> atom EQUAL atom .)
+    EQUAL           shift and go to state 30
+
+  ! EQUAL           [ reduce using rule 17 (atom -> atom EQUAL atom .) ]
+
+
+state 40
+
+    (7) holdsFor_atom -> HOLDSFOR LPAREN fluent_value_pair COMMA interval_list_var . RPAREN
+
+    RPAREN          shift and go to state 43
+
+
+state 41
+
+    (11) interval_list_var -> VAR .
+
+    RPAREN          reduce using rule 11 (interval_list_var -> VAR .)
+
+
+state 42
+
+    (8) init_or_term_atom -> init_or_term LPAREN fluent_value_pair COMMA time_var RPAREN .
+
+    IMPL            reduce using rule 8 (init_or_term_atom -> init_or_term LPAREN fluent_value_pair COMMA time_var RPAREN .)
+
+
+state 43
+
+    (7) holdsFor_atom -> HOLDSFOR LPAREN fluent_value_pair COMMA interval_list_var RPAREN .
+
+    IMPL            reduce using rule 7 (holdsFor_atom -> HOLDSFOR LPAREN fluent_value_pair COMMA interval_list_var RPAREN .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for EQUAL in state 36 resolved as shift
+WARNING: shift/reduce conflict for EQUAL in state 39 resolved as shift
