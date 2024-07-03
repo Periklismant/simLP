@@ -1,5 +1,6 @@
 from rtec_lexer import RTECLexer
 from rtec_parser import RTECParser
+from distance_metric import compute_cost_matrix
 from sys import argv
 
 def parse_and_compute_distance(rules_file1, rules_file2):
@@ -30,6 +31,11 @@ def parse_and_compute_distance(rules_file1, rules_file2):
 	print()
 	print("Event Description 2: ")
 	print(event_description2)
+
+	for rule1 in event_description1:
+		for rule2 in event_description2:
+			compute_cost_matrix(rule1,rule2)
+
 
 if __name__=="__main__":
 	# Required arguments.
