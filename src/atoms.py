@@ -4,22 +4,18 @@ class Atom:
 		self.args= args
 
 	def __repr__(self):
-		return f'{self.predicateName}/{self.args}'
-
-class Body:
-	def __init__(self, atoms):
-		self.atoms = atoms
-
-	def __repr__(self):
-		return ',\n\t'.join(self.atoms)
+		if len(self.args)>0:
+			return f'{self.predicateName}(' + ','.join(map(str,self.args)) + ')'
+		else:
+			return f'{self.predicateName}'
 
 class Rule:
 	def __init__(self, head, body):
-		self.head = Atom(head)
-		self.body = Body(body)
+		self.head = head
+		self.body = body
 
 	def __repr__(self):
-		return '{self.head} :- \n\t{self.body}'
+		return f'{self.head} :- \n\t' + ',\n\t'.join(map(str,self.body)) + '.\n'
 
 class EventDescription:
 	def __init__(self):
@@ -32,4 +28,4 @@ class EventDescription:
 		self.rules.append(Rule(head, body))
 
 	def __repr__(self):
-		return '\n'.join(self.rules)
+		return '\n'.join(map(str,self.rules))
