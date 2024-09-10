@@ -18,43 +18,43 @@ class RTECLexer():
 		'VAR',
 		'DOT',
 		'IMPL',
-		'LINECOMMENT',
-		'MULTILINECOMMENT',
+		#'LINECOMMENT',
+		#'MULTILINECOMMENT',
 		'EQUAL',
 		'NOT',
 		'LISTSTART',
 		'LISTEND',
-		'NL',
-		'INITIATEDAT',
-		'TERMINATEDAT',
-		'HAPPENSAT',
-		'HOLDSAT',
-		'HOLDSFOR',
-		'UNIONALL',
-		'INTERSECTALL',
-		'COMPLEMENTALL',
-		'GROUNDING',
-		'INDEX',
-		'ENTITYDOMAIN',
+		#'NL',
+		#'INITIATEDAT',
+		#'TERMINATEDAT',
+		#'HAPPENSAT',
+		#'HOLDSAT',
+		#'HOLDSFOR',
+		#'UNIONALL',
+		#'INTERSECTALL',
+		#'COMPLEMENTALL',
+		#'GROUNDING',
+		#'INDEX',
+		#'ENTITYDOMAIN',
 		'LOWCASESTR',
-		'FLUENT',
-		'EVENT',
+		#'FLUENT',
+		#'EVENT',
 		'NUMBER'
 	)
 	# Regex patterns for tokens
-	t_INITIATEDAT = r'initiatedAt'
-	t_TERMINATEDAT = r'terminatedAt'
-	t_HAPPENSAT = r'happensAt'
-	t_HOLDSAT = r'holdsAt'
-	t_HOLDSFOR = r'holdsFor'
-	t_UNIONALL = r'union_all'
-	t_INTERSECTALL = r'intersect_all'
-	t_COMPLEMENTALL = r'relative_complement_all'
-	t_GROUNDING = r'grounding'
-	t_INDEX = r'index'
-	t_EVENT = r'event'
-	t_FLUENT = r'fluent'
-	t_ENTITYDOMAIN = r'entity_domain'
+	#t_INITIATEDAT = r'initiatedAt'
+	#t_TERMINATEDAT = r'terminatedAt'
+	#t_HAPPENSAT = r'happensAt'
+	#t_HOLDSAT = r'holdsAt'
+	#t_HOLDSFOR = r'holdsFor'
+	#t_UNIONALL = r'union_all'
+	#t_INTERSECTALL = r'intersect_all'
+	#t_COMPLEMENTALL = r'relative_complement_all'
+	#t_GROUNDING = r'grounding'
+	#t_INDEX = r'index'
+	#t_EVENT = r'event'
+	#t_FLUENT = r'fluent'
+	#t_ENTITYDOMAIN = r'entity_domain'
 	t_LPAREN = r'\('
 	t_RPAREN = r'\)'
 	t_COMMA = r','
@@ -68,8 +68,8 @@ class RTECLexer():
 	t_LISTSTART = r'\['
 	t_LISTEND = r'\]'
 	t_ignore_NL = r'\n'
-	t_LOWCASESTR = r'(?!initiatedAt|terminatedAt|happensAt|holdsAt|holdsFor|union_all|intersect_all|relative_complement_all|grounding|index|entity_domain|event|fluent)([a-z][a-zA-Z0-9_]*)'
-	t_NUMBER = r'[1-9][0-9]*'
+	t_LOWCASESTR = r'([a-z][a-zA-Z0-9_]*)'
+	t_NUMBER = r'[+-]?[0-9]+([.][0-9]+)?'
 
 	def t_NOT(self, t):
 		r'\\\+|not'
