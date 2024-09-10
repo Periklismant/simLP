@@ -29,9 +29,6 @@ class EventDescription:
 	def __init__(self):
 		self.rules = []
 	
-	#def __init__(self, rules):
-		#self.rules = rules
-
 	def add_rule(self, head, body):
 		self.rules.append(Rule(head, body))
 

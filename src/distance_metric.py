@@ -6,6 +6,7 @@ from scipy.optimize import linear_sum_assignment
 from copy import deepcopy
 
 def atom_distance(atom1, atom2):
+	'''Compute the distance between two atoms, based on the distance metric proposed by Nienhuys-Cheng (1997).'''
 	if atom1 == atom2:
 		return 0
 	elif atom1.predicateName == "_" or atom2.predicateName == "_":
