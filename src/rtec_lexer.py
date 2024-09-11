@@ -18,28 +18,25 @@ class RTECLexer():
 		'VAR',
 		'DOT',
 		'IMPL',
-		#'LINECOMMENT',
-		#'MULTILINECOMMENT',
-		'EQUAL',
 		'NOT',
 		'LISTSTART',
 		'LISTEND',
-		#'NL',
-		#'INITIATEDAT',
-		#'TERMINATEDAT',
-		#'HAPPENSAT',
-		#'HOLDSAT',
-		#'HOLDSFOR',
-		#'UNIONALL',
-		#'INTERSECTALL',
-		#'COMPLEMENTALL',
-		#'GROUNDING',
-		#'INDEX',
-		#'ENTITYDOMAIN',
 		'LOWCASESTR',
-		#'FLUENT',
-		#'EVENT',
-		'NUMBER'
+		'STRING',
+		'NUMBER',
+		'EQUAL',
+		'NEQUAL',
+		'NUMERICEQ',
+		'NUMERICNEQ',
+		'GE',
+		'GEQ',
+		'LE',
+		'LEQ',
+		'IS',
+		'PLUS',
+		'MINUS',
+		'TIMES',
+		'DIV'
 	)
 	# Regex patterns for tokens
 	#t_INITIATEDAT = r'initiatedAt'
@@ -61,15 +58,35 @@ class RTECLexer():
 	t_VAR = r'[A-Z_][a-zA-Z0-9_]*'
 	t_DOT = r'\.'
 	t_IMPL = r'\:\-'
-	t_ignore_LINECOMMENT = r'%.*\n'
-	t_ignore_MULTILINECOMMENT= r'/\*[\s\S]*\*/'
-	t_EQUAL = r'\='
 	#t_NOT = r'\\\+|not'
 	t_LISTSTART = r'\['
 	t_LISTEND = r'\]'
-	t_ignore_NL = r'\n'
-	t_LOWCASESTR = r'([a-z][a-zA-Z0-9_]*)'
+	t_LOWCASESTR = r'(?!\bis\b)([a-z][a-zA-Z0-9_]*)'
+	t_STRING = r'"([^"\n]|(\\"))*"|\'([^"\n]|(\\"))*\''
 	t_NUMBER = r'[+-]?[0-9]+([.][0-9]+)?'
+
+	t_EQUAL = r'\='
+	t_NEQUAL = r'\\\='
+	t_NUMERICEQ = r'\=\:\='
+	t_NUMERICNEQ = r'\=\\\='
+
+	t_LE = r'<'
+	t_LEQ = r'\=<'
+	t_GE = r'>'
+	t_GEQ = r'>\='
+
+	t_IS = r'is '
+	
+	t_PLUS = r'\+'
+	t_MINUS = r'\-'
+	t_TIMES = r'\*'
+	t_DIV = r'\/'
+
+	t_ignore_NL = r'\n'
+	t_ignore_LINECOMMENT = r'%.*\n'
+	t_ignore_MULTILINECOMMENT= r'/\*[\s\S]*\*/'
+
+	#t_OPER = r'(\=)|(\=\\\=)'
 
 	def t_NOT(self, t):
 		r'\\\+|not'

@@ -12,7 +12,7 @@ terminatedAt(withinArea(Vessel, Area, AreaType) = true, T) :-
 initiatedAt(communicationGap(Vessel) = true, T) :-
     lastMessage(Vessel, LastMsgTime),
     T is LastMsgTime + 30,  % Time is in minutes
-    not(happensAt(receiveMessage(Vessel), Time), LastMsgTime < Time, Time <= T).
+    not(happensAt(receiveMessage(Vessel), Time), LastMsgTime < Time, Time =< T).
 
 terminatedAt(communicationGap(Vessel) = true, T) :-
     happensAt(receiveMessage(Vessel), T).
@@ -27,8 +27,11 @@ initiatedAt(highSpeedNearCoast(Vessel) = true, T) :-
 
 terminatedAt(highSpeedNearCoast(Vessel) = true, T) :-
     happensAt(velocity(Vessel, Speed), T),
-    (Speed <= 5; not holdsAt(nearCoast(Vessel) = true, T)).
+    Speed =< 5.
 
+terminatedAt(highSpeedNearCoast(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed), T),
+    not holdsAt(nearCoast(Vessel) = true, T).
 
 %----------------- drifitng ------------------%
 
@@ -39,12 +42,12 @@ initiatedAt(drifting(Vessel) = true, T) :-
 
 terminatedAt(drifting(Vessel) = true, T) :-
     happensAt(velocity(Vessel, Speed, CoG, TrueHeading), T),
-    abs(TrueHeading - CoG) ≤ DriftThreshold.
+    abs(TrueHeading - CoG) =< DriftThreshold.
 
 
 %--------------- trawling --------------------%
 
-initiatedAt(trawling(Vessel) = true, T) ←
+initiatedAt(trawling(Vessel) = true, T) :-
     happensAt(velocity(Vessel, Speed, CoG, TrueHeading), T),
     holdsAt(operationalStatus(Vessel) = fishing, T),
     trawlingSpeedRange(Speed),
@@ -52,7 +55,9 @@ initiatedAt(trawling(Vessel) = true, T) ←
 
 terminatedAt(trawling(Vessel) = true, T) :-
     happensAt(velocity(Vessel, Speed, _, _), T),
-    not trawlingSpeedRange(Speed);
+    not trawlingSpeedRange(Speed).
+
+terminatedAt(trawling(Vessel) = true, T) :-
     happensAt(operationChange(Vessel, Operation), T),
     Operation \= fishing.
 
@@ -63,7 +68,7 @@ holdsFor(trawling(Vessel) = true, Intervals) :-
 
 holdsFor(trawlingSpeed(Vessel) = true, SpeedIntervals) :-
     velocitySamples(Vessel, SpeedSamples),
-    findall((Tstart, Tend), (member((Speed, Tstart, Tend), SpeedSamples), Speed ≥ MinTrawlingSpeed, Speed ≤ MaxTrawlingSpeed), SpeedIntervals).
+    findall((Tstart, Tend), (member((Speed, Tstart, Tend), SpeedSamples), Speed >= MinTrawlingSpeed, Speed =< MaxTrawlingSpeed), SpeedIntervals).
 
 holdsFor(wideHeadingVariability(Vessel) = true, HeadingIntervals) :-
     headingSamples(Vessel, HeadingSamples),
@@ -79,28 +84,28 @@ holdsFor(anchoredOrMoored(Vessel) = true, Intervals) :-
 
 holdsFor(lowSpeed(Vessel) = true, SpeedIntervals) :-
     velocitySamples(Vessel, SpeedSamples),
-    findall((Tstart, Tend), (member((Speed, Tstart, Tend), SpeedSamples), Speed ≤ AnchoringSpeedThreshold), SpeedIntervals).
+    findall((Tstart, Tend), (member((Speed, Tstart, Tend), SpeedSamples), Speed =< AnchoringSpeedThreshold), SpeedIntervals).
 
 
 %---------------- tugging (B) ----------------%
 
 holdsFor(tugging(Tug, Vessel) = true, Intervals) :-
-    holdsFor(closeProximity(Tug, Vail vessel) = true, CloseIntervals),
+    holdsFor(closeProximity(Tug, Vessel) = true, CloseIntervals),
     holdsFor(lowSpeed(Tug) = true, TugSpeedIntervals),
     holdsFor(lowSpeed(Vessel) = true, VesselSpeedIntervals),
     intersect_all([CloseIntervals, TugSpeedIntervals, VesselSpeedIntervals], Intervals).
 
 holdsFor(closeProximity(Tug, Vessel) = true, CloseIntervals) :-
     proximitySamples(Tug, Vessel, ProximitySamples),
-    findall((Tstart, Tend), (member((Distance, Tstart, Tend), ProximitySamples), Distance ≤ SafetyDistanceThreshold), CloseIntervals).
+    findall((Tstart, Tend), (member((Distance, Tstart, Tend), ProximitySamples), Distance =< SafetyDistanceThreshold), CloseIntervals).
 
 holdsFor(lowSpeed(Tug) = true, TugSpeedIntervals) :-
           velocitySamples(Tug, TugSpeedSamples),
-          findall((Tstart, Tend), (member((Speed, Tstart, Tend), TugSpeedSamples), Speed ≤ TuggingSpeedThreshold), TugSpeedIntervals).
+          findall((Tstart, Tend), (member((Speed, Tstart, Tend), TugSpeedSamples), Speed =< TuggingSpeedThreshold), TugSpeedIntervals).
 
 holdsFor(lowSpeed(Vessel) = true, VesselSpeedIntervals) :-
     velocitySamples(Vessel, VesselSpeedSamples),
-    findall((Tstart, Tend), (member((Speed, Tstart, Tend), VesselSpeedSamples), Speed ≤ TuggingSpeedThreshold), VesselSpeedIntervals).
+    findall((Tstart, Tend), (member((Speed, Tstart, Tend), VesselSpeedSamples), Speed =< TuggingSpeedThreshold), VesselSpeedIntervals).
 
 
 
@@ -113,12 +118,11 @@ holdsFor(piloting(PilotBoat, Vessel) = true, Intervals) :-
 
 holdsFor(closeProximity(PilotBoat, Vessel) = true, CloseIntervals) :-
     proximitySamples(PilotBoat, Vessel, ProximitySamples),
-    findall((Tstart, Tend), (member((Distance, Tstart, Tend), ProximitySamples), Distance ≤ PilotTransferDistanceThreshold), CloseIntervals).
+    findall((Tstart, Tend), (member((Distance, Tstart, Tend), ProximitySamples), Distance =< PilotTransferDistanceThreshold), CloseIntervals).
 
 holdsFor(transferOfPilot(PilotBoat, Vessel) = true, TransferIntervals) :-
     operationalEvents(PilotBoat, Vessel, EventSamples),
     findall((Tstart, Tend), (member((Event, Tstart, Tend), EventSamples), Event == 'pilotTransfer'), TransferIntervals).
-
 
 %---------------- rendezVous -----------------%
 
@@ -130,11 +134,11 @@ holdsFor(rendezVous(Vessel1, Vessel2) = true, Intervals) :-
 
 holdsFor(closeProximity(Vessel1, Vessel2) = true, CloseIntervals) :-
     proximitySamples(Vessel1, Vessel2, ProximitySamples),
-    findall((Tstart, Tend), (member((Distance, Tstart, Tend), ProximitySamples), Distance ≤ RendezVousDistanceThreshold), CloseIntervals).
+    findall((Tstart, Tend), (member((Distance, Tstart, Tend), ProximitySamples), Distance =< RendezVousDistanceThreshold), CloseIntervals).
 
 holdsFor(lowSpeedOrStopped(Vessel) = true, SpeedIntervals) :-
     velocitySamples(Vessel, SpeedSamples),
-    findall((Tstart, Tend), (member((Speed, Tstart, Tend), SpeedSamples), Speed ≤ LowSpeedThreshold), SpeedIntervals).
+    findall((Tstart, Tend), (member((Speed, Tstart, Tend), SpeedSamples), Speed =< LowSpeedThreshold), SpeedIntervals).
 
 
 %-------- loitering --------------------------%

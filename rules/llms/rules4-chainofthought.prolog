@@ -53,7 +53,7 @@ terminatedAt(drifting(Vessel) = true, T) :-
 happensAt(courseOverGround(Vessel, CoG), T),
 threshold(deviation, MaxDeviation),
 deviation(CoG, _TrueHeading, Deviation),
-Deviation ≤ MaxDeviation.
+Deviation =< MaxDeviation. % fixed leq operator
 
 %--------------- trawling --------------------%
 
@@ -61,18 +61,35 @@ initiatedAt(trawling(Vessel) = true, T) :-
 happensAt(velocity(Vessel, Speed, CoG, TrueHeading), T),
 trawlingSpeed(Vessel, MinSpeed, MaxSpeed),
 Speed >= MinSpeed,
-Speed <= MaxSpeed,
+Speed =< MaxSpeed, % fixed leq operator
 headingDistribution(Vessel, HeadingDist),
 HeadingDist >= trawlingAngle(Vessel).
 
-terminatedAt(trawling(Vessel) = true, T) :-
-happensAt(velocity(Vessel, Speed, CoG, TrueHeading), T),
-trawlingSpeed(Vessel, MinSpeed, MaxSpeed),
-(Speed < MinSpeed;
- Speed > MaxSpeed),
-headingDistribution(Vessel, HeadingDist),
-HeadingDist < trawlingAngle(Vessel).
+% I mapped the following commented rule into the next two rules due to ';'.
+%
+%terminatedAt(trawling(Vessel) = true, T) :-
+%happensAt(velocity(Vessel, Speed, CoG, TrueHeading), T),
+%trawlingSpeed(Vessel, MinSpeed, MaxSpeed),
+%(Speed < MinSpeed; % disjunction maps to two rules.
+% Speed > MaxSpeed),
+%headingDistribution(Vessel, HeadingDist),
+%HeadingDist < trawlingAngle(Vessel).
 
+terminatedAt(trawling(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, CoG, TrueHeading), T),
+    trawlingSpeed(Vessel, MinSpeed, MaxSpeed),
+    Speed < MinSpeed,
+    headingDistribution(Vessel, HeadingDist),
+    HeadingDist < trawlingAngle(Vessel).
+
+terminatedAt(trawling(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, CoG, TrueHeading), T),
+    trawlingSpeed(Vessel, MinSpeed, MaxSpeed),
+    Speed > MaxSpeed,
+    headingDistribution(Vessel, HeadingDist),
+    HeadingDist < trawlingAngle(Vessel).
+
+%
 holdsFor(trawlingMovement(Vessel) = true, I) :-
 holdsFor(change_in_heading(Vessel) = true, I1),
 holdsFor(withinArea(Vessel, fishing) = true, I2),

@@ -37,65 +37,121 @@ class RTECParser:
 		''' literal : atom '''
 		p[0] = p[1]
 
-	def p_negative_literal(self, p):
+	def p_negative_literal1(self, p):
 		''' literal : NOT atom '''
 		p[0] = Atom(p[1], [p[2]])
 
+	def p_negative_literal2(self, p):
+		''' literal : NOT LPAREN args_list RPAREN '''
+		p[0] = Atom(p[1], p[3])
+
+	def p_is_literal(self, p):
+		''' literal : VAR IS atom '''
+		p[0] = Atom(p[2], [p[1], p[3]])
+
 	def p_atom(self, p):
 		''' atom : LOWCASESTR LPAREN args_list RPAREN '''
-		print("Atom name: " + p[1])
-		print("Args: " + str(p[3]))
+		#print("Atom name: " + p[1])
+		#print("Args: " + str(p[3]))
 		p[0] = Atom(p[1], p[3])
+
+	def p_atom_comma(self, p):
+		''' atom : LPAREN args_list RPAREN '''
+		#print("Atom name: " + p[1])
+		#print("Args: " + str(p[3]))
+		p[0] = Atom("comma", p[2])
 
 	def p_atom_term(self, p):
 		''' atom : term '''
 		p[0] = p[1]
 
-	def p_atom_eq(self, p):
-		''' atom : atom EQUAL atom '''
-		print("Atom name: " + p[2])
-		print("Args: " + str(p[1]) + " and " + str(p[3]))
+	def p_atom_list(self, p):
+		''' atom : list '''
+		p[0] = p[1]
+
+	def p_atom_comp(self, p):
+		''' atom : atom comp atom '''
+		#print("Atom name: " + p[2])
+		#print("Args: " + str(p[1]) + " and " + str(p[3]))
 		p[0] = Atom(p[2], [p[1], p[3]])
 
-	def p_args_list_singleton_term(self, p):
-		''' args_list : term '''
-		print("Args List singleton  term: " + str(p[1]))
-		p[0] = [p[1]]
+	def p_arithmetic_expression_op(self, p):
+		''' atom : atom arithmetic_operation atom '''
+		p[0] = Atom(p[2], [p[1], p[3]])
+
+	def p_arithmetic_expression_minus(self, p):
+		''' atom : MINUS atom '''
+		p[0] = Atom(p[1], [p[2]])
+
+	def p_arithmetic_expression_paren(self, p):
+		''' atom : LPAREN atom RPAREN '''
+		p[0] = p[2]
+
+
+	#def p_args_list_singleton_term(self, p):
+	#	''' args_list : term '''
+		#print("Args List singleton  term: " + str(p[1]))
+	#	p[0] = [p[1]]
 
 	def p_args_list_singleton_atom(self, p):
 		''' args_list : atom '''
-		print("Args List singleton atom: " + str(p[1]))
+		#print("Args List singleton atom: " + str(p[1]))
 		p[0] = [p[1]]
 
-	def p_args_list_singleton_atom(self, p):
-		''' args_list : list '''
-		print("Args List singleton list: " + str(p[1]))
-		p[0] = [p[1]]
+	#def p_args_list_singleton_list(self, p):
+		#''' args_list : list '''
+		#print("Args List singleton list: " + str(p[1]))
+		#p[0] = [p[1]]
 
-	def p_args_list_many_term(self, p):
-		''' args_list : term COMMA args_list '''
-		print("Args List many term: " + str(p[3]))
-		p[0] = [p[1]] + p[3]
+	#def p_args_list_many_term(self, p):
+	#	''' args_list : term COMMA args_list '''
+		#print("Args List many term: " + str(p[3]))
+	#	p[0] = [p[1]] + p[3]
 
 	def p_args_list_many_atom(self, p):
 		''' args_list : atom COMMA args_list '''
-		print("Args List many atom: " + str(p[3]))
+		#print("Args List many atom: " + str(p[3]))
 		p[0] = [p[1]] + p[3]
 
-	def p_args_list_many_list(self, p):
-		''' args_list : list COMMA args_list '''
-		print("Args List many list: " + str(p[3]))
-		p[0] = [p[1]] + p[3]
+	#def p_args_list_many_list(self, p):
+		#''' args_list : list COMMA args_list '''
+		#print("Args List many list: " + str(p[3]))
+		#p[0] = [p[1]] + p[3]
 
 	def p_list(self, p):
 		''' list : LISTSTART args_list LISTEND '''
 		p[0] = Atom("list", p[2])
 
+	def p_list_empty(self, p):
+		''' list : LISTSTART LISTEND '''
+		p[0] = Atom("list", [])
+
 	def p_term(self, p):
 		''' term : LOWCASESTR 
 				 | VAR 
-				 | NUMBER '''
+				 | NUMBER 
+				 | STRING '''
 		p[0] = Atom(p[1], [])
+
+	def p_arithmetic_operation(self, p):
+		''' arithmetic_operation : PLUS
+					             | MINUS
+					             | TIMES
+					             | DIV '''
+		p[0] = p[1]
+
+	def p_comp(self, p):
+		''' comp : EQUAL
+			     | NEQUAL
+				 | EQUAL EQUAL
+				 | EQUAL EQUAL EQUAL
+			     | NUMERICEQ
+			     | NUMERICNEQ
+			     | GE
+			     | GEQ
+			     | LE
+			     | LEQ '''
+		p[0] = ''.join(p[1:])
 
 
 	# Error handling

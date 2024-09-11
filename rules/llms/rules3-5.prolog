@@ -34,7 +34,7 @@ terminatedAt(highSpeedNearCoast(Vessel), T) :-
 initiatedAt(driftingVessel(Vessel), T) :-
     happensAt(courseOverGround(Vessel, COG), T),
     happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),
-    Speed > 0
+    Speed > 0,
     threshold(cogThreshold, COGThreshold),
     abs(COG - COGThreshold) > driftThreshold.
 
@@ -49,7 +49,7 @@ initiatedAt(trawling(Vessel), T) :-
     happensAt(speed(Vessel, Speed), T),
     happensAt(headingAngle(Vessel, Angle), T),
     Speed >= minTrawlingSpeed,
-    AngleDistribution(Angle).
+    angleDistribution(Angle).
 
 terminatedAt(trawling(Vessel), T) :-
     happensAt(stopTrawling(Vessel), T).
