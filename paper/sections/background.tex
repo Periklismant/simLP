@@ -1,0 +1,223 @@
+\section{Background}\label{sec:background}
+
+\subsection{Run-Time Event Calculus}
+
+The Event Calculus is a logic programming formalisms for representing events and reasoning about their effects over time~\cite{kowalski86}.
+%
+The Run-Time Event Calculus (\rtec) is an extension of the Event Calculus that is optimised for composite event recognition over large event streams~\cite{DBLP:journals/tkde/ArtikisSP15,DBLP:conf/kr/MantenoglouPA22,DBLP:conf/kr/MantenoglouKA23}.
+
+\textbf{Representation.}~The language of \rtec\ is many-sorted, including sorts for representing time, instantaneous events and fluents. %', i.e., properties whose value may change over time.
+%
+\rtec\ employs a linear time-line with non-negative integer time-points.
+%Event occurrences may change the values of fluents.
+%
+A `fluent-value pair' (FVP) \fv\ denotes that fluent $F$ has value $V$.
+%
+%Boolean fluents are a special case where the possible values are $\true$ and $\false$.
+%
+%We call \fv\ a `fluent-value pair' (FVP).
+%
+%
+%We describe the main predicates of \rtec.
+%
+$\happensAt(E, T)$ signifies that event $E$ occurs at time-point $T$.
+%
+$\initiatedAt(F\val V, T)$ (resp.~$\terminatedAt(F\val V, T)$) expresses that a time period during which a fluent $F$ has the value $V$ continuously is initiated (terminated) at $T$.
+%
+$\holdsAt(F\val V, T)$ states that $F$ has value $V$ at $T$, while $\holdsFor(F\val V, I)$ expresses that \fv\ holds continuously in the intervals included in list $I$.
+
+A formalisation of the temporal specifications of a domain in \rtec\ is called \emph{event description}.
+%
+\begin{definition}[Event Description]\label{def:event_description}
+An event description is a set of:
+%
+\begin{compactitem}
+\item ground $\happensAt(E, T)$ facts, expressing an input stream of event instances, 
+\item rules with head $\initiatedAt(F\val V, T)$ or $\terminatedAt(F\val V, T)$, expressing the effects of events on FVP \fv, and
+\item rules with head $\holdsFor(F\val V, I)$, defining FVP \fv\ based on other FVPs. \qeddef  % in terms of other FVPs. \qeddef
+\end{compactitem}
+%
+\end{definition}
+
+\rtec\ features two types of FVPs: `simple' and `statically determined'.
+%
+Simple FVPs are defined using a set of $\initiatedAt$ and $\terminatedAt$ rules, and are subject to the commonsense law of inertia, i.e., a FVP \fv\ holds at a time-point $T$, if \fv\ has been `initiated' by an event at a time-point earlier than $T$, and not `terminated' by another event in the meantime.  
+
+% Maritime Example % 
+
+\begin{example}[Within area]\label{ex:withinarea}
+%
+In maritime monitoring, various areas, e.g., fisheries restricted areas, disallow certain activities.
+%
+It is thus useful to compute the intervals during which a vessel is in such an area.
+%
+See the formalisation below:
+%
+\begin{align}
+& \label{eq:withinArea-init}
+\begin{mysplit}
+\mathit{\initiatedAt(withinArea(Vl,AreaType)\val\true,T)} \leftarrow \\
+	\quad\mathit{\happensAt(entersArea(Vl,AreaID),T),} \\
+	\quad\mathit{areaType(AreaID,AreaType).}
+\end{mysplit}\\
+& \label{eq:withinArea-term}
+\begin{mysplit} 
+\mathit{\terminatedAt(withinArea(Vl,AreaType)\val\true,T)} \leftarrow \\
+	\quad\mathit{\happensAt(leavesArea(Vl,AreaID), T),} \\
+	\quad\mathit{areaType(AreaID,AreaType).} 
+\end{mysplit}\\
+& \label{eq:withinArea-term2}
+\begin{mysplit} 
+\mathit{\terminatedAt(withinArea(Vl,AreaType)\val\true,T)} \leftarrow \\
+	\quad\mathit{\happensAt(gapStart(Vl), T).} \\
+\end{mysplit}
+\end{align}	
+%
+\noindent $\mathit{withinArea(Vl, AreaType)}$ is a Boolean simple fluent denoting that a vessel $\mathit{Vl}$ is in some area of $\mathit{AreaType}$, while $\mathit{entersArea(Vl, AreaID)}$, $\mathit{leavesArea(Vl, AreaID)}$ and $\mathit{gapStart(Vl)}$ are input events, derived by the online processing of vessel position signals, and their spatial relations with areas of interest~\cite{DBLP:conf/time/SantipantakisVD18}.
+%
+$\mathit{areaType(AreaID,AreaType)}$ is an atemporal predicate storing background knowledge concerning the types of areas in a dataset.
+%
+Rules \eqref{eq:withinArea-init} and \eqref{eq:withinArea-term} state that $\mathit{withinArea(Vl, AreaType)}$ is initiated (resp.~terminated) as soon as vessel $\mathit{Vl}$ enters (leaves) an area $\mathit{AreaID}$, whose type is $\mathit{AreaType}$. 
+%
+According to rule \eqref{eq:withinArea-term2}, $\mathit{withinArea(Vl, AreaType)}$ is terminated when there is a communication gap, i.e., when $\mathit{Vl}$ stops transmitting its position.  %in the signals emitted from the $\mathit{Vessel}$. 
+%
+In this case, we are uncertain of the vessel's whereabouts.
+%
+Using rules \eqref{eq:withinArea-init}-\eqref{eq:withinArea-term2}, RTEC computes, with the use of application-independent rules, $\mathit{\holdsFor(withinArea(Vl ,AreaType)\val\true, I)}$, i.e., the list of maximal intervals $I$ during which $\mathit{Vl}$ is in $\mathit{AreaType}$.
+\qedex
+%
+\end{example}
+%
+\begin{definition}[Syntax of Rules Defining Simple FVPs]\label{def:rule_syntax}
+%
+Consider a simple FVP $\sfv$.
+%
+The $\initiatedAt(\sfv, T)$ rules of the event description have the following syntax:
+%
+\begin{logicrulenn} %\label{eq:initiatedAt_schema}
+\initiatedAt\mathit{(\sfv,\ T)} \leftarrow \\
+\quad  \happensAt(E_1,\ T)[[, [\nbf]\ \happensAt(E_2,\ T),\ \dots, \\
+\quad  [\nbf]\ \happensAt(E_n,\ T), [\nbf]\ \holdsAt(F_1\val V_1,\ T),\ \dots,\\ 
+\quad  [\nbf]\ \holdsAt(F_k\val V_k,\ T)]]. %, \atemporalconstraints]].
+\end{logicrulenn}
+%
+\noindent The first body literal of an $\initiatedAt$ rule is a positive $\happensAt$ predicate; this is followed by a possibly empty set, denoted by `$[[\ ]]$', of positive/negative $\happensAt$ and $\holdsAt$ predicates. %, and $\atemporalconstraints$, i.e., a conjunction of atemporal predicates expressing background knowledge. 
+%
+%The atemporal constraints may be imposed on (the arguments of) the events and fluents appearing earlier in the rule.
+%
+`$\nbf$' expresses negation-by-failure~\cite{clark78}, while `$[\nbf]$' denotes that `\nbf' is optional.
+%
+%$E_i$, where $i\in [1, n]$, denotes an event of the domain, or an auxiliary event $\startE(F'\val V')$ or $\endE(F'\val V')$, where $F'\val V'$ is an FVP.
+%
+All (head and body) predicates are evaluated on the same time-point $T$. 
+%
+%$\mathit{T'}$ and $\mathit{T''}$, which are added at compile-time in a process transparent to the user, specify the temporal range of $T$. 
+% 
+%$\mathit{T'}$ and $\mathit{T''}$ are always ground in queries, allowing search optimisations through indexing. 
+%
+The bodies of $\terminatedAt(\sfv, T)$ rules have the same form.
+%
+\qeddef
+%
+\end{definition}
+
+A statically determined FVP $\sdfv$ is defined via a rule with head $\holdsFor(\sdfv, I)$, which computes maximal interval during which $\sdfv$ holds continuously based on the maximal intervals of other FVPs.
+
+\begin{example}[Anchored and moored vessels]\label{ex:aom}
+    Consider the following example from maritime situational awareness:
+    %
+    \begin{align}
+    & \label{eq:aom}
+    \begin{mysplit} 
+    \mathit{\holdsFor(anchoredOrMoored(Vl)\val\true,I)} \leftarrow \\
+        \quad\mathit{\holdsFor(stopped(Vl)\val farFromPorts,I_{sf}),} \\
+        \quad\mathit{\holdsFor(withinArea(Vl, anchorage)\val\true,I_a),} \\
+        \quad\mathit{\intersectall([I_{sf}, I_a], I_{sfa}),}\\
+        \quad\mathit{\holdsFor(stopped(Vl)\val nearPorts,I_{sn}),} \\
+        \quad\mathit{\unionall([I_{sfa}, I_{sn}], I).} 
+        %\quad\mathit{\textsf{threshold}(v_{aorm}, V_{aorm}),\ \textsf{intDurGreater}(I_i, V_{aorm}, I).}
+    \end{mysplit}
+    \end{align}
+    %
+    \noindent $\mathit{anchoredOrMoored(Vl)}$ is a Boolean statically determined fluent; it is defined in terms of three other FVPs: $\mathit{stopped(Vl)\val farFromPorts}$, $\mathit{stopped(Vl)\val nearPorts}$ and $\mathit{withinArea(Vl, anchorage)\val\true}$.
+    %
+    The multi-valued fluent $\mathit{stopped(Vl)}$ expresses the periods during which vessel $\mathit{Vl}$ is idle near some port or far from all ports. 
+    %
+    The specification of this fluent is available with the complete event description of maritime situational awareness\footnote{\url{https://github.com/aartikis/RTEC}\label{foot:branch}}. 
+    %
+    Rule \eqref{eq:aom} derives the intervals during which vessel $\mathit{Vl}$ is both stopped far from all ports and within an anchorage area, by applying the \intersectall\ operation on the lists of maximal intervals $\mathit{I_{sf}}$ and $\mathit{I_a}$.
+    %
+    The output of this operation is list $\mathit{I_{sfa}}$.
+    %
+    Subsequently, list $I$ is derived by applying \unionall\ on lists $\mathit{I_{sfa}}$ and $\mathit{I_{sn}}$.
+    %
+    In this way, list $I$ contains the maximal intervals during which vessel $\mathit{Vl}$ has stopped near some port or within an anchorage area. \qedex %, 
+    %
+    %This is the definition of $\mathit{anchoredOrMoored(Vessel)\val\true}$. \qedex
+\end{example}
+%
+\begin{definition}[Syntax of Rules Defining Statically Determined FVPs]\label{def:rule_syntax_sdf}
+%Statically determined fluents are defined only using \holdsFor\ rules with the following syntax:
+The definition of statically determined FVP $\sdfv$ is a rule that has the following syntax:
+%
+\begin{logicrulenn}\label{eq:sdf-holdsFor}
+\holdsFor(\sdfv,\ I_{n{+}m}) \leftarrow \\
+\quad \holdsFor(F_1\val V_1,\ I_1)[[, \holdsFor(F_2\val V_2,\ I_2),\ \dots \\
+\quad \holdsFor(F_n\val V_n,\ I_n), \intervalManipulation(L_1,\ I_{n+1}),\ \dots \\
+\quad \intervalManipulation(L_m,\ I_{n+m})]]. %, \atemporalconstraints]].
+\end{logicrulenn}
+%
+\noindent The first body literal of a $\holdsFor$ rule defining $\sdfv$ is a $\holdsFor$ predicate expressing the maximal intervals of an FVP other than $\sdfv$.
+%
+This is followed by a possibly empty list, denoted by `$[[\ ]]$', of $\holdsFor$ predicates and interval manipulation constructs, expressed by $\intervalManipulation$. %$\mathit{\intervalManipulation(L_j, I_{n+j})}$ predicates. %defining an interval manipulation operation on lists of intervals appearing earlier in the body of the rule.
+%
+%It is produced by applying a series of interval manipulation operations on the lists of intervals $\mathit{I_1}$,\dots,$\mathit{I_n}$ during which FVPs $\mathit{F_1\val V_1}$,\dots,$\mathit{F_n\val V_n}$ hold.
+%
+%$\intervalManipulation\mathit{(L_j, I_{n+j}}$) computes $\mathit{I_{n+j}}$, the list of intervals derived by applying an interval manipulation operation on the interval lists contained in $\mathit{L_j}$.
+%
+%
+$\intervalManipulation(L_j, I_{n+j})$ may be $\unionall(L_j, I_{n+j})$, $\intersectall(L_j, I_{n+j})$ or $\complementall(I_k, L_j, I_{n+j})$.
+%
+$I_k$, where $k<n+j$, is a list of maximal intervals appearing earlier in the body of the rule,
+%
+and list $\mathit{L_j}$ contains a subset of these lists.
+%
+%In the case of $\mathit{\complementall}$, there is an additional input list $I_k$, where $k<n+j$. 
+%Lists $\mathit{I'_1}$,\dots,$\mathit{I'_{m-1}}$ contain the intermediate results produced by the first $1$,\dots,$\mathit{m{-}1}$ interval operations, which are available to all subsequent predicates in the body of the rule.~\linebreak
+%
+%$\mathit{\intervalManipulation(L_j, I_{n+j})}$ may be (a) $\mathit{\unionall(L_j, I_{n+j})}$, computing $\mathit{I_{n+j}}$ as the union of all lists of intervals in $\mathit{L_j}$, (b) $\mathit{\intersectall(L_j, I_{n+j})}$, computing $\mathit{I_{n+j}}$ as the intersection of all intervals in $\mathit{L_j}$, or (c) $\mathit{\complementall(I', L'_j, I_{n+j})}$, where $\mathit{I'\in L_j}$ and $\mathit{L'_j}$ is derived from list $\mathit{L_j}$ after removing $\mathit{I'}$. 
+%
+%In the latter case, $\mathit{I_{n+j}}$ is computed as the relative complement of the list of intervals $\mathit{I'}$ with respect to every list of intervals in $\mathit{L'_j}$.
+%
+%Figure \ref{fig:constructs} presents examples of these constructs.
+%
+The output list $I_{n{+}m}$ contains the maximal intervals during which $\sdfv$ holds continuously.
+%$I$ is equal to one of the lists of intervals $\mathit{I_1}$, \dots, $\mathit{I_{n+m}}$ appearing in the body of the rule, and contains the maximal intervals during which \fv\ holds continuously. 
+\qeddef
+\end{definition}
+%
+$\unionall(L, I)$ (resp.~$\intersectall(L,I)$) computes the list of maximal intervals $I$ as the union (intersection) of all lists of maximal intervals of list $L$.
+%
+$\complementall(I', L, I)$ computes the list of maximal intervals $I$ by removing from the maximal intervals of list $I'$ all interval segments included in an interval of some list in $L$.
+%
+
+\textbf{Reasoning.}~The key reasoning task of \rtec\ is the computation the maximal intervals of the FVPs in the event description.  
+%
+For a statically determined FVP $\sdfv$, \rtec\ derives the list of maximal intervals $I$ of $\sdfv$ by evaluating the conditions of the rule with head $\holdsFor(F\val V, I)$.
+%
+For a simple FVP $\sfv$, which is defined via a set of $\initiatedAt$ and $\terminatedAt$ rules, \rtec\ operates as follows.
+%
+First, \rtec\ computes the initiations of $\sfv$. 
+%
+If there is at least one initiation, then \rtec\ computes all time-points where $\sfv$ is `broken', i.e., $\sfv$ is terminated or $F$ is initiated with a value other than $V$.
+%
+These are the terminations of $\sfv$.
+%
+Subsequently, \rtec\ computes the maximal intervals of $\sfv$ by matching each initiation $T_s$ of \fv\ with the first termination $T_e$ of \fv\ after $T_s$, ignoring every intermediate initiation between $T_s$ and $T_e$.
+%
+\rtec\ may then derive $\holdsAt(F\val V, T)$ by checking whether $T$ belongs to one of the maximal intervals of \fv.
+
+RTEC employs a simple caching mechanism to avoid unnecessary re-computations, according to which the FVPs of an event description are processed in an order specified by its dependency graph.
+%
+RTEC processes FVPs in a bottom-up manner, computing and caching their intervals level-by-level. This way, the intervals of the FVPs that are required for the processing of a FVP of level $n$ are fetched from the cache without the need for re-computation. 
+
