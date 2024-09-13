@@ -12,19 +12,18 @@ def var_is_singleton(var, var_routes):
 	return var[0]=="_" or len(var_routes[var])==1
 
 def var_distance(var1, var2, var_routes1, var_routes2):
-	# Case: Both variables are singleton.
 	if var_is_singleton(var1, var_routes1) and var_is_singleton(var2, var_routes2):
 		return 0
 	elif var_is_singleton(var1, var_routes1) or var_is_singleton(var2, var_routes2):
 		return 1
 	# Case: Both variables appear in the same atoms wrt nesting.
-	elif var_routes1[var1]==var_routes2[var2]:
+	elif sorted(var_routes1[var1])==sorted(var_routes2[var2]):
 		return 0
 	else:
 		return 1
 
 def atomIsConst(atom):
-	return (atom.predicateName[0].islower() or atom.predicateName[0]=="&") and len(atom.args)==0 
+	return (atom.predicateName[0].islower() or atom.predicateName[0]=="&" or atom.predicateName.isnumeric()) and len(atom.args)==0 
 
 def const_distance(const1, const2):
 	return 0 if const1 == const2 else 1
@@ -33,23 +32,22 @@ def atomIsComp(atom):
 	return len(atom.args)>0
 
 def comp_atom_distance(atom1, atom2, var_routes1, var_routes2):
+	''' We use the distance metric proposed by Nienhuys-Cheng (1997). '''
 	if atom1.predicateName == atom2.predicateName and len(atom1.args) == len(atom2.args):
 		distances_sum=0
 		for i in range(len(atom1.args)):
-			print("Calculating distance between: " + str(atom1.args[i]) + " and " + str(atom2.args[i]))
 			my_distance = atom_distance(atom1.args[i], atom2.args[i], var_routes1, var_routes2)
-			print("It is: " + str(my_distance))
+			print("Distance between: "  + str(atom1.args[i]) + " and " + str(atom2.args[i])  + " is: " + str(my_distance))
 			print()
-			distances_sum += my_distance # atom_distance(atom1.args[i], atom2.args[i], var_routes1, var_routes2)
+			distances_sum += my_distance
 		return 1/(2*len(atom1.args)) * distances_sum
 	else:
 		return 1
 
 def atom_distance(atom1, atom2, var_routes1, var_routes2):
-	'''Compute the distance between two atoms, based on the distance metric proposed by Nienhuys-Cheng (1997).'''
-	if atomIsVar(atom1) and atomIsVar(atom2): # and var_routes1[atom1.predicateName]==var_routes2[atom2.predicateName]:
+	if atomIsVar(atom1) and atomIsVar(atom2): 
 		return var_distance(atom1.predicateName, atom2.predicateName, var_routes1, var_routes2)
-	elif atomIsConst(atom1) and atomIsConst(atom2): # and atom1.predicateName == atom2.predicateName:
+	elif atomIsConst(atom1) and atomIsConst(atom2): 
 		return const_distance(atom1.predicateName, atom2.predicateName)
 	elif atomIsComp(atom1) and atomIsComp(atom2):
 		return comp_atom_distance(atom1, atom2, var_routes1, var_routes2)
@@ -83,28 +81,28 @@ def get_lists_size_and_pad(list1, list2, pad_item):
 		pad_list(list1, m-k)
 
 	return m, k
-
 def compute_var_routes(rule):
 	var_routes = dict()
 	
-	def find_var_nesting_in_atom(atom, route):
+	def find_var_routes_in_atom(atom, route):
 		#print("Atom: " + str(atom))
-		#print("Route: " + str(route))
+		##print("Route: " + str(route))
 		#print("Var Routes: " + str(var_routes))
 		#print()
-		if atom.predicateName[0].isupper():
+		# For free variables, we do nothing.
+		if atom.predicateName[0].isupper(): 
 			if atom.predicateName in var_routes:
 				var_routes[atom.predicateName].append(route)
 			else:
 				var_routes[atom.predicateName] = [route]
 		else:
 			for arg_index in range(0, len(atom.args)):
-				find_var_nesting_in_atom(atom.args[arg_index], route + [(atom.predicateName, len(atom.args), arg_index)])
+				find_var_routes_in_atom(atom.args[arg_index], route + [(atom.predicateName, arg_index)])
 
-	find_var_nesting_in_atom(rule.head, list())
+	find_var_routes_in_atom(rule.head, list())
 	#print()
 	for atom in rule.body:
-		find_var_nesting_in_atom(atom, list())
+		find_var_routes_in_atom(atom, list())
 		#print()
 	return var_routes
 
@@ -212,6 +210,6 @@ def event_description_distance(event_description1, event_description2):
 	print("Event Description Similarity: ")
 	print(event_description_similarity)
 
-	return event_description_similarity
+	return col_ind, c_array[row_ind, col_ind], event_description_similarity
 
 

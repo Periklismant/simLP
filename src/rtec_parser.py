@@ -46,7 +46,7 @@ class RTECParser:
 		p[0] = Atom(p[1], p[3])
 
 	def p_is_literal(self, p):
-		''' literal : VAR IS atom '''
+		''' literal : atom IS atom '''
 		p[0] = Atom(p[2], [p[1], p[3]])
 
 	def p_atom(self, p):

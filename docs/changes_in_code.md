@@ -7,3 +7,8 @@
     - comparison operators,
     - "is" and arithmetic operators (TODO),
 
+- Distance Metric:
+    - treatment of *variables*.
+    - treatment of numeric constants.
+
+- Added unit tests (TODO).

@@ -31,11 +31,21 @@ def parse_and_compute_distance(rules_file1, rules_file2):
 	event_description2 = rtec_parser2.event_description
 
 	# Compute the distance between the two event descriptions
-	event_description_distance(event_description1, event_description2)
+	return event_description_distance(event_description1, event_description2)
 
 
 if __name__=="__main__":
 	# Required arguments
 	rules_file1 = argv[1]
 	rules_file2 = argv[2]
-	parse_and_compute_distance(rules_file1, rules_file2)
+	optimal_matching, distances, similarity = parse_and_compute_distance(rules_file1, rules_file2)
+	print()
+	print("Optimal Matching: ")
+	print(optimal_matching)
+	print()
+	print("Rule Distances: ")
+	print(distances)
+	print()
+	print("Similarity: ")
+	print(similarity)
+
