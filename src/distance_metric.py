@@ -5,19 +5,56 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 from copy import deepcopy
 
-def atom_distance(atom1, atom2):
-	'''Compute the distance between two atoms, based on the distance metric proposed by Nienhuys-Cheng (1997).'''
-	if atom1 == atom2:
+def atomIsVar(atom):
+	return atom.predicateName[0].isupper() or atom.predicateName[0]=="_"
+
+def var_is_singleton(var, var_routes):
+	return var[0]=="_" or len(var_routes[var])==1
+
+def var_distance(var1, var2, var_routes1, var_routes2):
+	# Case: Both variables are singleton.
+	if var_is_singleton(var1, var_routes1) and var_is_singleton(var2, var_routes2):
 		return 0
-	elif atom1.predicateName == "_" or atom2.predicateName == "_":
-		return 0
-	elif atom1.predicateName != atom2.predicateName or len(atom1.args) != len(atom2.args):
+	elif var_is_singleton(var1, var_routes1) or var_is_singleton(var2, var_routes2):
 		return 1
+	# Case: Both variables appear in the same atoms wrt nesting.
+	elif var_routes1[var1]==var_routes2[var2]:
+		return 0
 	else:
+		return 1
+
+def atomIsConst(atom):
+	return (atom.predicateName[0].islower() or atom.predicateName[0]=="&") and len(atom.args)==0 
+
+def const_distance(const1, const2):
+	return 0 if const1 == const2 else 1
+
+def atomIsComp(atom):
+	return len(atom.args)>0
+
+def comp_atom_distance(atom1, atom2, var_routes1, var_routes2):
+	if atom1.predicateName == atom2.predicateName and len(atom1.args) == len(atom2.args):
 		distances_sum=0
 		for i in range(len(atom1.args)):
-			distances_sum += atom_distance(atom1.args[i], atom2.args[i])
+			print("Calculating distance between: " + str(atom1.args[i]) + " and " + str(atom2.args[i]))
+			my_distance = atom_distance(atom1.args[i], atom2.args[i], var_routes1, var_routes2)
+			print("It is: " + str(my_distance))
+			print()
+			distances_sum += my_distance # atom_distance(atom1.args[i], atom2.args[i], var_routes1, var_routes2)
 		return 1/(2*len(atom1.args)) * distances_sum
+	else:
+		return 1
+
+def atom_distance(atom1, atom2, var_routes1, var_routes2):
+	'''Compute the distance between two atoms, based on the distance metric proposed by Nienhuys-Cheng (1997).'''
+	if atomIsVar(atom1) and atomIsVar(atom2): # and var_routes1[atom1.predicateName]==var_routes2[atom2.predicateName]:
+		return var_distance(atom1.predicateName, atom2.predicateName, var_routes1, var_routes2)
+	elif atomIsConst(atom1) and atomIsConst(atom2): # and atom1.predicateName == atom2.predicateName:
+		return const_distance(atom1.predicateName, atom2.predicateName)
+	elif atomIsComp(atom1) and atomIsComp(atom2):
+		return comp_atom_distance(atom1, atom2, var_routes1, var_routes2)
+	else:
+		return 1
 
 def pad_lists(list1, list2, pad_item):
 	def pad_list(mylist, n):
@@ -47,19 +84,54 @@ def get_lists_size_and_pad(list1, list2, pad_item):
 
 	return m, k
 
+def compute_var_routes(rule):
+	var_routes = dict()
+	
+	def find_var_nesting_in_atom(atom, route):
+		#print("Atom: " + str(atom))
+		#print("Route: " + str(route))
+		#print("Var Routes: " + str(var_routes))
+		#print()
+		if atom.predicateName[0].isupper():
+			if atom.predicateName in var_routes:
+				var_routes[atom.predicateName].append(route)
+			else:
+				var_routes[atom.predicateName] = [route]
+		else:
+			for arg_index in range(0, len(atom.args)):
+				find_var_nesting_in_atom(atom.args[arg_index], route + [(atom.predicateName, len(atom.args), arg_index)])
+
+	find_var_nesting_in_atom(rule.head, list())
+	#print()
+	for atom in rule.body:
+		find_var_nesting_in_atom(atom, list())
+		#print()
+	return var_routes
+
+
 def rule_distance(rule1, rule2):
+
+	var_routes1 = compute_var_routes(rule1)
+	print("Var routes for the first rule: ")
+	print(var_routes1)
+	print()
+
+	var_routes2 = compute_var_routes(rule2)
+	print("Var routes for the second rule: ")
+	print(var_routes2)
+	print()
 
 	head1 = rule1.head
 	head2 = rule2.head
 	
-	head_distance = atom_distance(head1, head2)
+	head_distance = atom_distance(head1, head2, var_routes1, var_routes2)
 	print("Distance between rule heads: ")
 	print(head_distance)
 
 	body1 = deepcopy(rule1.body)
 	body2 = deepcopy(rule2.body)
 
-	m, k = get_lists_size_and_pad(body1, body2, Atom("_", []))
+	m, k = get_lists_size_and_pad(body1, body2, Atom("&", []))
 
 	print(body1)
 	print(body2)
@@ -72,11 +144,10 @@ def rule_distance(rule1, rule2):
 
 	for i in range(m):
 		for j in range(m):
-			c_array[i][j] = atom_distance(body1[i], body2[j])
+			c_array[i][j] = atom_distance(body1[i], body2[j], var_routes1, var_routes2)
 
 	print("Body atom distances: ")
 	print(c_array)
-	#print(algorithm.find_matching(c_dict, matching_type = 'min', return_type = 'list'))
 
 	row_ind, col_ind = linear_sum_assignment(c_array)
 	print("Optimal Body Condition Assignment: ")
@@ -86,7 +157,8 @@ def rule_distance(rule1, rule2):
 	print("Sum of distances for optimal body condition assignment: ")
 	print(optimal_dist_sum)
 	
-	body_distance = 1/m*(m - k + optimal_dist_sum)
+	# We penalise the absence of a condition in the distance function. Therefore, we do not add (m-k) in the distance, like in the Michelioudakis paper.
+	body_distance = optimal_dist_sum/m # 1/m*(m - k + optimal_dist_sum)
 	print("Distance between rule bodies: ")
 	print(body_distance)
 
@@ -95,9 +167,9 @@ def rule_distance(rule1, rule2):
 	print("Distance between rules: ")
 	print(rule_distance)
 
-	#rule_similarity = 1 - rule_distance
-	#print("Similarity of rules: ")
-	#print(rule_similarity)
+	rule_similarity = 1 - rule_distance
+	print("Similarity of rules: ")
+	print(rule_similarity)
 
 	return rule_distance
 

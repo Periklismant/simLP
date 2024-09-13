@@ -1,3 +1,11 @@
 src/parser.out
 src/parsetab.py
 src/__pycache__/*
+paper/*.aux
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.synctex.gz
+paper/*.xdv
+
