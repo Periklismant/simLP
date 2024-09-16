@@ -1,0 +1,328 @@
+Event Description 1: 
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	holdsAt(=(nearCoast(Vessel),true),T),
+	greater(Speed,5).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	leq(Speed,5).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	-(holdsAt(=(nearCoast(Vessel),true),T)).
+
+
+Event Description 2: 
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	greater(Speed,5),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	leq(Speed,5).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,nearCoast),true)),T).
+
+
+
+Comparing rules:
+ initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	holdsAt(=(nearCoast(Vessel),true),T),
+	greater(Speed,5).
+ and
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	greater(Speed,5),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+Var routes for the first rule: 
+{'Vessel': [[('initiatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('holdsAt', 0), ('=', 0), ('nearCoast', 0)]], 'T': [[('initiatedAt', 1)], [('happensAt', 1)], [('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('greater', 0)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('initiatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('holdsAt', 0), ('=', 0), ('withinArea', 0)]], 'T': [[('initiatedAt', 1)], [('happensAt', 1)], [('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('greater', 0)]]}
+
+Distance between rule heads: 
+0.03125
+Body atom distances: 
+[[0.25   1.     1.    ]
+ [1.     1.     0.0625]
+ [1.     0.     1.    ]]
+Optimal Body Condition Assignment: 
+[0 2 1]
+Sum of distances for optimal body condition assignment: 
+0.3125
+Distance between rule bodies: 
+0.10416666666666667
+Distance between rules: 
+0.0859375
+Similarity of rules: 
+0.9140625
+
+Comparing rules:
+ initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	holdsAt(=(nearCoast(Vessel),true),T),
+	greater(Speed,5).
+ and
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	leq(Speed,5).
+
+Var routes for the first rule: 
+{'Vessel': [[('initiatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('holdsAt', 0), ('=', 0), ('nearCoast', 0)]], 'T': [[('initiatedAt', 1)], [('happensAt', 1)], [('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('greater', 0)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('leq', 0)]]}
+
+Distance between rule heads: 
+1
+Body atom distances: 
+[[0.5 1.  1. ]
+ [1.  1.  1. ]
+ [1.  1.  1. ]]
+Optimal Body Condition Assignment: 
+[0 1 2]
+Sum of distances for optimal body condition assignment: 
+2.5
+Distance between rule bodies: 
+0.8333333333333334
+Distance between rules: 
+0.875
+Similarity of rules: 
+0.125
+
+Comparing rules:
+ initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	holdsAt(=(nearCoast(Vessel),true),T),
+	greater(Speed,5).
+ and
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,nearCoast),true)),T).
+
+Var routes for the first rule: 
+{'Vessel': [[('initiatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('holdsAt', 0), ('=', 0), ('nearCoast', 0)]], 'T': [[('initiatedAt', 1)], [('happensAt', 1)], [('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('greater', 0)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('end', 0), ('=', 0), ('withinArea', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]]}
+
+Distance between rule heads: 
+1
+Body atom distances: 
+[[0.5 1.  1. ]
+ [1.  1.  1. ]
+ [1.  1.  1. ]]
+Optimal Body Condition Assignment: 
+[0 1 2]
+Sum of distances for optimal body condition assignment: 
+2.5
+Distance between rule bodies: 
+0.8333333333333334
+Distance between rules: 
+0.875
+Similarity of rules: 
+0.125
+
+Comparing rules:
+ terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	leq(Speed,5).
+ and
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	greater(Speed,5),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+Var routes for the first rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('leq', 0)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('initiatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('holdsAt', 0), ('=', 0), ('withinArea', 0)]], 'T': [[('initiatedAt', 1)], [('happensAt', 1)], [('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('greater', 0)]]}
+
+Distance between rule heads: 
+1
+Body atom distances: 
+[[0.5 1.  1. ]
+ [1.  1.  1. ]
+ [1.  1.  1. ]]
+Optimal Body Condition Assignment: 
+[0 1 2]
+Sum of distances for optimal body condition assignment: 
+2.5
+Distance between rule bodies: 
+0.8333333333333334
+Distance between rules: 
+0.875
+Similarity of rules: 
+0.125
+
+Comparing rules:
+ terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	leq(Speed,5).
+ and
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	leq(Speed,5).
+
+Var routes for the first rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('leq', 0)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('leq', 0)]]}
+
+Distance between rule heads: 
+0.0
+Body atom distances: 
+[[0.25 1.  ]
+ [1.   0.  ]]
+Optimal Body Condition Assignment: 
+[0 1]
+Sum of distances for optimal body condition assignment: 
+0.25
+Distance between rule bodies: 
+0.125
+Distance between rules: 
+0.08333333333333333
+Similarity of rules: 
+0.9166666666666666
+
+Comparing rules:
+ terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	leq(Speed,5).
+ and
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,nearCoast),true)),T).
+
+Var routes for the first rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('leq', 0)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('end', 0), ('=', 0), ('withinArea', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]]}
+
+Distance between rule heads: 
+0.03125
+Body atom distances: 
+[[0.25 1.  ]
+ [1.   1.  ]]
+Optimal Body Condition Assignment: 
+[0 1]
+Sum of distances for optimal body condition assignment: 
+1.25
+Distance between rule bodies: 
+0.625
+Distance between rules: 
+0.4270833333333333
+Similarity of rules: 
+0.5729166666666667
+
+Comparing rules:
+ terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	-(holdsAt(=(nearCoast(Vessel),true),T)).
+ and
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	greater(Speed,5),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+Var routes for the first rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('-', 0), ('holdsAt', 0), ('=', 0), ('nearCoast', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)], [('-', 0), ('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('initiatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('holdsAt', 0), ('=', 0), ('withinArea', 0)]], 'T': [[('initiatedAt', 1)], [('happensAt', 1)], [('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('greater', 0)]]}
+
+Distance between rule heads: 
+1
+Body atom distances: 
+[[0.5 1.  1. ]
+ [1.  1.  1. ]
+ [1.  1.  1. ]]
+Optimal Body Condition Assignment: 
+[0 1 2]
+Sum of distances for optimal body condition assignment: 
+2.5
+Distance between rule bodies: 
+0.8333333333333334
+Distance between rules: 
+0.875
+Similarity of rules: 
+0.125
+
+Comparing rules:
+ terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	-(holdsAt(=(nearCoast(Vessel),true),T)).
+ and
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	leq(Speed,5).
+
+Var routes for the first rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('-', 0), ('holdsAt', 0), ('=', 0), ('nearCoast', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)], [('-', 0), ('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('leq', 0)]]}
+
+Distance between rule heads: 
+0.28125
+Body atom distances: 
+[[0.5 1. ]
+ [1.  1. ]]
+Optimal Body Condition Assignment: 
+[0 1]
+Sum of distances for optimal body condition assignment: 
+1.5
+Distance between rule bodies: 
+0.75
+Distance between rules: 
+0.59375
+Similarity of rules: 
+0.40625
+
+Comparing rules:
+ terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	-(holdsAt(=(nearCoast(Vessel),true),T)).
+ and
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,nearCoast),true)),T).
+
+Var routes for the first rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)], [('-', 0), ('holdsAt', 0), ('=', 0), ('nearCoast', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)], [('-', 0), ('holdsAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('end', 0), ('=', 0), ('withinArea', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]]}
+
+Distance between rule heads: 
+0.28125
+Body atom distances: 
+[[0.5 1. ]
+ [1.  1. ]]
+Optimal Body Condition Assignment: 
+[0 1]
+Sum of distances for optimal body condition assignment: 
+1.5
+Distance between rule bodies: 
+0.75
+Distance between rules: 
+0.59375
+Similarity of rules: 
+0.40625
+Rule distances: 
+[[0.0859375  0.875      0.875     ]
+ [0.875      0.08333333 0.42708333]
+ [0.875      0.59375    0.59375   ]]
+Optimal Rule Assignment: 
+[0 1 2]
+Sum of distances for optimal rule assignment: 
+0.7630208333333333
+Distance between event descriptions: 
+0.25434027777777773
+Event Description Similarity: 
+0.7456597222222223

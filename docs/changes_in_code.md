@@ -5,10 +5,12 @@
     - numeric constants,
     - lists,
     - comparison operators,
-    - "is" and arithmetic operators (TODO),
+    - "is" and arithmetic operators.
 
 - Distance Metric:
     - treatment of *variables*.
     - treatment of numeric constants.
 
-- Added unit tests (TODO).
+- Added unit tests.
+
+- Added logger.

@@ -1,9 +1,11 @@
-# Implementation of the distance metric between ground logical atoms (see expression (9) in SPLICE paper)
+# Extension of a distance metric between ground logical atoms (see expression (9) in SPLICE paper)
+# in order to measure the distance between logical programs.
 
 from event_description import Atom, Rule
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 from copy import deepcopy
+import logging
 
 def atomIsVar(atom):
 	return atom.predicateName[0].isupper() or atom.predicateName[0]=="_"
@@ -37,8 +39,8 @@ def comp_atom_distance(atom1, atom2, var_routes1, var_routes2):
 		distances_sum=0
 		for i in range(len(atom1.args)):
 			my_distance = atom_distance(atom1.args[i], atom2.args[i], var_routes1, var_routes2)
-			print("Distance between: "  + str(atom1.args[i]) + " and " + str(atom2.args[i])  + " is: " + str(my_distance))
-			print()
+			#print("Distance between: "  + str(atom1.args[i]) + " and " + str(atom2.args[i])  + " is: " + str(my_distance))
+			#print()
 			distances_sum += my_distance
 		return 1/(2*len(atom1.args)) * distances_sum
 	else:
@@ -107,34 +109,34 @@ def compute_var_routes(rule):
 	return var_routes
 
 
-def rule_distance(rule1, rule2):
+def rule_distance(rule1, rule2, logger):
 
 	var_routes1 = compute_var_routes(rule1)
-	print("Var routes for the first rule: ")
-	print(var_routes1)
-	print()
+	logger.info("Var routes for the first rule: ")
+	logger.info(var_routes1)
+	logger.info("")
 
 	var_routes2 = compute_var_routes(rule2)
-	print("Var routes for the second rule: ")
-	print(var_routes2)
-	print()
+	logger.info("Var routes for the second rule: ")
+	logger.info(var_routes2)
+	logger.info("")
 
 	head1 = rule1.head
 	head2 = rule2.head
 	
 	head_distance = atom_distance(head1, head2, var_routes1, var_routes2)
-	print("Distance between rule heads: ")
-	print(head_distance)
+	logger.info("Distance between rule heads: ")
+	logger.info(head_distance)
 
 	body1 = deepcopy(rule1.body)
 	body2 = deepcopy(rule2.body)
 
 	m, k = get_lists_size_and_pad(body1, body2, Atom("&", []))
 
-	print(body1)
-	print(body2)
-	print(m)
-	print(k)
+	#print(body1)
+	#print(body2)
+	#print(m)
+	#print(k)
 	
 	#c_dict = init_cost_dict(body1, body2)
 
@@ -144,34 +146,34 @@ def rule_distance(rule1, rule2):
 		for j in range(m):
 			c_array[i][j] = atom_distance(body1[i], body2[j], var_routes1, var_routes2)
 
-	print("Body atom distances: ")
-	print(c_array)
+	logger.info("Body atom distances: ")
+	logger.info(c_array)
 
 	row_ind, col_ind = linear_sum_assignment(c_array)
-	print("Optimal Body Condition Assignment: ")
-	print(col_ind)
+	logger.info("Optimal Body Condition Assignment: ")
+	logger.info(col_ind)
 
 	optimal_dist_sum = c_array[row_ind, col_ind].sum()
-	print("Sum of distances for optimal body condition assignment: ")
-	print(optimal_dist_sum)
+	logger.info("Sum of distances for optimal body condition assignment: ")
+	logger.info(optimal_dist_sum)
 	
 	# We penalise the absence of a condition in the distance function. Therefore, we do not add (m-k) in the distance, like in the Michelioudakis paper.
 	body_distance = optimal_dist_sum/m # 1/m*(m - k + optimal_dist_sum)
-	print("Distance between rule bodies: ")
-	print(body_distance)
+	logger.info("Distance between rule bodies: ")
+	logger.info(body_distance)
 
 	# We penalise head incongruity as much as the incongruity of a pair of body literals
 	rule_distance = 1/(m+1)*(head_distance + m*body_distance)
-	print("Distance between rules: ")
-	print(rule_distance)
+	logger.info("Distance between rules: ")
+	logger.info(rule_distance)
 
 	rule_similarity = 1 - rule_distance
-	print("Similarity of rules: ")
-	print(rule_similarity)
+	logger.info("Similarity of rules: ")
+	logger.info(rule_similarity)
 
 	return rule_distance
 
-def event_description_distance(event_description1, event_description2):
+def event_description_distance(event_description1, event_description2, logger):
 
 	rules1 = event_description1.rules
 	rules2 = event_description2.rules
@@ -183,32 +185,40 @@ def event_description_distance(event_description1, event_description2):
 	print()
 	print("Event Description 2: ")
 	print(event_description2)
+	print()
+
+	logger.info("Event Description 1: ")
+	logger.info(event_description1)
+	logger.info("")
+	logger.info("Event Description 2: ")
+	logger.info(event_description2)
+	logger.info("")
 
 	c_array = np.array([[0.0 for _ in range(m)] for _ in range(m)])
 
 	for i in range(m):
 		for j in range(m):
-			print("\nComparing rules:\n " + str(rules1[i]) + " and\n" + str(rules2[j]))
-			c_array[i][j] = rule_distance(rules1[i], rules2[j])
+			logger.info("\nComparing rules:\n " + str(rules1[i]) + " and\n" + str(rules2[j]))
+			c_array[i][j] = rule_distance(rules1[i], rules2[j], logger)
 
-	print("Rule distances: ")
-	print(c_array)
+	logger.info("Rule distances: ")
+	logger.info(c_array)
 
 	row_ind, col_ind = linear_sum_assignment(c_array)
-	print("Optimal Rule Assignment: ")
-	print(col_ind)
+	logger.info("Optimal Rule Assignment: ")
+	logger.info(col_ind)
 
 	optimal_dist_sum = c_array[row_ind, col_ind].sum()
-	print("Sum of distances for optimal rule assignment: ")
-	print(optimal_dist_sum)
+	logger.info("Sum of distances for optimal rule assignment: ")
+	logger.info(optimal_dist_sum)
 	
 	event_description_distance = 1/m*(optimal_dist_sum)
-	print("Distance between event descriptions: ")
-	print(event_description_distance)
+	logger.info("Distance between event descriptions: ")
+	logger.info(event_description_distance)
 
 	event_description_similarity = 1 - event_description_distance
-	print("Event Description Similarity: ")
-	print(event_description_similarity)
+	logger.info("Event Description Similarity: ")
+	logger.info(event_description_similarity)
 
 	return col_ind, c_array[row_ind, col_ind], event_description_similarity
 
