@@ -1,4 +1,4 @@
-# Event description similarity with distance metric that does not consider variables.
+# Event description similarity.
 
 ### GPT-4 Chain-of-thought (20 rules)
 - vs all maritime rules: 0.23
@@ -14,3 +14,5 @@
 
 ### Llama 3 Chain-of-thought (20 rules)
 - vs all maritime rules: 0.22
+
+#### Maritime event description has 51 rules.
