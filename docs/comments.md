@@ -7,6 +7,21 @@
 To tackle the second point, I computed the routes to its variable in a rule, i.e., the sequence of nested atoms until reaching the variable, and compare these routes instead of variable names.
 For the comparison, I am taking into account the names of the predicates in the routes and the position of the variable in each corresponding predicate.
 If the routes match exactly, then the distance between the variables is 0. Otherwise, it is 1.
+
 Should I add predicate arity in the comparison?
+    Probably not. Consider the comparison of the following rules:
+
+    p(X, a):-
+        q(b),
+        r(c, X).
+
+    q(b):-
+        p(X, a),
+        r(c, X).
+
+    If X are considered different across the two rules, then the distance is 1/3*(1+1/4+1).
+    Otherwise, the distance is 1/3(1+0+1).
+
+    X in p(X, a) has the same meaning regardless of the position of p(X,a) in the rule. So, we should consider the Xs the same.
 
 

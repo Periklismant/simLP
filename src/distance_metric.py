@@ -83,6 +83,7 @@ def get_lists_size_and_pad(list1, list2, pad_item):
 		pad_list(list1, m-k)
 
 	return m, k
+
 def compute_var_routes(rule):
 	var_routes = dict()
 	
