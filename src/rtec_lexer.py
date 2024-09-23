@@ -61,7 +61,7 @@ class RTECLexer():
 	#t_NOT = r'\\\+|not'
 	t_LISTSTART = r'\['
 	t_LISTEND = r'\]'
-	t_LOWCASESTR = r'(?!\bis\b)([a-z][a-zA-Z0-9_]*)'
+	t_LOWCASESTR = r'(?!\b(?:is|not)\b)([a-z][a-zA-Z0-9_]*)'
 	t_STRING = r'"([^"\n]|(\\"))*"|\'([^"\n]|(\\"))*\''
 	t_NUMBER = r'[+-]?[0-9]+([.][0-9]+)?'
 
@@ -89,7 +89,7 @@ class RTECLexer():
 	#t_OPER = r'(\=)|(\=\\\=)'
 
 	def t_NOT(self, t):
-		r'\\\+|not'
+		r'\\\+|not\ '
 		t.value = '-'
 		return t
 	

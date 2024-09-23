@@ -1,3 +1,23 @@
+## gpt4_chainofthought 
+
+- leftarrows
+- <=
+
+## gpt4o_chainofthought 
+
+- leftarrows
+
+## llama_chainofthought 
+
+- leftarrows
+- <=
+- ≤
+- ∧
+- spaces in variable names
+- fact instead of rule. 
+
+# OLD RULES
+
 ## rules4-chainofthought: (20 rules)
 
 - leftarrows to :-
