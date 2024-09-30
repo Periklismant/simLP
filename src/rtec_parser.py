@@ -94,7 +94,7 @@ class RTECParser:
 	#	p[0] = [p[1]]
 
 	def p_args_list_singleton_atom(self, p):
-		''' args_list : atom '''
+		''' args_list : literal '''
 		#print("Args List singleton atom: " + str(p[1]))
 		p[0] = [p[1]]
 
@@ -109,7 +109,7 @@ class RTECParser:
 	#	p[0] = [p[1]] + p[3]
 
 	def p_args_list_many_atom(self, p):
-		''' args_list : atom COMMA args_list '''
+		''' args_list : literal COMMA args_list '''
 		#print("Args List many atom: " + str(p[3]))
 		p[0] = [p[1]] + p[3]
 

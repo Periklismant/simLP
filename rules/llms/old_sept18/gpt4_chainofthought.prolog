@@ -25,37 +25,6 @@ initiatedAt(gap(Vessel) = nearPorts, T)  :-
  terminatedAt(gap(Vessel) =_Value, T)  :-
  happensAt(gap_end(Vessel), T).
 
-%-------------- stopped-----------------------%
-
-initiatedAt(stopped(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed =< LowThreshold.
-
-terminatedAt(stopped(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > LowThreshold.
-
-%-------------- lowspeed----------------------%
-
-initiatedAt(lowSpeed(Vessel) = true, T) :-
-  countRecentMessagesUnderThreshold(Vessel, Tmin, NumMessages, Vmin),
-  NumMessages >= m.
-
-terminatedAt(lowSpeed(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > Vmin.
-
-%-------------- changingSpeed ----------------%
-
-initiatedAt(changingSpeed(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, CurrentSpeed, _, _), T),
-  holdsAt(velocity(Vessel, PreviousSpeed, _, _) = previous(T), Tprev),  % assuming 'previous' captures the last known speed
-  abs(CurrentSpeed - PreviousSpeed) / PreviousSpeed > a / 100.
-
-terminatedAt(changingSpeed(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, CurrentSpeed, _, _), T),
-  holdsAt(velocity(Vessel, PreviousSpeed, _, _) = previous(T), Tprev),
-  abs(CurrentSpeed - PreviousSpeed) / PreviousSpeed =< a / 100.
 
 %------------ highSpeedNearCoast -------------%
 
@@ -71,46 +40,6 @@ terminatedAt(highSpeedNearCoast(Vessel) = true, T) :-
   velocity(Vessel, Speed, _, T),
   Speed =< 5.
 
-%--------------- movingSpeed -----------------%
-
-initiatedAt(movingSpeed(Vessel) = below, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > 0.5,
-  Speed =< MinServiceSpeed.
-
-initiatedAt(movingSpeed(Vessel) = normal, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > MinServiceSpeed,
-  Speed =< MaxServiceSpeed.
-
-initiatedAt(movingSpeed(Vessel) = above, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > MaxServiceSpeed.
-
-terminatedAt(movingSpeed(Vessel) = below, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > MinServiceSpeed.
-
-terminatedAt(movingSpeed(Vessel) = normal, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed =< MinServiceSpeed.
-
-terminatedAt(movingSpeed(Vessel) = normal, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > MaxServiceSpeed.
-
-terminatedAt(movingSpeed(Vessel) = above, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed =< MaxServiceSpeed.
-
-%----------------- underWay ------------------% 
-
-holdsFor(underWay(Vessel) = true, I) :-
-  holdsFor(movingSpeed(Vessel) = below, Ib),
-  holdsFor(movingSpeed(Vessel) = normal, In),
-  holdsFor(movingSpeed(Vessel) = above, Ia),
-  union_all([Ib, In, Ia], I).
-
 %----------------- drifitng ------------------%
 
 initiatedAt(drifting(Vessel) = true, T) :-
@@ -120,21 +49,6 @@ initiatedAt(drifting(Vessel) = true, T) :-
 terminatedAt(drifting(Vessel) = true, T) :-
   happensAt(velocity(Vessel, Speed, CoG, _TrueHeading), T),
   not holdsAt(driftingConditions(CoG, Speed) = true, T).
-
-%---------------- trawlSpeed -----------------%
-
-initiatedAt(trawlingSpeed(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed >= 1.0,
-  Speed =< 9.0.
-
-terminatedAt(trawlingSpeed(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed < 1.0.
-
-terminatedAt(trawlingSpeed(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > 9.0.
 
 %--------------- trawling --------------------%
 
@@ -188,29 +102,6 @@ holdsFor(rendezVous(Vessel1, Vessel2) = true, I) :-
   holdsFor(stopped(Vessel2) = true, Is2),
   union_all([Is1, Is2], Is),
   intersect_all([Ip, Is], I).
-
-%-------------------------- SAR --------------%
-
-initiatedAt(sarOperation(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  happensAt(change_in_heading(Vessel), T),
-  Speed =< SARMinSpeed,  
-  holdsAt(onSARduty(Vessel) = true, T).  
-
-terminatedAt(sarOperation(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  Speed > SARMinSpeed.
-
-terminatedAt(sarOperation(Vessel) = true, T) :-
-  happensAt(velocity(Vessel, Speed, _, _), T),
-  not happensAt(change_in_heading(Vessel), T).
-
-holdsFor(sarOperation(Vessel) = true, I) :-
-  holdsFor(velocity(Vessel, Speed) = sarSpeed, Iv),
-  holdsFor(change_in_heading(Vessel) = true, Ih),
-  intersect_all([Iv, Ih], I),
-  threshold(minSarDuration, MinDuration),
-  intDurGreater(I, MinDuration, I).
 
 %-------- loitering --------------------------%
 

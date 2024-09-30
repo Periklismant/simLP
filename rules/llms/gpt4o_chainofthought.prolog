@@ -25,6 +25,43 @@ initiatedAt(gap(Vessel) = nearPorts, T)  :-
  terminatedAt(gap(Vessel) =_Value, T)  :-
  happensAt(gap_end(Vessel), T).
 
+%-------------- stopped-----------------------%
+
+initiatedAt(stopped(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    threshold(vstop, Vstop),
+    Speed =< Vstop. 
+
+terminatedAt(stopped(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    threshold(vstop, Vstop),  
+    Speed > Vstop.  
+
+%-------------- lowspeed----------------------%
+
+initiatedAt(lowSpeed(Vessel) = true, T) :-
+    threshold(vmin, Vmin),  
+    m_most_recent_messages(Vessel, M), 
+    allSpeedsBelowThreshold(M, Vmin).  
+
+terminatedAt(lowSpeed(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    threshold(vmin, Vmin),  
+    Speed > Vmin.  
+
+%-------------- changingSpeed ----------------%
+
+initiatedAt(changingSpeed(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Vnow, _CoG, _TrueHeading), T),  
+    prevSpeed(Vessel, Vprev),  
+    threshold(alpha, Alpha), 
+    abs(Vnow - Vprev) > (Alpha / 100) * Vprev.  
+
+terminatedAt(changingSpeed(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Vnow, _CoG, _TrueHeading), T),  
+    prevSpeed(Vessel, Vprev),  
+    threshold(alpha, Alpha),  
+    abs(Vnow - Vprev) =< (Alpha / 100) * Vprev.  
 
 %------------ highSpeedNearCoast -------------%
 
@@ -41,6 +78,69 @@ terminatedAt(highSpeedNearCoast(Vessel) = true, T) :-
 terminatedAt(highSpeedNearCoast(Vessel) = true, T) :-
     happensAt(gap_start(Vessel), T). 
 
+%--------------- movingSpeed -----------------%
+
+initiatedAt(movingSpeed(Vessel) = below, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    vesselType(Vessel, Type), 
+    minServiceSpeed(Type, MinSpeed), 
+    Speed >= 0.5,  
+    Speed < MinSpeed.  
+
+terminatedAt(movingSpeed(Vessel) = below, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    vesselType(Vessel, Type),  
+    minServiceSpeed(Type, MinSpeed),  
+    Speed < 0.5.
+
+terminatedAt(movingSpeed(Vessel) = below, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    vesselType(Vessel, Type),  
+    minServiceSpeed(Type, MinSpeed),  
+    Speed >= MinSpeed.  
+
+initiatedAt(movingSpeed(Vessel) = normal, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    vesselType(Vessel, Type),  
+    minServiceSpeed(Type, MinSpeed),  
+    maxServiceSpeed(Type, MaxSpeed),  
+    Speed >= MinSpeed,  
+    Speed < MaxSpeed.  
+
+terminatedAt(movingSpeed(Vessel) = normal, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T), 
+    vesselType(Vessel, Type),  
+    minServiceSpeed(Type, MinSpeed), 
+    maxServiceSpeed(Type, MaxSpeed),  
+    Speed < MinSpeed. 
+
+terminatedAt(movingSpeed(Vessel) = normal, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T), 
+    vesselType(Vessel, Type),  
+    minServiceSpeed(Type, MinSpeed), 
+    maxServiceSpeed(Type, MaxSpeed),  
+    Speed >= MaxSpeed. 
+
+initiatedAt(movingSpeed(Vessel) = above, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    vesselType(Vessel, Type),  
+    maxServiceSpeed(Type, MaxSpeed),  
+    Speed >= MaxSpeed.  
+
+terminatedAt(movingSpeed(Vessel) = above, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    vesselType(Vessel, Type),  
+    maxServiceSpeed(Type, MaxSpeed),  
+    Speed < MaxSpeed.  
+
+%----------------- underWay ------------------% 
+
+holdsFor(underWay(Vessel) = true, I) :-
+    holdsFor(movingSpeed(Vessel) = below, Ib),  
+    holdsFor(movingSpeed(Vessel) = normal, In),  
+    holdsFor(movingSpeed(Vessel) = above, Ia),  
+    union_all([Ib, In, Ia], I).  
+
 %----------------- drifitng ------------------%
 
 initiatedAt(drifting(Vessel) = true, T) :-
@@ -55,6 +155,27 @@ terminatedAt(drifting(Vessel) = true, T) :-
 
 terminatedAt(drifting(Vessel) = true, T) :-
     happensAt(gap_start(Vessel), T).  
+
+%---------------- trawlSpeed -----------------%
+
+initiatedAt(trawlingSpeed(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    minTrawlSpeed(MinSpeed),  
+    maxTrawlSpeed(MaxSpeed),  
+    Speed >= MinSpeed,  
+    Speed =< MaxSpeed. 
+
+terminatedAt(trawlingSpeed(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    minTrawlSpeed(MinSpeed),  
+    maxTrawlSpeed(MaxSpeed),  
+    Speed < MinSpeed.  
+
+terminatedAt(trawlingSpeed(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    minTrawlSpeed(MinSpeed),  
+    maxTrawlSpeed(MaxSpeed),  
+    Speed > MaxSpeed. 
 
 %--------------- trawling --------------------%
 
@@ -126,6 +247,27 @@ holdsFor(rendezVous(Vessel1, Vessel2) = true, I) :-
     intersect_all([Ip, I1, I2], Ii),  
     threshold(vrdv, Vrdv),  
     intDurGreater(Ii, Vrdv, I).  
+
+%-------------------------- SAR --------------%
+
+initiatedAt(sarMovement(Vessel) = true, T) :-
+    happensAt(change_in_heading(Vessel), T),  
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    minSARSpeed(MinSpeed),  
+    Speed >= MinSpeed.  
+
+terminatedAt(sarMovement(Vessel) = true, T) :-
+    happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
+    minSARSpeed(MinSpeed),  
+    Speed < MinSpeed.  
+
+terminatedAt(sarMovement(Vessel) = true, T) :-
+    not happensAt(change_in_heading(Vessel), T).  
+
+holdsFor(sarMovement(Vessel) = true, I) :-
+    holdsFor(change_in_heading(Vessel) = true, Ich),  
+    holdsFor(lowSpeed(Vessel) = true, Ils),  
+    intersect_all([Ich, Ils], I).  
 
 %-------- loitering --------------------------%
 

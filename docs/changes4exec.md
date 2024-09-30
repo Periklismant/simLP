@@ -1,3 +1,29 @@
+# RULES (27 SEPT)
+
+## gpt4_chainofthought 
+
+- leftarrows
+- <=
+- alpha character
+- disjunction
+
+## gpt4o_chainofthought 
+
+- leftarrows
+- disjunction
+
+## llama3_chainofthought 
+
+- leftarrows
+- <=
+- ≤
+- ∧, & and exists
+- fact instead of rule. 
+- "," instead of ".".
+- spaces in variable names.
+
+# RULES (18 SEPT)
+
 ## gpt4_chainofthought 
 
 - leftarrows
@@ -16,7 +42,7 @@
 - spaces in variable names
 - fact instead of rule. 
 
-# OLD RULES
+# RULES (10 AUG)
 
 ## rules4-chainofthought: (20 rules)
 

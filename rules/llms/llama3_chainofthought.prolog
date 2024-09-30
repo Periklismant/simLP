@@ -25,6 +25,38 @@ initiatedAt(gap(Vessel) = nearPorts, T)  :-
  terminatedAt(gap(Vessel) =_Value, T)  :-
  happensAt(gap_end(Vessel), T).
 
+%-------------- stopped-----------------------%
+
+initiatedAt(stopped(Vessel), I) :-
+  happensAt(presentIn(Vessel, Position), It),
+  speedOverGround(Vessel, Position) =< thresholdLowSpeed,
+  not_holdsFor(speedOverGround(Vessel, Position) > thresholdLowSpeed, It).
+
+terminatedAt(stopped(Vessel), T) :-
+  happensAt(not_presentIn(Vessel, Position), Ta),
+  speedOverGround(Vessel, Position) > thresholdLowSpeed.
+
+%-------------- lowspeed----------------------%
+
+initiatedAt(lowSpeed(Vessel), I) :-
+  exists(Message, in(recentMessages, Message)),
+  speedOverGround(Vessel, Message) =< vmin,
+  all(Message, in(recentMessages, Message), speedOverGround(Vessel, Message) =< vmin).
+
+terminatedAt(lowSpeed(Vessel), T) :-
+  exists(Message, not_in(recentMessages, Message)),
+  speedOverGround(Vessel, Message) > vmin.
+
+%-------------- changingSpeed ----------------%
+
+initiatedAt(changingSpeed(Vessel), I) :-
+  happensAt(speedOverGround(Vessel, Position), vnow),
+  abs(vnow - vprev) > alpha,
+  not_holdsFor(abs(vnow - vprev) =< alpha, previouslyObserved(I - timeStep)).
+
+terminatedAt(changingSpeed(Vessel), T) :-
+  happensAt(speedOverGround(Vessel, NewPosition), vnew),
+  abs(vnew - vnow) =< alpha.
 
 %------------ highSpeedNearCoast -------------%
 
@@ -37,6 +69,48 @@ terminatedAt(highSpeed(Vessel)=true,T) :-
   nearCoast),T), 
   highSpeed(Vessel)<lowSpeedLimit.
 
+%--------------- movingSpeed -----------------%
+
+initiatedAt(movingSpeed(Vessel, "below"), I) :-
+  speedOverGround(Vessel, Position) =< minServiceSpeed * 0.5,
+  not_holdsFor(speedOverGround(Vessel, Position) > minServiceSpeed * 0.5, previouslyObserved(I - timeStep)).
+
+initiatedAt(movingSpeed(Vessel, "normal"), I) :-
+  speedOverGround(Vessel, Position) >= minServiceSpeed,
+  speedOverGround(Vessel, Position) =< maxServiceSpeed,
+  not_holdsFor(speedOverGround(Vessel, Position) < minServiceSpeed, previouslyObserved(I - timeStep)),
+  not_holdsFor(speedOverGround(Vessel, Position) > maxServiceSpeed, previouslyObserved(I - timeStep)).
+
+initiatedAt(movingSpeed(Vessel, "above"), I) :-
+  speedOverGround(Vessel, Position) >= maxServiceSpeed,
+  not_holdsFor(speedOverGround(Vessel, Position) < maxServiceSpeed, previouslyObserved(I - timeStep)).
+
+terminatedAt(movingSpeed(Vessel, "below"), T) :-
+  speedOverGround(Vessel, NewPosition) > minServiceSpeed * 0.5.
+
+terminatedAt(movingSpeed(Vessel, "normal"), T) :-
+  speedOverGround(Vessel, NewPosition) < minServiceSpeed.
+
+terminatedAt(movingSpeed(Vessel, "normal"), T) :-
+  speedOverGround(Vessel, NewPosition) > maxServiceSpeed.
+
+terminatedAt(movingSpeed(Vessel, "above"), T) :-
+  speedOverGround(Vessel, NewPosition) < maxServiceSpeed.
+
+%----------------- underWay ------------------% 
+
+holdsFor(underway(Vessel), T) :-
+  or(
+    speedOverGround(Vessel, Position) =< minServiceSpeed * 0.5,
+    (speedOverGround(Vessel, Position) >= minServiceSpeed),
+      (speedOverGround(Vessel, Position) =< maxServiceSpeed),
+    speedOverGround(Vessel, Position) >= maxServiceSpeed
+  ),
+  all(
+    previouslyObserved(I - timeStep), \+underway(Vessel),
+    I = T
+  ).
+
 %----------------- drifitng ------------------%
 
 initiatedAt(drifting(Vessel) = true, T) :- 
@@ -46,6 +120,20 @@ initiatedAt(drifting(Vessel) = true, T) :-
 terminatedAt(drifting(Vessel) = true, T) :- 
    happensAt(velocity(Vessel, CoG, _CoG, TrueHeading), T), 
    abs(diff(CoG, TrueHeading)) =< driftThreshold.
+
+%---------------- trawlSpeed -----------------%
+
+initiatedAt(trawlSpeed(Vessel), I) :-
+  speedOverGround(Vessel, Position) >= minTrawlSpeed,
+  speedOverGround(Vessel, Position) =< maxTrawlSpeed,
+  not_holdsFor(speedOverGround(Vessel, Position) < minTrawlSpeed, previouslyObserved(I - timeStep)),
+  not_holdsFor(speedOverGround(Vessel, Position) > maxTrawlSpeed, previouslyObserved(I - timeStep)).
+
+terminatedAt(trawlSpeed(Vessel), T) :-
+  or(
+    speedOverGround(Vessel, NewPosition) < minTrawlSpeed,
+    speedOverGround(Vessel, NewPosition) > maxTrawlSpeed
+  ).
 
 %--------------- trawling --------------------%
 
@@ -60,9 +148,9 @@ terminatedAt(trawling(Vessel) = true, T) :-
   abs(diff(MaxHeadingAngle, MinHeadingAngle)) =< trawlingThresholdHeadingAngle.
 
 staticallyDetermined(trawling(Vessel) = 
-holdsFor(vesselType(Vessel, fishing), 
+holdsFor((vesselType(Vessel, fishing), 
    exists(MaxHeadingAngle, MinHeadingAngle), 
-   abs(diff(MaxHeadingAngle, MinHeadingAngle)) > trawlingThresholdHeadingAngle)):- _.
+   abs(diff(MaxHeadingAngle, MinHeadingAngle)) > trawlingThresholdHeadingAngle))):- _.
 
 %-------------- anchoredOrMoored ---------------%
 
@@ -107,10 +195,32 @@ holdsFor(rendezVous(Vessel1, Vessel2) = true, I) :-
   union_all([Isa, Isf, Isb], I),
   threshold(vrendez, Vrendez), intDurGreater(I, Vrendez, I).
 
+%-------------------------- SAR --------------%
+
+initiatedAt(sarResult(Vessel), I) :-
+  absHeadingDifference(Vessel, PreviousHeading) >= headingChangeThreshold,
+  speedOverGround(Vessel, Position) =< minSARSpeed,
+  not_holdsFor(absHeadingDifference(Vessel, NewPreviousHeading) < headingChangeThreshold, previouslyObserved(I - timeStep)),
+  not_holdsFor(speedOverGround(Vessel, NewPosition) > minSARSpeed, previouslyObserved(I - timeStep)).
+
+terminatedAt(sarResult(Vessel), T) :-
+  and(
+    absHeadingDifference(Vessel, PreviousHeading) < headingChangeThreshold,
+    speedOverGround(Vessel, NewPosition) > minSARSpeed
+  ).
+
+holdsFor(sarResult(Vessel), T) :-
+  absHeadingDifference(Vessel, PreviousHeading) >= headingChangeThreshold,
+  speedOverGround(Vessel, Position) =< minSARSpeed,
+  all(
+    previouslyObserved(I - timeStep), \+sarResult(Vessel),
+    I = T
+  ).
+
 %-------- loitering --------------------------%
 
 holdsFor(loitering(Vessel) = true, I) :-
   holdsFor(presentIn(Vessel, ParticularArea), Isa),
   intDurGreater(Isa, Vlong, I),
-  not holdsFor(evidentPurpose(Vessel), Isa),
+  not_holdsFor(evidentPurpose(Vessel), Isa),
   threshold(vloiter, Vloiter), intDurGreater(I, Vloiter,I).

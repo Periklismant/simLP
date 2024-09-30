@@ -1,4 +1,16 @@
-# Event description similarity (Sent 18 Sept 2024)
+# Event description similarity (Sent: 27 Sept 2024)
+
+### GPT-4 Chain-of-thought (41 rules)
+- vs all maritime rules: 0.46
+
+### GPT-4o Chain-of-thought (43 rules)
+- vs all maritime rules: 0.445
+
+### Llama3 Chain-of-thought (37 rules)
+- vs all maritime rules: 0.3
+
+
+# Event description similarity (Sent: 18 Sept 2024)
 
 ### GPT-4 Chain-of-thought (20 rules)
 - vs all maritime rules: 0.26
@@ -9,7 +21,8 @@
 ### Llama3 Chain-of-thought (18 rules)
 - vs all maritime rules: 0.23
 
-# OLD Event description similarity (Sent: 10 Aug 2024).
+
+# Event description similarity (Sent: 10 Aug 2024).
 
 ### GPT-4 Chain-of-thought (20 rules)
 - vs all maritime rules: 0.23
