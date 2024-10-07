@@ -1,0 +1,122 @@
+Event Description 1: 
+holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),farFromPorts),Isffp),
+	holdsFor(=(withinArea(Vessel,anchorage),true),Iwa),
+	intersect_all(list(Isffp,Iwa),Isa),
+	holdsFor(=(stopped(Vessel),nearPorts),Isn),
+	union_all(list(Isa,Isn),Ii),
+	threshold(vaorm,Vaorm),
+	intDurGreater(Ii,Vaorm,I).
+
+
+Event Description 2: 
+holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),farFromPorts),Istfp),
+	holdsFor(=(withinArea(Vessel,anchorage),true),Ia),
+	intersect_all(list(Istfp,Ia),Ista),
+	holdsFor(=(stopped(Vessel),nearPorts),Istnp),
+	union_all(list(Ista,Istnp),Ii),
+	thresholds(aOrMTime,AOrMTime),
+	intDurGreater(Ii,AOrMTime,I).
+
+Similarity: 0.854
+
+Comments: "threshold" predicates have a different name.
+
+Event Description 1: 
+initiatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,0.5),
+	=<(Speed,MinServiceSpeed).
+
+initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MinServiceSpeed),
+	=<(Speed,MaxServiceSpeed).
+
+initiatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MaxServiceSpeed).
+
+
+Event Description 2: 
+initiatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,Min,_Max,_Avg),
+	thresholds(movingMin,MovingMin),
+	inRange(Speed,MovingMin,Min).
+
+initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,Min,Max,_Avg),
+	inRange(Speed,Min,Max).
+
+initiatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,_Min,Max,_Avg),
+	inRange(Speed,Max,inf).
+
+Rule distances: 
+[[0.68229167 0.63125    0.63125   ]
+ [0.69270833 0.61875    0.63125   ]
+ [0.69270833 0.63125    0.61875   ]]
+
+
+Optimal Rule Assignment: 
+[0 1 2]
+
+Event Description Similarity: 
+0.36006944444444444
+
+Comments: The generated event description for the initiations of movingSpeed is very similar to its ground event description. The corrections mostly amount to predicate renaming and fetching background knowledge. For instance, the definitions for the initiations of movingSpeed=normal coincide if MinServiceSpeed and MaxServiceSpeed are retrieved from the background knowledge predicate typeSpeed. We should penalise the use of different comparison predicates with the same meaning.  
+
+Event Description 1: 
+terminatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MinServiceSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,MinServiceSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MaxServiceSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,MaxServiceSpeed).
+
+
+Event Description 2: 
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(movingMin,MovingMin),
+	-(inRange(Speed,MovingMin,inf)).
+
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(start(=(gap(Vessel),_GapStatus)),T).
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+Rule distances: 
+[[0.5234375  0.44791667 1.         1.        ]
+ [0.5234375  0.44791667 1.         1.        ]
+ [0.5234375  0.44791667 1.         1.        ]
+ [0.5234375  0.44791667 1.         1.        ]]
+
+
+Optimal Rule Assignment: 
+[1 0 2 3]
+
+Event Description Similarity: 
+0.25716145833333337
+
+Comments: The generated rules do not take advantage of the fact that F=V is terminated when F is initiated with a value other than V. Moreover, does the LLM know that the start of a gap should terminate movingSpeed?
