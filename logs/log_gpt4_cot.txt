@@ -1,0 +1,1744 @@
+Event Description 1: 
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,AreaID),T),
+	areaType(AreaID,AreaType).
+
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(leavesArea(Vessel,AreaID),T),
+	areaType(AreaID,AreaType).
+
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+initiatedAt(=(gap(Vessel),nearPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+terminatedAt(=(gap(Vessel),_Value),T) :- 
+	happensAt(gap_end(Vessel),T).
+
+initiatedAt(=(stopped(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,LowThreshold).
+
+terminatedAt(=(stopped(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,LowThreshold).
+
+initiatedAt(=(lowSpeed(Vessel),true),T) :- 
+	countRecentMessagesUnderThreshold(Vessel,Tmin,NumMessages,Vmin),
+	>=(NumMessages,m).
+
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,Vmin).
+
+initiatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,CurrentSpeed,_,_),T),
+	holdsAt(=(velocity(Vessel,PreviousSpeed,_,_),previous(T)),Tprev),
+	/(abs(-(CurrentSpeed,PreviousSpeed)),>(PreviousSpeed,/(a,100))).
+
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,CurrentSpeed,_,_),T),
+	holdsAt(=(velocity(Vessel,PreviousSpeed,_,_),previous(T)),Tprev),
+	/(abs(-(CurrentSpeed,PreviousSpeed)),=<(PreviousSpeed,/(a,100))).
+
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T),
+	velocity(Vessel,Speed,_,T),
+	>(Speed,5).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(leavesArea(Vessel,nearCoast),T).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	velocity(Vessel,Speed,_,T),
+	=<(Speed,5).
+
+initiatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,0.5),
+	=<(Speed,MinServiceSpeed).
+
+initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MinServiceSpeed),
+	=<(Speed,MaxServiceSpeed).
+
+initiatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MaxServiceSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MinServiceSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,MinServiceSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MaxServiceSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,MaxServiceSpeed).
+
+holdsFor(=(underWay(Vessel),true),I) :- 
+	holdsFor(=(movingSpeed(Vessel),below),Ib),
+	holdsFor(=(movingSpeed(Vessel),normal),In),
+	holdsFor(=(movingSpeed(Vessel),above),Ia),
+	union_all(list(Ib,In,Ia),I).
+
+initiatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,CoG,_TrueHeading),T),
+	holdsAt(=(driftingConditions(CoG,Speed),true),T).
+
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,CoG,_TrueHeading),T),
+	-(holdsAt(=(driftingConditions(CoG,Speed),true),T)).
+
+initiatedAt(=(trawlingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>=(Speed,1.0),
+	=<(Speed,9.0).
+
+terminatedAt(=(trawlingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	<(Speed,1.0).
+
+terminatedAt(=(trawlingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,9.0).
+
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	holdsAt(=(trawlingSpeed(Vessel),true),T),
+	checkHeadingVariability(Vessel,T).
+
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	-(holdsAt(=(trawlingSpeed(Vessel),true),T)).
+
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	-(checkHeadingVariability(Vessel,T)).
+
+holdsFor(=(trawling(Vessel),true),I) :- 
+	holdsFor(=(velocity(Vessel,Speed),trawlingSpeed),I1),
+	holdsFor(=(withinArea(Vessel,fishingArea),true),I2),
+	intersect_all(list(I1,I2),I).
+
+holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),farFromPorts),Isffp),
+	holdsFor(=(withinArea(Vessel,anchorage),true),Iwa),
+	intersect_all(list(Isffp,Iwa),Isa),
+	holdsFor(=(stopped(Vessel),nearPorts),Isn),
+	union_all(list(Isa,Isn),Ii),
+	threshold(vaorm,Vaorm),
+	intDurGreater(Ii,Vaorm,I).
+
+holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	holdsFor(=(lowSpeed(Vessel1),true),Is1),
+	holdsFor(=(lowSpeed(Vessel2),true),Is2),
+	intersect_all(list(Ip,Is1,Is2),I).
+
+holdsFor(=(piloting(PilotBoat,NavigatedVessel),true),I) :- 
+	holdsFor(=(proximity(PilotBoat,NavigatedVessel),true),Ip),
+	holdsFor(=(pilotOps(PilotBoat,NavigatedVessel),true),Io),
+	intersect_all(list(Ip,Io),I).
+
+holdsFor(=(rendezVous(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	holdsFor(=(stopped(Vessel1),true),Is1),
+	holdsFor(=(stopped(Vessel2),true),Is2),
+	union_all(list(Is1,Is2),Is),
+	intersect_all(list(Ip,Is),I).
+
+initiatedAt(=(sarOperation(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	happensAt(change_in_heading(Vessel),T),
+	=<(Speed,SARMinSpeed),
+	holdsAt(=(onSARduty(Vessel),true),T).
+
+terminatedAt(=(sarOperation(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,SARMinSpeed).
+
+terminatedAt(=(sarOperation(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	-(happensAt(change_in_heading(Vessel),T)).
+
+holdsFor(=(sarOperation(Vessel),true),I) :- 
+	holdsFor(=(velocity(Vessel,Speed),sarSpeed),Iv),
+	holdsFor(=(change_in_heading(Vessel),true),Ih),
+	intersect_all(list(Iv,Ih),I),
+	threshold(minSarDuration,MinDuration),
+	intDurGreater(I,MinDuration,I).
+
+holdsFor(=(loitering(Vessel),true),I) :- 
+	holdsFor(=(withinArea(Vessel,Area),true),Ia),
+	holdsFor(=(velocity(Vessel,Speed,_,_),stopped),Iv),
+	intersect_all(list(Ia,Iv),I),
+	threshold(vloiter,Vloiter),
+	intDurGreater(I,Vloiter,I).
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+
+Event Description 2: 
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,Area),T),
+	areaType(Area,AreaType).
+
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(leavesArea(Vessel,Area),T),
+	areaType(Area,AreaType).
+
+terminatedAt(=(withinArea(Vessel,_AreaType),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+initiatedAt(=(gap(Vessel),nearPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+terminatedAt(=(gap(Vessel),_PortStatus),T) :- 
+	happensAt(gap_end(Vessel),T).
+
+initiatedAt(=(stopped(Vessel),nearPorts),T) :- 
+	happensAt(stop_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+initiatedAt(=(stopped(Vessel),farFromPorts),T) :- 
+	happensAt(stop_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+terminatedAt(=(stopped(Vessel),_Status),T) :- 
+	happensAt(stop_end(Vessel),T).
+
+terminatedAt(=(stopped(Vessel),_Status),T) :- 
+	happensAt(start(=(gap(Vessel),_GapStatus)),T).
+
+initiatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(slow_motion_start(Vessel),T).
+
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(slow_motion_end(Vessel),T).
+
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+initiatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(change_in_speed_end(Vessel),T).
+
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	-(inRange(Speed,0,HcNearCoastMax)),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	inRange(Speed,0,HcNearCoastMax).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,nearCoast),true)),T).
+
+initiatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,Min,_Max,_Avg),
+	thresholds(movingMin,MovingMin),
+	inRange(Speed,MovingMin,Min).
+
+initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,Min,Max,_Avg),
+	inRange(Speed,Min,Max).
+
+initiatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,_Min,Max,_Avg),
+	inRange(Speed,Max,inf).
+
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(movingMin,MovingMin),
+	-(inRange(Speed,MovingMin,inf)).
+
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(start(=(gap(Vessel),_GapStatus)),T).
+
+holdsFor(=(underWay(Vessel),true),I) :- 
+	holdsFor(=(movingSpeed(Vessel),below),I1),
+	holdsFor(=(movingSpeed(Vessel),normal),I2),
+	holdsFor(=(movingSpeed(Vessel),above),I3),
+	union_all(list(I1,I2,I3),I).
+
+initiatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
+	=\=(TrueHeading,511.0),
+	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
+	thresholds(adriftAngThr,AdriftAngThr),
+	>(AngleDiff,AdriftAngThr),
+	holdsAt(=(underWay(Vessel),true),T).
+
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
+	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
+	thresholds(adriftAngThr,AdriftAngThr),
+	=<(AngleDiff,AdriftAngThr).
+
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,_CourseOverGround,511.0),T).
+
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(end(=(underWay(Vessel),true)),T).
+
+holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),farFromPorts),Istfp),
+	holdsFor(=(withinArea(Vessel,anchorage),true),Ia),
+	intersect_all(list(Istfp,Ia),Ista),
+	holdsFor(=(stopped(Vessel),nearPorts),Istnp),
+	union_all(list(Ista,Istnp),Ii),
+	thresholds(aOrMTime,AOrMTime),
+	intDurGreater(Ii,AOrMTime,I).
+
+initiatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	inRange(Speed,TuggingMin,TuggingMax).
+
+terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	-(inRange(Speed,TuggingMin,TuggingMax)).
+
+terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	oneIsTug(Vessel1,Vessel2),
+	-(oneIsPilot(Vessel1,Vessel2)),
+	-(twoAreTugs(Vessel1,Vessel2)),
+	holdsFor(=(tuggingSpeed(Vessel1),true),Its1),
+	holdsFor(=(tuggingSpeed(Vessel2),true),Its2),
+	intersect_all(list(Ip,Its1,Its2),Ii),
+	thresholds(tuggingTime,TuggingTime),
+	intDurGreater(Ii,TuggingTime,I).
+
+holdsFor(=(rendezVous(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	-(oneIsTug(Vessel1,Vessel2)),
+	-(oneIsPilot(Vessel1,Vessel2)),
+	holdsFor(=(lowSpeed(Vessel1),true),Il1),
+	holdsFor(=(lowSpeed(Vessel2),true),Il2),
+	holdsFor(=(stopped(Vessel1),farFromPorts),Is1),
+	holdsFor(=(stopped(Vessel2),farFromPorts),Is2),
+	union_all(list(Il1,Is1),I1b),
+	union_all(list(Il2,Is2),I2b),
+	intersect_all(list(I1b,I2b,Ip),If),
+	\=(If,list),
+	holdsFor(=(withinArea(Vessel1,nearPorts),true),Iw1),
+	holdsFor(=(withinArea(Vessel2,nearPorts),true),Iw2),
+	holdsFor(=(withinArea(Vessel1,nearCoast),true),Iw3),
+	holdsFor(=(withinArea(Vessel2,nearCoast),true),Iw4),
+	relative_complement_all(If,list(Iw1,Iw2,Iw3,Iw4),Ii),
+	thresholds(rendezvousTime,RendezvousTime),
+	intDurGreater(Ii,RendezvousTime,I).
+
+initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_Heading,_),T),
+	thresholds(trawlspeedMin,TrawlspeedMin),
+	thresholds(trawlspeedMax,TrawlspeedMax),
+	inRange(Speed,TrawlspeedMin,TrawlspeedMax),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_Heading,_),T),
+	thresholds(trawlspeedMin,TrawlspeedMin),
+	thresholds(trawlspeedMax,TrawlspeedMax),
+	-(inRange(Speed,TrawlspeedMin,TrawlspeedMax)).
+
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+holdsFor(=(trawling(Vessel),true),I) :- 
+	holdsFor(=(trawlSpeed(Vessel),true),It),
+	holdsFor(=(trawlingMovement(Vessel),true),Itc),
+	intersect_all(list(It,Itc),Ii),
+	thresholds(trawlingTime,TrawlingTime),
+	intDurGreater(Ii,TrawlingTime,I).
+
+initiatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(sarMinSpeed,SarMinSpeed),
+	inRange(Speed,SarMinSpeed,inf).
+
+terminatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(sarMinSpeed,SarMinSpeed),
+	inRange(Speed,0,SarMinSpeed).
+
+terminatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(start(=(changingSpeed(Vessel),true)),T).
+
+terminatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+holdsFor(=(inSAR(Vessel),true),I) :- 
+	holdsFor(=(sarSpeed(Vessel),true),Iss),
+	holdsFor(=(sarMovement(Vessel),true),Isc),
+	intersect_all(list(Iss,Isc),Ii),
+	intDurGreater(Ii,3600,I).
+
+holdsFor(=(loitering(Vessel),true),I) :- 
+	holdsFor(=(lowSpeed(Vessel),true),Il),
+	holdsFor(=(stopped(Vessel),farFromPorts),Is),
+	union_all(list(Il,Is),Ils),
+	holdsFor(=(withinArea(Vessel,nearCoast),true),Inc),
+	holdsFor(=(anchoredOrMoored(Vessel),true),Iam),
+	relative_complement_all(Ils,list(Inc,Iam),Ii),
+	thresholds(loiteringTime,LoiteringTime),
+	intDurGreater(Ii,LoiteringTime,I).
+
+holdsFor(=(pilotOps(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	oneIsPilot(Vessel1,Vessel2),
+	holdsFor(=(lowSpeed(Vessel1),true),Il1),
+	holdsFor(=(lowSpeed(Vessel2),true),Il2),
+	holdsFor(=(stopped(Vessel1),farFromPorts),Is1),
+	holdsFor(=(stopped(Vessel2),farFromPorts),Is2),
+	union_all(list(Il1,Is1),I1b),
+	union_all(list(Il2,Is2),I2b),
+	intersect_all(list(I1b,I2b,Ip),Ii),
+	\=(Ii,list),
+	holdsFor(=(withinArea(Vessel1,nearCoast),true),Iw1),
+	holdsFor(=(withinArea(Vessel2,nearCoast),true),Iw2),
+	relative_complement_all(Ii,list(Iw1,Iw2),I).
+
+
+Rule distances: 
+[[0.         0.66666667 0.83333333 ... 1.         1.         1.        ]
+ [0.66666667 0.         0.42708333 ... 1.         1.         1.        ]
+ [0.83333333 0.42708333 0.         ... 1.         1.         1.        ]
+ ...
+ [1.         1.         1.         ... 1.         1.         1.        ]
+ [1.         1.         1.         ... 1.         1.         1.        ]
+ [1.         1.         1.         ... 1.         1.         1.        ]]
+
+
+Optimal Rule Assignment: 
+[ 0  1  2  3  4  5 13 32 10 11 35 17 25 18 26 42 20 46 23  8  9 12 24  6
+ 27 45 14 15 39  7 40 50 29 33 48 49 16 28 22 41 34 19 21 30 31 36 37 38
+ 43 44 47]
+
+
+We matched rule:
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,AreaID),T),
+	areaType(AreaID,AreaType).
+
+which has the distance array: [0.         0.66666667 0.83333333 0.625      0.625      0.83333333
+ 0.625      0.625      0.83333333 0.83333333 0.4375     0.83333333
+ 0.83333333 0.4375     0.83333333 0.83333333 0.7625     0.875
+ 0.83333333 0.72916667 0.675      0.675      0.875      0.83333333
+ 1.         0.83035714 0.9        0.83333333 0.83333333 1.
+ 0.6625     0.9        0.83333333 1.         1.         0.80208333
+ 0.9        0.83333333 0.83333333 0.60416667 0.83333333 1.
+ 0.578125   0.875      0.83333333 0.4375     0.4375     0.83333333
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,Area),T),
+	areaType(Area,AreaType).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(leavesArea(Vessel,AreaID),T),
+	areaType(AreaID,AreaType).
+
+which has the distance array: [0.66666667 0.         0.42708333 0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.4375
+ 0.4375     0.83333333 0.4375     0.4375     0.9        0.578125
+ 0.4375     0.91666667 0.9        0.9        0.59375    0.45833333
+ 1.         0.92857143 0.6625     0.4375     0.4375     1.
+ 0.9        0.6625     0.4375     1.         1.         0.91666667
+ 0.6625     0.4375     0.4375     0.83333333 0.4375     1.
+ 0.875      0.578125   0.4375     0.83333333 0.83333333 0.4375
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(leavesArea(Vessel,Area),T),
+	areaType(Area,AreaType).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+which has the distance array: [0.83333333 0.42708333 0.         0.79166667 0.79166667 0.1875
+ 0.83333333 0.83333333 0.1875     0.1875     0.75       0.15625
+ 0.15625    0.75       0.15625    0.15625    0.9        0.578125
+ 0.15625    0.91666667 0.9        0.9        0.59375    0.1875
+ 1.         0.92857143 0.6625     0.15625    0.15625    1.
+ 0.9        0.6625     0.15625    1.         1.         0.91666667
+ 0.6625     0.15625    0.15625    0.83333333 0.15625    1.
+ 0.875      0.578125   0.15625    0.75       0.75       0.15625
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(withinArea(Vessel,_AreaType),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+initiatedAt(=(gap(Vessel),nearPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+which has the distance array: [0.625      0.83333333 0.79166667 0.         0.57291667 0.83333333
+ 0.109375   0.625      0.83333333 0.83333333 0.625      0.83333333
+ 0.83333333 0.625      0.83333333 0.83333333 0.48125    0.875
+ 0.83333333 0.8125     0.775      0.775      0.875      0.83333333
+ 1.         0.63392857 0.9        0.83333333 0.83333333 1.
+ 0.775      0.9        0.83333333 1.         1.         0.56770833
+ 0.9        0.83333333 0.83333333 0.13541667 0.83333333 1.
+ 0.71875    0.875      0.83333333 0.625      0.625      0.83333333
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(gap(Vessel),nearPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+which has the distance array: [0.625      0.83333333 0.79166667 0.57291667 0.         0.83333333
+ 0.625      0.10677083 0.83333333 0.83333333 0.625      0.83333333
+ 0.83333333 0.625      0.83333333 0.83333333 0.675      0.875
+ 0.83333333 0.8125     0.775      0.775      0.75       0.83333333
+ 1.         0.83928571 0.9        0.83333333 0.83333333 1.
+ 0.775      0.8        0.83333333 0.95       0.97368421 0.8125
+ 0.8        0.83333333 0.83333333 0.625      0.83333333 1.
+ 0.71875    0.875      0.83333333 0.625      0.625      0.83333333
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+terminatedAt(=(gap(Vessel),_Value),T) :- 
+	happensAt(gap_end(Vessel),T).
+
+which has the distance array: [0.83333333 0.45833333 0.1875     0.83333333 0.83333333 0.
+ 0.83333333 0.83333333 0.15625    0.15625    0.75       0.1875
+ 0.1875     0.75       0.1875     0.1875     0.9        0.59375
+ 0.1875     0.91666667 0.9        0.9        0.578125   0.15625
+ 1.         0.92857143 0.675      0.1875     0.1875     1.
+ 0.9        0.675      0.1875     1.         1.         0.91666667
+ 0.675      0.1875     0.1875     0.83333333 0.1875     1.
+ 0.875      0.59375    0.1875     0.75       0.75       0.1875
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(gap(Vessel),_PortStatus),T) :- 
+	happensAt(gap_end(Vessel),T).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+initiatedAt(=(stopped(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,LowThreshold).
+
+which has the distance array: [0.4375     0.83333333 0.83333333 0.625      0.625      0.83333333
+ 0.61458333 0.61458333 0.83333333 0.83333333 0.4375     0.83333333
+ 0.83333333 0.4375     0.83333333 0.83333333 0.725      0.828125
+ 0.83333333 0.69791667 0.6375     0.6375     0.828125   0.83333333
+ 1.         0.8125     0.775      0.78125    0.83333333 1.
+ 0.625      0.8625     0.83333333 1.         1.         0.77083333
+ 0.8625     0.83333333 0.83333333 0.60416667 0.83333333 1.
+ 0.53125    0.828125   0.83333333 0.4375     0.4375     0.83333333
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+Their distance is: 0.4375
+
+
+
+We matched rule:
+terminatedAt(=(stopped(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,LowThreshold).
+
+which has the distance array: [0.83333333 0.4375     0.4375     0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.44791667 0.44791667 0.83333333 0.4375
+ 0.4375     0.83333333 0.4375     0.4375     0.8625     0.53125
+ 0.4375     0.88541667 0.8625     0.8625     0.546875   0.45833333
+ 1.         0.83928571 0.6375     0.38541667 0.4375     1.
+ 0.8625     0.625      0.4375     1.         1.         0.88541667
+ 0.625      0.4375     0.4375     0.83333333 0.4375     1.
+ 0.828125   0.53125    0.4375     0.83333333 0.83333333 0.4375
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+Their distance is: 0.4375
+
+
+
+We matched rule:
+initiatedAt(=(lowSpeed(Vessel),true),T) :- 
+	countRecentMessagesUnderThreshold(Vessel,Tmin,NumMessages,Vmin),
+	>=(NumMessages,m).
+
+which has the distance array: [0.77083333 1.         1.         0.79166667 0.79166667 1.
+ 0.79166667 0.79166667 1.         1.         0.76041667 1.
+ 1.         0.77083333 1.         1.         0.8625     1.
+ 1.         0.89583333 0.875      0.875      1.         1.
+ 1.         0.90178571 1.         1.         1.         1.
+ 0.8625     1.         1.         1.         1.         0.88541667
+ 1.         1.         1.         0.77083333 1.         1.
+ 0.828125   1.         1.         0.77083333 0.77083333 1.
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(slow_motion_start(Vessel),T).
+
+Their distance is: 0.7604166666666666
+
+
+
+We matched rule:
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,Vmin).
+
+which has the distance array: [0.83333333 0.4375     0.4375     0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.42708333
+ 0.42708333 0.83333333 0.4375     0.4375     0.8625     0.53125
+ 0.4375     0.88541667 0.8625     0.8625     0.546875   0.45833333
+ 1.         0.83928571 0.6375     0.38541667 0.4375     1.
+ 0.8625     0.625      0.4375     1.         1.         0.88541667
+ 0.625      0.4375     0.4375     0.83333333 0.4375     1.
+ 0.828125   0.53125    0.4375     0.83333333 0.83333333 0.4375
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(slow_motion_end(Vessel),T).
+
+Their distance is: 0.4270833333333333
+
+
+
+We matched rule:
+initiatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,CurrentSpeed,_,_),T),
+	holdsAt(=(velocity(Vessel,PreviousSpeed,_,_),previous(T)),Tprev),
+	/(abs(-(CurrentSpeed,PreviousSpeed)),>(PreviousSpeed,/(a,100))).
+
+which has the distance array: [0.703125   0.875      0.875      0.5625     0.71875    0.875
+ 0.5625     0.71875    0.875      0.875      0.703125   0.875
+ 0.875      0.6953125  0.875      0.875      0.6        0.828125
+ 0.875      0.78125    0.7375     0.7375     0.828125   0.875
+ 1.         0.72321429 0.875      0.8359375  0.875      1.
+ 0.725      0.8625     0.875      1.         1.         0.66666667
+ 0.8625     0.875      0.875      0.546875   0.875      1.
+ 0.65625    0.828125   0.875      0.703125   0.703125   0.875
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_Heading,_),T),
+	thresholds(trawlspeedMin,TrawlspeedMin),
+	thresholds(trawlspeedMax,TrawlspeedMax),
+	inRange(Speed,TrawlspeedMin,TrawlspeedMax),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+Their distance is: 0.6666666666666666
+
+
+
+We matched rule:
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,CurrentSpeed,_,_),T),
+	holdsAt(=(velocity(Vessel,PreviousSpeed,_,_),previous(T)),Tprev),
+	/(abs(-(CurrentSpeed,PreviousSpeed)),=<(PreviousSpeed,/(a,100))).
+
+which has the distance array: [0.875      0.703125   0.703125   0.71875    0.875      0.71875
+ 0.71875    0.875      0.71875    0.71875    0.875      0.703125
+ 0.703125   0.875      0.6953125  0.6953125  0.7375     0.65625
+ 0.703125   0.88541667 0.8625     0.8625     0.671875   0.71875
+ 1.         0.82142857 0.7375     0.6640625  0.703125   1.
+ 0.8625     0.725      0.703125   1.         1.         0.78125
+ 0.725      0.703125   0.703125   0.71875    0.703125   1.
+ 0.828125   0.65625    0.703125   0.875      0.875      0.703125
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	inRange(Speed,0,HcNearCoastMax).
+
+Their distance is: 0.65625
+
+
+
+We matched rule:
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T),
+	velocity(Vessel,Speed,_,T),
+	>(Speed,5).
+
+which has the distance array: [0.828125   1.         1.         0.6640625  0.84375    1.
+ 0.6640625  0.84375    1.         1.         0.828125   1.
+ 1.         0.828125   1.         1.         0.709375   1.
+ 1.         0.89583333 0.875      0.875      1.         1.
+ 1.         0.73214286 1.         1.         1.         1.
+ 0.8625     1.         1.         1.         1.         0.765625
+ 1.         1.         1.         0.6484375  1.         1.
+ 0.828125   1.         1.         0.828125   0.828125   1.
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
+	=\=(TrueHeading,511.0),
+	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
+	thresholds(adriftAngThr,AdriftAngThr),
+	>(AngleDiff,AdriftAngThr),
+	holdsAt(=(underWay(Vessel),true),T).
+
+Their distance is: 0.7321428571428571
+
+
+
+We matched rule:
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(leavesArea(Vessel,nearCoast),T).
+
+which has the distance array: [0.83333333 0.39583333 0.15625    0.83333333 0.83333333 0.1875
+ 0.83333333 0.83333333 0.1875     0.1875     0.75       0.15625
+ 0.15625    0.75       0.15625    0.15625    0.9        0.5703125
+ 0.140625   0.91666667 0.9        0.9        0.59375    0.1875
+ 1.         0.92857143 0.6625     0.15625    0.15625    1.
+ 0.9        0.6625     0.15625    1.         1.         0.91666667
+ 0.6625     0.15625    0.15625    0.83333333 0.15625    1.
+ 0.875      0.578125   0.15625    0.75       0.75       0.15625
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,nearCoast),true)),T).
+
+Their distance is: 0.140625
+
+
+
+We matched rule:
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	velocity(Vessel,Speed,_,T),
+	=<(Speed,5).
+
+which has the distance array: [1.         0.77083333 0.77083333 1.         1.         0.79166667
+ 1.         1.         0.79166667 0.79166667 1.         0.77083333
+ 0.77083333 1.         0.77083333 0.77083333 1.         0.8203125
+ 0.76041667 1.         1.         1.         0.84375    0.79166667
+ 1.         1.         0.7625     0.77083333 0.77083333 1.
+ 1.         0.8625     0.77083333 1.         1.         1.
+ 0.8625     0.77083333 0.77083333 1.         0.77083333 1.
+ 1.         0.828125   0.77083333 1.         1.         0.77083333
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
+	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
+	thresholds(adriftAngThr,AdriftAngThr),
+	=<(AngleDiff,AdriftAngThr).
+
+Their distance is: 0.7625000000000001
+
+
+
+We matched rule:
+initiatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,0.5),
+	=<(Speed,MinServiceSpeed).
+
+which has the distance array: [0.59375    0.875      0.875      0.71875    0.71875    0.875
+ 0.71875    0.71875    0.875      0.875      0.59375    0.875
+ 0.875      0.59375    0.875      0.875      0.7375     0.828125
+ 0.875      0.68229167 0.63125    0.63125    0.828125   0.875
+ 1.         0.75       0.775      0.8359375  0.875      1.
+ 0.6375     0.8625     0.875      1.         1.         0.78125
+ 0.8625     0.875      0.875      0.71875    0.875      1.
+ 0.546875   0.828125   0.875      0.59375    0.59375    0.875
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(sarMinSpeed,SarMinSpeed),
+	inRange(Speed,SarMinSpeed,inf).
+
+Their distance is: 0.546875
+
+
+
+We matched rule:
+initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MinServiceSpeed),
+	=<(Speed,MaxServiceSpeed).
+
+which has the distance array: [0.59375    0.875      0.875      0.71875    0.71875    0.875
+ 0.71875    0.71875    0.875      0.875      0.59375    0.875
+ 0.875      0.59375    0.875      0.875      0.7375     0.828125
+ 0.875      0.69270833 0.61875    0.63125    0.828125   0.875
+ 1.         0.75       0.775      0.8359375  0.875      1.
+ 0.6375     0.8625     0.875      1.         1.         0.78125
+ 0.8625     0.875      0.875      0.71875    0.875      1.
+ 0.546875   0.828125   0.875      0.59375    0.59375    0.875
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,Min,Max,_Avg),
+	inRange(Speed,Min,Max).
+
+Their distance is: 0.61875
+
+
+
+We matched rule:
+initiatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MaxServiceSpeed).
+
+which has the distance array: [0.45833333 0.83333333 0.83333333 0.625      0.625      0.83333333
+ 0.625      0.625      0.83333333 0.83333333 0.45833333 0.83333333
+ 0.83333333 0.45833333 0.83333333 0.83333333 0.7375     0.828125
+ 0.83333333 0.69270833 0.63125    0.61875    0.828125   0.83333333
+ 1.         0.75       0.875      0.78125    0.83333333 1.
+ 0.6375     0.8625     0.83333333 1.         1.         0.78125
+ 0.8625     0.83333333 0.83333333 0.625      0.83333333 1.
+ 0.546875   0.828125   0.83333333 0.45833333 0.45833333 0.83333333
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(start(=(changingSpeed(Vessel),true)),T).
+
+Their distance is: 0.4583333333333333
+
+
+
+We matched rule:
+terminatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MinServiceSpeed).
+
+which has the distance array: [0.83333333 0.45833333 0.45833333 0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.45833333
+ 0.45833333 0.83333333 0.45833333 0.45833333 0.8625     0.546875
+ 0.45833333 0.88541667 0.8625     0.8625     0.5234375  0.44791667
+ 1.         0.83928571 0.65       0.40625    0.45833333 1.
+ 0.8625     0.6375     0.45833333 1.         1.         0.88541667
+ 0.6375     0.45833333 0.45833333 0.83333333 0.45833333 1.
+ 0.828125   0.546875   0.45833333 0.83333333 0.83333333 0.45833333
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(start(=(gap(Vessel),_GapStatus)),T).
+
+Their distance is: 0.44791666666666663
+
+
+
+We matched rule:
+terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,MinServiceSpeed).
+
+which has the distance array: [0.83333333 0.45833333 0.45833333 0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.45833333
+ 0.45833333 0.83333333 0.45833333 0.45833333 0.8625     0.546875
+ 0.45833333 0.88541667 0.8625     0.8625     0.5234375  0.44791667
+ 1.         0.91071429 0.55       0.40625    0.45833333 1.
+ 0.8625     0.6375     0.45833333 1.         1.         0.88541667
+ 0.6375     0.45833333 0.45833333 0.83333333 0.45833333 1.
+ 0.828125   0.546875   0.45833333 0.83333333 0.83333333 0.45833333
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(stopped(Vessel),_Status),T) :- 
+	happensAt(stop_end(Vessel),T).
+
+Their distance is: 0.4583333333333333
+
+
+
+We matched rule:
+terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,MaxServiceSpeed).
+
+which has the distance array: [0.83333333 0.45833333 0.45833333 0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.45833333
+ 0.45833333 0.83333333 0.45833333 0.45833333 0.8625     0.546875
+ 0.45833333 0.88541667 0.8625     0.8625     0.5234375  0.44791667
+ 1.         0.83928571 0.65       0.40625    0.45833333 1.
+ 0.8625     0.6375     0.45833333 1.         1.         0.88541667
+ 0.6375     0.45833333 0.45833333 0.83333333 0.45833333 1.
+ 0.828125   0.546875   0.45833333 0.83333333 0.83333333 0.45833333
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(stopped(Vessel),_Status),T) :- 
+	happensAt(start(=(gap(Vessel),_GapStatus)),T).
+
+Their distance is: 0.4583333333333333
+
+
+
+We matched rule:
+terminatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,MaxServiceSpeed).
+
+which has the distance array: [0.83333333 0.45833333 0.45833333 0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.45833333
+ 0.45833333 0.83333333 0.45833333 0.45833333 0.8625     0.546875
+ 0.45833333 0.88541667 0.8625     0.8625     0.5234375  0.44791667
+ 1.         0.91071429 0.55       0.40625    0.45833333 1.
+ 0.8625     0.6375     0.45833333 1.         1.         0.88541667
+ 0.6375     0.45833333 0.45833333 0.83333333 0.45833333 1.
+ 0.828125   0.546875   0.45833333 0.83333333 0.83333333 0.45833333
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+Their distance is: 0.4583333333333333
+
+
+
+We matched rule:
+holdsFor(=(underWay(Vessel),true),I) :- 
+	holdsFor(=(movingSpeed(Vessel),below),Ib),
+	holdsFor(=(movingSpeed(Vessel),normal),In),
+	holdsFor(=(movingSpeed(Vessel),above),Ia),
+	union_all(list(Ib,In,Ia),I).
+
+which has the distance array: [1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 0.         1.         1.         1.         1.         0.5859375
+ 1.         1.         1.         0.74375    0.8125     1.
+ 1.         1.         1.         1.         1.         0.67708333
+ 1.         1.         1.         1.         1.         1.
+ 0.6125     0.60416667 0.74553571]
+
+with the following rule: 
+holdsFor(=(underWay(Vessel),true),I) :- 
+	holdsFor(=(movingSpeed(Vessel),below),I1),
+	holdsFor(=(movingSpeed(Vessel),normal),I2),
+	holdsFor(=(movingSpeed(Vessel),above),I3),
+	union_all(list(I1,I2,I3),I).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+initiatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,CoG,_TrueHeading),T),
+	holdsAt(=(driftingConditions(CoG,Speed),true),T).
+
+which has the distance array: [0.60416667 0.83333333 0.83333333 0.14583333 0.625      0.83333333
+ 0.14583333 0.625      0.83333333 0.83333333 0.60416667 0.83333333
+ 0.83333333 0.60416667 0.83333333 0.83333333 0.44375    0.8359375
+ 0.83333333 0.78645833 0.74375    0.74375    0.8359375  0.83333333
+ 1.         0.60267857 0.875      0.79166667 0.83333333 1.
+ 0.73125    0.86875    0.83333333 1.         1.         0.53645833
+ 0.86875    0.83333333 0.83333333 0.125      0.83333333 1.
+ 0.6640625  0.8359375  0.83333333 0.60416667 0.60416667 0.83333333
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(stopped(Vessel),nearPorts),T) :- 
+	happensAt(stop_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+Their distance is: 0.14583333333333331
+
+
+
+We matched rule:
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,CoG,_TrueHeading),T),
+	-(holdsAt(=(driftingConditions(CoG,Speed),true),T)).
+
+which has the distance array: [0.83333333 0.60416667 0.60416667 0.83333333 0.55208333 0.625
+ 0.83333333 0.55208333 0.625      0.625      0.83333333 0.60416667
+ 0.60416667 0.83333333 0.60416667 0.60416667 0.76875    0.6640625
+ 0.60416667 0.890625   0.86875    0.86875    0.5546875  0.625
+ 1.         0.91071429 0.71875    0.53125    0.59375    1.
+ 0.86875    0.63125    0.60416667 0.95       0.97368421 0.890625
+ 0.63125    0.60416667 0.60416667 0.83333333 0.60416667 1.
+ 0.8359375  0.6640625  0.60416667 0.83333333 0.83333333 0.60416667
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,_CourseOverGround,511.0),T).
+
+Their distance is: 0.53125
+
+
+
+We matched rule:
+initiatedAt(=(trawlingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>=(Speed,1.0),
+	=<(Speed,9.0).
+
+which has the distance array: [0.578125   0.875      0.875      0.71875    0.71875    0.875
+ 0.71875    0.71875    0.875      0.875      0.578125   0.875
+ 0.875      0.578125   0.875      0.875      0.725      0.828125
+ 0.875      0.69791667 0.6375     0.6375     0.828125   0.875
+ 1.         0.8125     0.775      0.8359375  0.875      1.
+ 0.625      0.8625     0.875      1.         1.         0.77083333
+ 0.8625     0.875      0.875      0.703125   0.875      1.
+ 0.53125    0.828125   0.875      0.578125   0.578125   0.875
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+Their distance is: 0.578125
+
+
+
+We matched rule:
+terminatedAt(=(trawlingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	<(Speed,1.0).
+
+which has the distance array: [0.83333333 0.4375     0.4375     0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.4375
+ 0.4375     0.83333333 0.4375     0.4375     0.8625     0.53125
+ 0.4375     0.88541667 0.8625     0.8625     0.546875   0.45833333
+ 1.         0.91071429 0.6375     0.38541667 0.4375     1.
+ 0.8625     0.625      0.4375     1.         1.         0.88541667
+ 0.625      0.4375     0.4375     0.83333333 0.4375     1.
+ 0.828125   0.53125    0.4375     0.83333333 0.83333333 0.4375
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(change_in_speed_end(Vessel),T).
+
+Their distance is: 0.4375
+
+
+
+We matched rule:
+terminatedAt(=(trawlingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,9.0).
+
+which has the distance array: [0.83333333 0.4375     0.4375     0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.4375
+ 0.4375     0.83333333 0.4375     0.4375     0.8625     0.53125
+ 0.4375     0.88541667 0.8625     0.8625     0.546875   0.45833333
+ 1.         0.83928571 0.6375     0.38541667 0.4375     1.
+ 0.8625     0.625      0.4375     1.         1.         0.88541667
+ 0.625      0.4375     0.4375     0.83333333 0.4375     1.
+ 0.828125   0.53125    0.4375     0.83333333 0.83333333 0.4375
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+Their distance is: 0.4375
+
+
+
+We matched rule:
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	holdsAt(=(trawlingSpeed(Vessel),true),T),
+	checkHeadingVariability(Vessel,T).
+
+which has the distance array: [0.703125   0.875      0.875      0.546875   0.71875    0.875
+ 0.546875   0.71875    0.875      0.875      0.703125   0.875
+ 0.875      0.703125   0.875      0.875      0.5875     0.828125
+ 0.875      0.78125    0.7375     0.7375     0.828125   0.875
+ 1.         0.70982143 0.86875    0.828125   0.875      1.
+ 0.725      0.8625     0.875      1.         1.         0.65625
+ 0.8625     0.875      0.875      0.5234375  0.875      1.
+ 0.65625    0.828125   0.875      0.703125   0.703125   0.875
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+Their distance is: 0.5234375
+
+
+
+We matched rule:
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	-(holdsAt(=(trawlingSpeed(Vessel),true),T)).
+
+which has the distance array: [0.83333333 0.60416667 0.60416667 0.83333333 0.55208333 0.625
+ 0.83333333 0.55208333 0.625      0.625      0.83333333 0.60416667
+ 0.60416667 0.83333333 0.60416667 0.60416667 0.7625     0.65625
+ 0.60416667 0.88541667 0.8625     0.8625     0.546875   0.625
+ 1.         0.90625    0.73125    0.54166667 0.60416667 1.
+ 0.8625     0.625      0.60416667 0.95       0.97368421 0.88541667
+ 0.625      0.60416667 0.60416667 0.83333333 0.59375    1.
+ 0.828125   0.65625    0.60416667 0.83333333 0.83333333 0.60416667
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(stopped(Vessel),farFromPorts),T) :- 
+	happensAt(stop_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+Their distance is: 0.5520833333333333
+
+
+
+We matched rule:
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	-(checkHeadingVariability(Vessel,T)).
+
+which has the distance array: [1.         0.77083333 0.65625    1.         0.83333333 0.6875
+ 1.         0.83333333 0.6875     0.6875     1.         0.65625
+ 0.65625    1.         0.65625    0.65625    0.9        0.828125
+ 0.65625    1.         1.         1.         0.71875    0.6875
+ 1.         1.         0.8625     0.65625    0.65625    1.
+ 1.         0.7625     0.65625    0.95       0.97368421 1.
+ 0.7625     0.65625    0.65625    1.         0.640625   1.
+ 1.         0.828125   0.65625    1.         1.         0.65625
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+Their distance is: 0.640625
+
+
+
+We matched rule:
+holdsFor(=(trawling(Vessel),true),I) :- 
+	holdsFor(=(velocity(Vessel,Speed),trawlingSpeed),I1),
+	holdsFor(=(withinArea(Vessel,fishingArea),true),I2),
+	intersect_all(list(I1,I2),I).
+
+which has the distance array: [1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 0.6125     1.         1.         1.         1.         0.58984375
+ 1.         1.         1.         0.7        0.86677632 1.
+ 1.         1.         1.         1.         1.         0.453125
+ 1.         1.         1.         1.         1.         1.
+ 0.35       0.77430556 0.81919643]
+
+with the following rule: 
+holdsFor(=(pilotOps(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	oneIsPilot(Vessel1,Vessel2),
+	holdsFor(=(lowSpeed(Vessel1),true),Il1),
+	holdsFor(=(lowSpeed(Vessel2),true),Il2),
+	holdsFor(=(stopped(Vessel1),farFromPorts),Is1),
+	holdsFor(=(stopped(Vessel2),farFromPorts),Is2),
+	union_all(list(Il1,Is1),I1b),
+	union_all(list(Il2,Is2),I2b),
+	intersect_all(list(I1b,I2b,Ip),Ii),
+	\=(Ii,list),
+	holdsFor(=(withinArea(Vessel1,nearCoast),true),Iw1),
+	holdsFor(=(withinArea(Vessel2,nearCoast),true),Iw2),
+	relative_complement_all(Ii,list(Iw1,Iw2),I).
+
+Their distance is: 0.8191964285714285
+
+
+
+We matched rule:
+holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),farFromPorts),Isffp),
+	holdsFor(=(withinArea(Vessel,anchorage),true),Iwa),
+	intersect_all(list(Isffp,Iwa),Isa),
+	holdsFor(=(stopped(Vessel),nearPorts),Isn),
+	union_all(list(Isa,Isn),Ii),
+	threshold(vaorm,Vaorm),
+	intDurGreater(Ii,Vaorm,I).
+
+which has the distance array: [1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 0.5859375  1.         1.         1.         1.         0.14583333
+ 1.         1.         1.         0.54583333 0.72971491 1.
+ 1.         1.         1.         1.         1.         0.47916667
+ 1.         1.         1.         1.         1.         1.
+ 0.47916667 0.49537037 0.69866071]
+
+with the following rule: 
+holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),farFromPorts),Istfp),
+	holdsFor(=(withinArea(Vessel,anchorage),true),Ia),
+	intersect_all(list(Istfp,Ia),Ista),
+	holdsFor(=(stopped(Vessel),nearPorts),Istnp),
+	union_all(list(Ista,Istnp),Ii),
+	thresholds(aOrMTime,AOrMTime),
+	intDurGreater(Ii,AOrMTime,I).
+
+Their distance is: 0.14583333333333334
+
+
+
+We matched rule:
+holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	holdsFor(=(lowSpeed(Vessel1),true),Is1),
+	holdsFor(=(lowSpeed(Vessel2),true),Is2),
+	intersect_all(list(Ip,Is1,Is2),I).
+
+which has the distance array: [1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 0.4875     1.         1.         1.         1.         0.546875
+ 1.         1.         1.         0.56875    0.80537281 1.
+ 1.         1.         1.         1.         1.         0.48958333
+ 1.         1.         1.         1.         1.         1.
+ 0.3875     0.69097222 0.7358631 ]
+
+with the following rule: 
+holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	oneIsTug(Vessel1,Vessel2),
+	-(oneIsPilot(Vessel1,Vessel2)),
+	-(twoAreTugs(Vessel1,Vessel2)),
+	holdsFor(=(tuggingSpeed(Vessel1),true),Its1),
+	holdsFor(=(tuggingSpeed(Vessel2),true),Its2),
+	intersect_all(list(Ip,Its1,Its2),Ii),
+	thresholds(tuggingTime,TuggingTime),
+	intDurGreater(Ii,TuggingTime,I).
+
+Their distance is: 0.56875
+
+
+
+We matched rule:
+holdsFor(=(piloting(PilotBoat,NavigatedVessel),true),I) :- 
+	holdsFor(=(proximity(PilotBoat,NavigatedVessel),true),Ip),
+	holdsFor(=(pilotOps(PilotBoat,NavigatedVessel),true),Io),
+	intersect_all(list(Ip,Io),I).
+
+which has the distance array: [1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 0.6125     1.         1.         1.         1.         0.59375
+ 1.         1.         1.         0.690625   0.86348684 1.
+ 1.         1.         1.         1.         1.         0.44791667
+ 1.         1.         1.         1.         1.         1.
+ 0.3375     0.77083333 0.81473214]
+
+with the following rule: 
+holdsFor(=(inSAR(Vessel),true),I) :- 
+	holdsFor(=(sarSpeed(Vessel),true),Iss),
+	holdsFor(=(sarMovement(Vessel),true),Isc),
+	intersect_all(list(Iss,Isc),Ii),
+	intDurGreater(Ii,3600,I).
+
+Their distance is: 0.3375
+
+
+
+We matched rule:
+holdsFor(=(rendezVous(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	holdsFor(=(stopped(Vessel1),true),Is1),
+	holdsFor(=(stopped(Vessel2),true),Is2),
+	union_all(list(Is1,Is2),Is),
+	intersect_all(list(Ip,Is),I).
+
+which has the distance array: [1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 0.40625    1.         1.         1.         1.         0.43359375
+ 1.         1.         1.         0.646875   0.74835526 1.
+ 1.         1.         1.         1.         1.         0.5
+ 1.         1.         1.         1.         1.         1.
+ 0.5        0.55902778 0.66071429]
+
+with the following rule: 
+holdsFor(=(loitering(Vessel),true),I) :- 
+	holdsFor(=(lowSpeed(Vessel),true),Il),
+	holdsFor(=(stopped(Vessel),farFromPorts),Is),
+	union_all(list(Il,Is),Ils),
+	holdsFor(=(withinArea(Vessel,nearCoast),true),Inc),
+	holdsFor(=(anchoredOrMoored(Vessel),true),Iam),
+	relative_complement_all(Ils,list(Inc,Iam),Ii),
+	thresholds(loiteringTime,LoiteringTime),
+	intDurGreater(Ii,LoiteringTime,I).
+
+Their distance is: 0.5590277777777778
+
+
+
+We matched rule:
+initiatedAt(=(sarOperation(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	happensAt(change_in_heading(Vessel),T),
+	=<(Speed,SARMinSpeed),
+	holdsAt(=(onSARduty(Vessel),true),T).
+
+which has the distance array: [0.7625     0.9        0.9        0.6375     0.775      0.9
+ 0.6375     0.775      0.9        0.9        0.7625     0.9
+ 0.9        0.7625     0.9        0.9        0.5875     0.8625
+ 0.9        0.78125    0.7375     0.7375     0.8625     0.9
+ 1.         0.71428571 0.775      0.86875    0.9        1.
+ 0.725      0.8625     0.9        1.         1.         0.65625
+ 0.8625     0.9        0.9        0.6        0.9        1.
+ 0.725      0.8625     0.9        0.7375     0.7625     0.9
+ 1.         1.         1.        ]
+
+with the following rule: 
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	-(inRange(Speed,0,HcNearCoastMax)),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+Their distance is: 0.5875
+
+
+
+We matched rule:
+terminatedAt(=(sarOperation(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,SARMinSpeed).
+
+which has the distance array: [0.83333333 0.4375     0.4375     0.83333333 0.83333333 0.45833333
+ 0.83333333 0.83333333 0.45833333 0.45833333 0.83333333 0.4375
+ 0.4375     0.83333333 0.4375     0.4375     0.8625     0.53125
+ 0.4375     0.88541667 0.8625     0.8625     0.546875   0.45833333
+ 1.         0.83928571 0.6375     0.38541667 0.4375     1.
+ 0.8625     0.625      0.4375     1.         1.         0.88541667
+ 0.625      0.4375     0.4375     0.83333333 0.4375     1.
+ 0.828125   0.53125    0.4375     0.83333333 0.83333333 0.4375
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(end(=(underWay(Vessel),true)),T).
+
+Their distance is: 0.4375
+
+
+
+We matched rule:
+terminatedAt(=(sarOperation(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	-(happensAt(change_in_heading(Vessel),T)).
+
+which has the distance array: [0.83333333 0.60416667 0.60416667 0.83333333 0.66666667 0.625
+ 0.83333333 0.66666667 0.625      0.625      0.83333333 0.60416667
+ 0.60416667 0.83333333 0.60416667 0.60416667 0.7625     0.65625
+ 0.60416667 0.88541667 0.8625     0.8625     0.546875   0.625
+ 1.         0.90625    0.73125    0.54166667 0.60416667 1.
+ 0.8625     0.625      0.60416667 0.95       0.97368421 0.88541667
+ 0.625      0.60416667 0.60416667 0.83333333 0.60416667 1.
+ 0.828125   0.65625    0.60416667 0.83333333 0.83333333 0.60416667
+ 1.         1.         1.        ]
+
+with the following rule: 
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(movingMin,MovingMin),
+	-(inRange(Speed,MovingMin,inf)).
+
+Their distance is: 0.546875
+
+
+
+We matched rule:
+holdsFor(=(sarOperation(Vessel),true),I) :- 
+	holdsFor(=(velocity(Vessel,Speed),sarSpeed),Iv),
+	holdsFor(=(change_in_heading(Vessel),true),Ih),
+	intersect_all(list(Iv,Ih),I),
+	threshold(minSarDuration,MinDuration),
+	intDurGreater(I,MinDuration,I).
+
+which has the distance array: [1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 0.67708333 1.         1.         1.         1.         0.53125
+ 1.         1.         1.         0.65       0.84210526 1.
+ 1.         1.         1.         1.         1.         0.375
+ 1.         1.         1.         1.         1.         1.
+ 0.375      0.72222222 0.82142857]
+
+with the following rule: 
+holdsFor(=(trawling(Vessel),true),I) :- 
+	holdsFor(=(trawlSpeed(Vessel),true),It),
+	holdsFor(=(trawlingMovement(Vessel),true),Itc),
+	intersect_all(list(It,Itc),Ii),
+	thresholds(trawlingTime,TrawlingTime),
+	intDurGreater(Ii,TrawlingTime,I).
+
+Their distance is: 0.375
+
+
+
+We matched rule:
+holdsFor(=(loitering(Vessel),true),I) :- 
+	holdsFor(=(withinArea(Vessel,Area),true),Ia),
+	holdsFor(=(velocity(Vessel,Speed,_,_),stopped),Iv),
+	intersect_all(list(Ia,Iv),I),
+	threshold(vloiter,Vloiter),
+	intDurGreater(I,Vloiter,I).
+
+which has the distance array: [1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 1.         1.         1.         1.         1.         1.
+ 0.67708333 1.         1.         1.         1.         0.5390625
+ 1.         1.         1.         0.65       0.84046053 1.
+ 1.         1.         1.         1.         1.         0.375
+ 1.         1.         1.         1.         1.         1.
+ 0.375      0.71527778 0.81919643]
+
+with the following rule: 
+holdsFor(=(rendezVous(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	-(oneIsTug(Vessel1,Vessel2)),
+	-(oneIsPilot(Vessel1,Vessel2)),
+	holdsFor(=(lowSpeed(Vessel1),true),Il1),
+	holdsFor(=(lowSpeed(Vessel2),true),Il2),
+	holdsFor(=(stopped(Vessel1),farFromPorts),Is1),
+	holdsFor(=(stopped(Vessel2),farFromPorts),Is2),
+	union_all(list(Il1,Is1),I1b),
+	union_all(list(Il2,Is2),I2b),
+	intersect_all(list(I1b,I2b,Ip),If),
+	\=(If,list),
+	holdsFor(=(withinArea(Vessel1,nearPorts),true),Iw1),
+	holdsFor(=(withinArea(Vessel2,nearPorts),true),Iw2),
+	holdsFor(=(withinArea(Vessel1,nearCoast),true),Iw3),
+	holdsFor(=(withinArea(Vessel2,nearCoast),true),Iw4),
+	relative_complement_all(If,list(Iw1,Iw2,Iw3,Iw4),Ii),
+	thresholds(rendezvousTime,RendezvousTime),
+	intDurGreater(Ii,RendezvousTime,I).
+
+Their distance is: 0.8404605263157894
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+initiatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,Min,_Max,_Avg),
+	thresholds(movingMin,MovingMin),
+	inRange(Speed,MovingMin,Min).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+initiatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,_Min,Max,_Avg),
+	inRange(Speed,Max,inf).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+initiatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	inRange(Speed,TuggingMin,TuggingMax).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	-(inRange(Speed,TuggingMin,TuggingMax)).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_Heading,_),T),
+	thresholds(trawlspeedMin,TrawlspeedMin),
+	thresholds(trawlspeedMax,TrawlspeedMax),
+	-(inRange(Speed,TrawlspeedMin,TrawlspeedMax)).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+terminatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(sarMinSpeed,SarMinSpeed),
+	inRange(Speed,0,SarMinSpeed).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+terminatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1.]
+
+with the following rule: 
+terminatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+Their distance is: 1.0
+
+
+
+Sum of distances for optimal rule assignment: 
+27.53155675647452
+Distance between event descriptions: 
+0.5398344462053827
+Event Description Similarity: 
+0.4601655537946173
