@@ -21,7 +21,7 @@ holdsFor(=(anchoredOrMoored(Vessel),true),I) :-
 
 Similarity: 0.854
 
-Comments: "threshold" predicates have a different name.
+Comments: "threshold" predicates have a different name. In this case, we should not consider that the variables of the threshold predicates denote different concepts.
 
 Event Description 1: 
 initiatedAt(=(movingSpeed(Vessel),below),T) :- 

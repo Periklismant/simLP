@@ -1,0 +1,53 @@
+Event Description 1: 
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,AreaID),T),
+	areaType(AreaID,AreaType).
+
+
+Event Description 2: 
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,Area),T),
+	areaType(Area,AreaType).
+
+
+
+Comparing rules:
+ initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,AreaID),T),
+	areaType(AreaID,AreaType).
+ and
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,Area),T),
+	areaType(Area,AreaType).
+
+Var routes for the first rule: 
+{'Vessel': [[('initiatedAt', 0), ('=', 0), ('withinArea', 0)], [('happensAt', 0), ('entersArea', 0)]], 'AreaType': [[('initiatedAt', 0), ('=', 0), ('withinArea', 1)], [('areaType', 1)]], 'T': [[('initiatedAt', 1)], [('happensAt', 1)]], 'AreaID': [[('happensAt', 0), ('entersArea', 1)], [('areaType', 0)]]}
+
+Var routes for the second rule: 
+{'Vessel': [[('initiatedAt', 0), ('=', 0), ('withinArea', 0)], [('happensAt', 0), ('entersArea', 0)]], 'AreaType': [[('initiatedAt', 0), ('=', 0), ('withinArea', 1)], [('areaType', 1)]], 'T': [[('initiatedAt', 1)], [('happensAt', 1)]], 'Area': [[('happensAt', 0), ('entersArea', 1)], [('areaType', 0)]]}
+
+Distance between rule heads: 
+0.0
+Body atom distances: 
+[[0. 1.]
+ [1. 0.]]
+Optimal Body Condition Assignment: 
+[0 1]
+Sum of distances for optimal body condition assignment: 
+0.0
+Distance between rule bodies: 
+0.0
+Distance between rules: 
+0.0
+Similarity of rules: 
+1.0
+Rule distances: 
+[[0.]]
+Optimal Rule Assignment: 
+[0]
+Sum of distances for optimal rule assignment: 
+0.0
+Distance between event descriptions: 
+0.0
+Event Description Similarity: 
+1.0
