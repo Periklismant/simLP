@@ -1,0 +1,1105 @@
+
+
+
+Partition Key: 
+('trawlSpeed', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	minTrawlSpeed(MinSpeed),
+	maxTrawlSpeed(MaxSpeed),
+	>=(Speed,MinSpeed),
+	=<(Speed,MaxSpeed).
+
+
+Ground Event Description: 
+initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_Heading,_),T),
+	thresholds(trawlspeedMin,TrawlspeedMin),
+	thresholds(trawlspeedMax,TrawlspeedMax),
+	inRange(Speed,TrawlspeedMin,TrawlspeedMax),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.765625]
+
+Similarity: 
+0.234375
+
+
+Partition Key: 
+('movingSpeed', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	vesselType(Vessel,Type),
+	minServiceSpeed(Type,MinSpeed),
+	<(Speed,0.5).
+
+terminatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	vesselType(Vessel,Type),
+	minServiceSpeed(Type,MinSpeed),
+	>=(Speed,MinSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	vesselType(Vessel,Type),
+	minServiceSpeed(Type,MinSpeed),
+	maxServiceSpeed(Type,MaxSpeed),
+	<(Speed,MinSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	vesselType(Vessel,Type),
+	minServiceSpeed(Type,MinSpeed),
+	maxServiceSpeed(Type,MaxSpeed),
+	>=(Speed,MaxSpeed).
+
+terminatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	vesselType(Vessel,Type),
+	maxServiceSpeed(Type,MaxSpeed),
+	<(Speed,MaxSpeed).
+
+
+Ground Event Description: 
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(movingMin,MovingMin),
+	-(inRange(Speed,MovingMin,inf)).
+
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(start(=(gap(Vessel),_GapStatus)),T).
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+
+
+Optimal Matching: 
+[0 1 2 3 4]
+
+Rule Distances: 
+[0.63125 0.66875 1.      1.      1.     ]
+
+Similarity: 
+0.1399999999999998
+
+
+Partition Key: 
+('drifting', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CoG,TrueHeading),T),
+	threshold(cog_threshold,Threshold),
+	=<(abs(-(CoG,TrueHeading)),Threshold).
+
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+_dummy_rule :- 
+	.
+
+
+Ground Event Description: 
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
+	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
+	thresholds(adriftAngThr,AdriftAngThr),
+	=<(AngleDiff,AdriftAngThr).
+
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,_CourseOverGround,511.0),T).
+
+terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(end(=(underWay(Vessel),true)),T).
+
+
+
+Optimal Matching: 
+[0 1 2]
+
+Rule Distances: 
+[0.5125   0.140625 1.      ]
+
+Similarity: 
+0.44895833333333335
+
+
+Partition Key: 
+('pilotOps', 'holdsFor')
+
+Generated Event Description: 
+holdsFor(=(pilotOps(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	holdsFor(=(lowSpeed(Vessel1),true),Ils1),
+	holdsFor(=(lowSpeed(Vessel2),true),Ils2),
+	holdsFor(=(movingSpeed(Vessel1),below),Im1),
+	holdsFor(=(movingSpeed(Vessel2),below),Im2),
+	holdsFor(=(underWay(Vessel1),true),Iuw1),
+	holdsFor(=(underWay(Vessel2),true),Iuw2),
+	union_all(list(Ils1,Im1),I1),
+	union_all(list(Ils2,Im2),I2),
+	intersect_all(list(Ip,I1,I2,Iuw1,Iuw2),Ii),
+	threshold(vpilot,Vpilot),
+	intDurGreater(Ii,Vpilot,I).
+
+
+Ground Event Description: 
+holdsFor(=(pilotOps(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	oneIsPilot(Vessel1,Vessel2),
+	holdsFor(=(lowSpeed(Vessel1),true),Il1),
+	holdsFor(=(lowSpeed(Vessel2),true),Il2),
+	holdsFor(=(stopped(Vessel1),farFromPorts),Is1),
+	holdsFor(=(stopped(Vessel2),farFromPorts),Is2),
+	union_all(list(Il1,Is1),I1b),
+	union_all(list(Il2,Is2),I2b),
+	intersect_all(list(I1b,I2b,Ip),Ii),
+	\=(Ii,list),
+	holdsFor(=(withinArea(Vessel1,nearCoast),true),Iw1),
+	holdsFor(=(withinArea(Vessel2,nearCoast),true),Iw2),
+	relative_complement_all(Ii,list(Iw1,Iw2),I).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.375]
+
+Similarity: 
+0.625
+
+
+Partition Key: 
+('lowSpeed', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(lowSpeed(Vessel),true),T) :- 
+	threshold(vmin,Vmin),
+	m_most_recent_messages(Vessel,M),
+	allSpeedsBelowThreshold(M,Vmin).
+
+
+Ground Event Description: 
+initiatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(slow_motion_start(Vessel),T).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.8203125]
+
+Similarity: 
+0.1796875
+
+
+Partition Key: 
+('trawlSpeed', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	minTrawlSpeed(MinSpeed),
+	maxTrawlSpeed(MaxSpeed),
+	<(Speed,MinSpeed).
+
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	minTrawlSpeed(MinSpeed),
+	maxTrawlSpeed(MaxSpeed),
+	>(Speed,MaxSpeed).
+
+_dummy_rule :- 
+	.
+
+
+Ground Event Description: 
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_Heading,_),T),
+	thresholds(trawlspeedMin,TrawlspeedMin),
+	thresholds(trawlspeedMax,TrawlspeedMax),
+	-(inRange(Speed,TrawlspeedMin,TrawlspeedMax)).
+
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+
+
+Optimal Matching: 
+[0 1 2]
+
+Rule Distances: 
+[0.60625 0.65625 1.     ]
+
+Similarity: 
+0.24583333333333335
+
+
+Partition Key: 
+('anchoredOrMoored', 'holdsFor')
+
+Generated Event Description: 
+holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),farFromPorts),Isffp),
+	holdsFor(=(withinArea(Vessel,anchorage),true),Iwa),
+	intersect_all(list(Isffp,Iwa),Isa),
+	holdsFor(=(stopped(Vessel),nearPorts),Isn),
+	union_all(list(Isa,Isn),Ii),
+	threshold(vaorm,Vaorm),
+	intDurGreater(Ii,Vaorm,I).
+
+
+Ground Event Description: 
+holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),farFromPorts),Istfp),
+	holdsFor(=(withinArea(Vessel,anchorage),true),Ia),
+	intersect_all(list(Istfp,Ia),Ista),
+	holdsFor(=(stopped(Vessel),nearPorts),Istnp),
+	union_all(list(Ista,Istnp),Ii),
+	thresholds(aOrMTime,AOrMTime),
+	intDurGreater(Ii,AOrMTime,I).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.14583333]
+
+Similarity: 
+0.8541666666666666
+
+
+Partition Key: 
+('gap', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(gap(Vessel),nearPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+
+Ground Event Description: 
+initiatedAt(=(gap(Vessel),nearPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
+	happensAt(gap_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0. 0.]
+
+Similarity: 
+1.0
+
+
+Partition Key: 
+('underWay', 'holdsFor')
+
+Generated Event Description: 
+holdsFor(=(underWay(Vessel),true),I) :- 
+	holdsFor(=(movingSpeed(Vessel),below),Ib),
+	holdsFor(=(movingSpeed(Vessel),normal),In),
+	holdsFor(=(movingSpeed(Vessel),above),Ia),
+	union_all(list(Ib,In,Ia),I).
+
+
+Ground Event Description: 
+holdsFor(=(underWay(Vessel),true),I) :- 
+	holdsFor(=(movingSpeed(Vessel),below),I1),
+	holdsFor(=(movingSpeed(Vessel),normal),I2),
+	holdsFor(=(movingSpeed(Vessel),above),I3),
+	union_all(list(I1,I2,I3),I).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.]
+
+Similarity: 
+1.0
+
+
+Partition Key: 
+('rendezVous', 'holdsFor')
+
+Generated Event Description: 
+holdsFor(=(rendezVous(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	holdsFor(=(stopped(Vessel1),farFromPorts),Isf1),
+	holdsFor(=(stopped(Vessel2),farFromPorts),Isf2),
+	holdsFor(=(lowSpeed(Vessel1),true),Ils1),
+	holdsFor(=(lowSpeed(Vessel2),true),Ils2),
+	union_all(list(Isf1,Ils1),I1),
+	union_all(list(Isf2,Ils2),I2),
+	intersect_all(list(Ip,I1,I2),Ii),
+	threshold(vrdv,Vrdv),
+	intDurGreater(Ii,Vrdv,I).
+
+
+Ground Event Description: 
+holdsFor(=(rendezVous(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	-(oneIsTug(Vessel1,Vessel2)),
+	-(oneIsPilot(Vessel1,Vessel2)),
+	holdsFor(=(lowSpeed(Vessel1),true),Il1),
+	holdsFor(=(lowSpeed(Vessel2),true),Il2),
+	holdsFor(=(stopped(Vessel1),farFromPorts),Is1),
+	holdsFor(=(stopped(Vessel2),farFromPorts),Is2),
+	union_all(list(Il1,Is1),I1b),
+	union_all(list(Il2,Is2),I2b),
+	intersect_all(list(I1b,I2b,Ip),If),
+	\=(If,list),
+	holdsFor(=(withinArea(Vessel1,nearPorts),true),Iw1),
+	holdsFor(=(withinArea(Vessel2,nearPorts),true),Iw2),
+	holdsFor(=(withinArea(Vessel1,nearCoast),true),Iw3),
+	holdsFor(=(withinArea(Vessel2,nearCoast),true),Iw4),
+	relative_complement_all(If,list(Iw1,Iw2,Iw3,Iw4),Ii),
+	thresholds(rendezvousTime,RendezvousTime),
+	intDurGreater(Ii,RendezvousTime,I).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.56469298]
+
+Similarity: 
+0.4353070175438596
+
+
+Partition Key: 
+('stopped', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(stopped(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	threshold(vstop,Vstop),
+	=<(Speed,Vstop).
+
+_dummy_rule :- 
+	.
+
+
+Ground Event Description: 
+initiatedAt(=(stopped(Vessel),nearPorts),T) :- 
+	happensAt(stop_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+initiatedAt(=(stopped(Vessel),farFromPorts),T) :- 
+	happensAt(stop_start(Vessel),T),
+	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0.7109375 1.       ]
+
+Similarity: 
+0.14453125
+
+
+Partition Key: 
+('lowSpeed', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	threshold(vmin,Vmin),
+	>(Speed,Vmin).
+
+_dummy_rule :- 
+	.
+
+
+Ground Event Description: 
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(slow_motion_end(Vessel),T).
+
+terminatedAt(=(lowSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0.5703125 1.       ]
+
+Similarity: 
+0.21484375
+
+
+Partition Key: 
+('trawlingMovement', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	holdsAt(=(trawlSpeed(Vessel),true),T),
+	wideHeadingDistribution(Vessel,T).
+
+
+Ground Event Description: 
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.53125]
+
+Similarity: 
+0.46875
+
+
+Partition Key: 
+('gap', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(gap(Vessel),_Value),T) :- 
+	happensAt(gap_end(Vessel),T).
+
+
+Ground Event Description: 
+terminatedAt(=(gap(Vessel),_PortStatus),T) :- 
+	happensAt(gap_end(Vessel),T).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.]
+
+Similarity: 
+1.0
+
+
+Partition Key: 
+('withinArea', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,AreaID),T),
+	areaType(AreaID,AreaType).
+
+
+Ground Event Description: 
+initiatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(entersArea(Vessel,Area),T),
+	areaType(Area,AreaType).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.]
+
+Similarity: 
+1.0
+
+
+Partition Key: 
+('stopped', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(stopped(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	threshold(vstop,Vstop),
+	>(Speed,Vstop).
+
+_dummy_rule :- 
+	.
+
+
+Ground Event Description: 
+terminatedAt(=(stopped(Vessel),_Status),T) :- 
+	happensAt(stop_end(Vessel),T).
+
+terminatedAt(=(stopped(Vessel),_Status),T) :- 
+	happensAt(start(=(gap(Vessel),_GapStatus)),T).
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0.5859375 1.       ]
+
+Similarity: 
+0.20703125
+
+
+Partition Key: 
+('trawlingMovement', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	-(holdsAt(=(trawlSpeed(Vessel),true),T)).
+
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	-(wideHeadingDistribution(Vessel,T)).
+
+
+Ground Event Description: 
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+_dummy_rule :- 
+	.
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0.640625 1.      ]
+
+Similarity: 
+0.1796875
+
+
+Partition Key: 
+('tugging', 'holdsFor')
+
+Generated Event Description: 
+holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	holdsFor(=(lowSpeed(Vessel1),true),Ils1),
+	holdsFor(=(lowSpeed(Vessel2),true),Ils2),
+	holdsFor(=(tuggingSpeed(Vessel1),true),Its1),
+	holdsFor(=(tuggingSpeed(Vessel2),true),Its2),
+	union_all(list(Ils1,Its1),I1),
+	union_all(list(Ils2,Its2),I2),
+	intersect_all(list(Ip,I1,I2),Ii),
+	threshold(vtug,Vtug),
+	intDurGreater(Ii,Vtug,I).
+
+
+Ground Event Description: 
+holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
+	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
+	oneIsTug(Vessel1,Vessel2),
+	-(oneIsPilot(Vessel1,Vessel2)),
+	-(twoAreTugs(Vessel1,Vessel2)),
+	holdsFor(=(tuggingSpeed(Vessel1),true),Its1),
+	holdsFor(=(tuggingSpeed(Vessel2),true),Its2),
+	intersect_all(list(Ip,Its1,Its2),Ii),
+	thresholds(tuggingTime,TuggingTime),
+	intDurGreater(Ii,TuggingTime,I).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.53409091]
+
+Similarity: 
+0.46590909090909094
+
+
+Partition Key: 
+('withinArea', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(leavesArea(Vessel,AreaID),T),
+	areaType(AreaID,AreaType).
+
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+
+Ground Event Description: 
+terminatedAt(=(withinArea(Vessel,AreaType),true),T) :- 
+	happensAt(leavesArea(Vessel,Area),T),
+	areaType(Area,AreaType).
+
+terminatedAt(=(withinArea(Vessel,_AreaType),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0. 0.]
+
+Similarity: 
+1.0
+
+
+Partition Key: 
+('trawling', 'holdsFor')
+
+Generated Event Description: 
+holdsFor(=(trawling(Vessel),true),I) :- 
+	holdsFor(=(withinArea(Vessel,fishing),true),I1),
+	eventsToIntervals(change_in_heading(Vessel),I2),
+	intersect_all(list(I1,I2),I).
+
+
+Ground Event Description: 
+holdsFor(=(trawling(Vessel),true),I) :- 
+	holdsFor(=(trawlSpeed(Vessel),true),It),
+	holdsFor(=(trawlingMovement(Vessel),true),Itc),
+	intersect_all(list(It,Itc),Ii),
+	thresholds(trawlingTime,TrawlingTime),
+	intDurGreater(Ii,TrawlingTime,I).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.609375]
+
+Similarity: 
+0.390625
+
+
+Partition Key: 
+('loitering', 'holdsFor')
+
+Generated Event Description: 
+holdsFor(=(loitering(Vessel),true),I) :- 
+	holdsFor(=(stopped(Vessel),true),Is),
+	holdsFor(=(lowSpeed(Vessel),true),Ils),
+	holdsFor(=(withinArea(Vessel,Area),true),Iwa),
+	union_all(list(Is,Ils),Isls),
+	intersect_all(list(Isls,Iwa),Ii),
+	threshold(vloiter,Vloiter),
+	intDurGreater(Ii,Vloiter,I).
+
+
+Ground Event Description: 
+holdsFor(=(loitering(Vessel),true),I) :- 
+	holdsFor(=(lowSpeed(Vessel),true),Il),
+	holdsFor(=(stopped(Vessel),farFromPorts),Is),
+	union_all(list(Il,Is),Ils),
+	holdsFor(=(withinArea(Vessel,nearCoast),true),Inc),
+	holdsFor(=(anchoredOrMoored(Vessel),true),Iam),
+	relative_complement_all(Ils,list(Inc,Iam),Ii),
+	thresholds(loiteringTime,LoiteringTime),
+	intDurGreater(Ii,LoiteringTime,I).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.4537037]
+
+Similarity: 
+0.5462962962962963
+
+
+Partition Key: 
+('sarMovement', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T),
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	minSARSpeed(MinSpeed),
+	>=(Speed,MinSpeed).
+
+_dummy_rule :- 
+	.
+
+
+Ground Event Description: 
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(start(=(changingSpeed(Vessel),true)),T).
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0.73125 1.     ]
+
+Similarity: 
+0.1343749999999999
+
+
+Partition Key: 
+('changingSpeed', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Vnow,_CoG,_TrueHeading),T),
+	prevSpeed(Vessel,Vprev),
+	threshold(alpha,Alpha),
+	>(abs(-(Vnow,Vprev)),*(/(Alpha,100),Vprev)).
+
+
+Ground Event Description: 
+initiatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.65625]
+
+Similarity: 
+0.34375
+
+
+Partition Key: 
+('highSpeedNearCoast', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	holdsAt(coord(Vessel,X,Y),T),
+	nearCoast(X,Y),
+	holdsAt(velocity(Vessel,Speed,_,_),T),
+	>(Speed,5).
+
+
+Ground Event Description: 
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	-(inRange(Speed,0,HcNearCoastMax)),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.75625]
+
+Similarity: 
+0.2437499999999999
+
+
+Partition Key: 
+('sarMovement', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	minSARSpeed(MinSpeed),
+	<(Speed,MinSpeed).
+
+terminatedAt(=(sarMovement(Vessel),true),T) :- 
+	-(happensAt(change_in_heading(Vessel),T)).
+
+
+Ground Event Description: 
+terminatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+_dummy_rule :- 
+	.
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0.5703125 1.       ]
+
+Similarity: 
+0.21484375
+
+
+Partition Key: 
+('highSpeedNearCoast', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	holdsAt(velocity(Vessel,Speed,_,_),T),
+	=<(Speed,5).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+
+Ground Event Description: 
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	inRange(Speed,0,HcNearCoastMax).
+
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,nearCoast),true)),T).
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0.8203125 0.140625 ]
+
+Similarity: 
+0.51953125
+
+
+Partition Key: 
+('changingSpeed', 'terminatedAt')
+
+Generated Event Description: 
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Vnow,_CoG,_TrueHeading),T),
+	prevSpeed(Vessel,Vprev),
+	threshold(alpha,Alpha),
+	=<(abs(-(Vnow,Vprev)),*(/(Alpha,100),Vprev)).
+
+_dummy_rule :- 
+	.
+
+
+Ground Event Description: 
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(change_in_speed_end(Vessel),T).
+
+terminatedAt(=(changingSpeed(Vessel),true),T) :- 
+	happensAt(start(=(gap(Vessel),_Status)),T).
+
+
+
+Optimal Matching: 
+[0 1]
+
+Rule Distances: 
+[0.65625 1.     ]
+
+Similarity: 
+0.171875
+
+
+Partition Key: 
+('movingSpeed', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	vesselType(Vessel,Type),
+	minServiceSpeed(Type,MinSpeed),
+	>=(Speed,0.5),
+	<(Speed,MinSpeed).
+
+initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	vesselType(Vessel,Type),
+	minServiceSpeed(Type,MinSpeed),
+	maxServiceSpeed(Type,MaxSpeed),
+	>=(Speed,MinSpeed),
+	<(Speed,MaxSpeed).
+
+initiatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_CoG,_TrueHeading),T),
+	vesselType(Vessel,Type),
+	maxServiceSpeed(Type,MaxSpeed),
+	>=(Speed,MaxSpeed).
+
+
+Ground Event Description: 
+initiatedAt(=(movingSpeed(Vessel),below),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,Min,_Max,_Avg),
+	thresholds(movingMin,MovingMin),
+	inRange(Speed,MovingMin,Min).
+
+initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,Min,Max,_Avg),
+	inRange(Speed,Min,Max).
+
+initiatedAt(=(movingSpeed(Vessel),above),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	vesselType(Vessel,Type),
+	typeSpeed(Type,_Min,Max,_Avg),
+	inRange(Speed,Max,inf).
+
+
+
+Optimal Matching: 
+[0 1 2]
+
+Rule Distances: 
+[0.546875   0.61160714 0.45625   ]
+
+Similarity: 
+0.46175595238095246
+
+
+Partition Key: 
+('drifting', 'initiatedAt')
+
+Generated Event Description: 
+initiatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CoG,TrueHeading),T),
+	threshold(cog_threshold,Threshold),
+	>(abs(-(CoG,TrueHeading)),Threshold).
+
+
+Ground Event Description: 
+initiatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
+	=\=(TrueHeading,511.0),
+	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
+	thresholds(adriftAngThr,AdriftAngThr),
+	>(AngleDiff,AdriftAngThr),
+	holdsAt(=(underWay(Vessel),true),T).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.73214286]
+
+Similarity: 
+0.2678571428571429
+
+
+Partition Key: 
+('inSAR', 'holdsFor')
+
+Generated Event Description: 
+holdsFor(=(inSAR(Vessel),true),I) :- 
+	holdsFor(=(change_in_heading(Vessel),true),Ich),
+	holdsFor(=(lowSpeed(Vessel),true),Ils),
+	intersect_all(list(Ich,Ils),I).
+
+
+Ground Event Description: 
+holdsFor(=(inSAR(Vessel),true),I) :- 
+	holdsFor(=(sarSpeed(Vessel),true),Iss),
+	holdsFor(=(sarMovement(Vessel),true),Isc),
+	intersect_all(list(Iss,Isc),Ii),
+	intDurGreater(Ii,3600,I).
+
+
+
+Optimal Matching: 
+[0]
+
+Rule Distances: 
+[0.33125]
+
+Similarity: 
+0.66875
+
+{('trawlSpeed', 'initiatedAt'): 0.234375, ('movingSpeed', 'terminatedAt'): 0.1399999999999998, ('drifting', 'terminatedAt'): 0.44895833333333335, ('pilotOps', 'holdsFor'): 0.625, ('lowSpeed', 'initiatedAt'): 0.1796875, ('trawlSpeed', 'terminatedAt'): 0.24583333333333335, ('anchoredOrMoored', 'holdsFor'): 0.8541666666666666, ('gap', 'initiatedAt'): 1.0, ('underWay', 'holdsFor'): 1.0, ('rendezVous', 'holdsFor'): 0.4353070175438596, ('stopped', 'initiatedAt'): 0.14453125, ('lowSpeed', 'terminatedAt'): 0.21484375, ('trawlingMovement', 'initiatedAt'): 0.46875, ('gap', 'terminatedAt'): 1.0, ('withinArea', 'initiatedAt'): 1.0, ('stopped', 'terminatedAt'): 0.20703125, ('trawlingMovement', 'terminatedAt'): 0.1796875, ('tugging', 'holdsFor'): 0.46590909090909094, ('withinArea', 'terminatedAt'): 1.0, ('trawling', 'holdsFor'): 0.390625, ('loitering', 'holdsFor'): 0.5462962962962963, ('sarMovement', 'initiatedAt'): 0.1343749999999999, ('changingSpeed', 'initiatedAt'): 0.34375, ('highSpeedNearCoast', 'initiatedAt'): 0.2437499999999999, ('sarMovement', 'terminatedAt'): 0.21484375, ('highSpeedNearCoast', 'terminatedAt'): 0.51953125, ('changingSpeed', 'terminatedAt'): 0.171875, ('movingSpeed', 'initiatedAt'): 0.46175595238095246, ('drifting', 'initiatedAt'): 0.2678571428571429, ('inSAR', 'holdsFor'): 0.66875}
+
+Partition keys only in generated event description: 
+[]
+
+
+Partition keys only in ground event description: 
+[('sarSpeed', 'terminatedAt'), ('tuggingSpeed', 'initiatedAt'), ('tuggingSpeed', 'terminatedAt'), ('sarSpeed', 'initiatedAt')]
+
+Similarity for key: ('trawlSpeed', 'initiatedAt') is 0.234375
+Similarity for key: ('movingSpeed', 'terminatedAt') is 0.1399999999999998
+Similarity for key: ('drifting', 'terminatedAt') is 0.44895833333333335
+Similarity for key: ('pilotOps', 'holdsFor') is 0.625
+Similarity for key: ('lowSpeed', 'initiatedAt') is 0.1796875
+Similarity for key: ('trawlSpeed', 'terminatedAt') is 0.24583333333333335
+Similarity for key: ('anchoredOrMoored', 'holdsFor') is 0.8541666666666666
+Similarity for key: ('gap', 'initiatedAt') is 1.0
+Similarity for key: ('underWay', 'holdsFor') is 1.0
+Similarity for key: ('rendezVous', 'holdsFor') is 0.4353070175438596
+Similarity for key: ('stopped', 'initiatedAt') is 0.14453125
+Similarity for key: ('lowSpeed', 'terminatedAt') is 0.21484375
+Similarity for key: ('trawlingMovement', 'initiatedAt') is 0.46875
+Similarity for key: ('gap', 'terminatedAt') is 1.0
+Similarity for key: ('withinArea', 'initiatedAt') is 1.0
+Similarity for key: ('stopped', 'terminatedAt') is 0.20703125
+Similarity for key: ('trawlingMovement', 'terminatedAt') is 0.1796875
+Similarity for key: ('tugging', 'holdsFor') is 0.46590909090909094
+Similarity for key: ('withinArea', 'terminatedAt') is 1.0
+Similarity for key: ('trawling', 'holdsFor') is 0.390625
+Similarity for key: ('loitering', 'holdsFor') is 0.5462962962962963
+Similarity for key: ('sarMovement', 'initiatedAt') is 0.1343749999999999
+Similarity for key: ('changingSpeed', 'initiatedAt') is 0.34375
+Similarity for key: ('highSpeedNearCoast', 'initiatedAt') is 0.2437499999999999
+Similarity for key: ('sarMovement', 'terminatedAt') is 0.21484375
+Similarity for key: ('highSpeedNearCoast', 'terminatedAt') is 0.51953125
+Similarity for key: ('changingSpeed', 'terminatedAt') is 0.171875
+Similarity for key: ('movingSpeed', 'initiatedAt') is 0.46175595238095246
+Similarity for key: ('drifting', 'initiatedAt') is 0.2678571428571429
+Similarity for key: ('inSAR', 'holdsFor') is 0.66875
+Similarity for key: ('sarSpeed', 'terminatedAt') is 0
+Similarity for key: ('tuggingSpeed', 'initiatedAt') is 0
+Similarity for key: ('tuggingSpeed', 'terminatedAt') is 0
+Similarity for key: ('sarSpeed', 'initiatedAt') is 0
+Average Event Description Similarity is: 
+0.4602496694440225

@@ -158,20 +158,20 @@ terminatedAt(drifting(Vessel) = true, T) :-
 
 %---------------- trawlSpeed -----------------%
 
-initiatedAt(trawlingSpeed(Vessel) = true, T) :-
+initiatedAt(trawlSpeed(Vessel) = true, T) :-
     happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
     minTrawlSpeed(MinSpeed),  
     maxTrawlSpeed(MaxSpeed),  
     Speed >= MinSpeed,  
     Speed =< MaxSpeed. 
 
-terminatedAt(trawlingSpeed(Vessel) = true, T) :-
+terminatedAt(trawlSpeed(Vessel) = true, T) :-
     happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
     minTrawlSpeed(MinSpeed),  
     maxTrawlSpeed(MaxSpeed),  
     Speed < MinSpeed.  
 
-terminatedAt(trawlingSpeed(Vessel) = true, T) :-
+terminatedAt(trawlSpeed(Vessel) = true, T) :-
     happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),  
     minTrawlSpeed(MinSpeed),  
     maxTrawlSpeed(MaxSpeed),  
@@ -180,16 +180,16 @@ terminatedAt(trawlingSpeed(Vessel) = true, T) :-
 %--------------- trawling --------------------%
 
 initiatedAt(trawlingMovement(Vessel) = true, T) :-
-    holdsAt(trawlingSpeed(Vessel) = true, T),  
+    holdsAt(trawlSpeed(Vessel) = true, T),  
     wideHeadingDistribution(Vessel, T).  
 
 terminatedAt(trawlingMovement(Vessel) = true, T) :-
-    not holdsAt(trawlingSpeed(Vessel) = true, T).  
+    not holdsAt(trawlSpeed(Vessel) = true, T).  
 
 terminatedAt(trawlingMovement(Vessel) = true, T) :-
     not wideHeadingDistribution(Vessel, T).  
 
-holdsFor(trawlingMovement(Vessel) = true, I) :-
+holdsFor(trawling(Vessel) = true, I) :- % changes from trawlingMovement to trawling
     holdsFor(withinArea(Vessel, fishing) = true, I1),  
     eventsToIntervals(change_in_heading(Vessel), I2),  
     intersect_all([I1, I2], I).  
@@ -264,7 +264,7 @@ terminatedAt(sarMovement(Vessel) = true, T) :-
 terminatedAt(sarMovement(Vessel) = true, T) :-
     not happensAt(change_in_heading(Vessel), T).  
 
-holdsFor(sarMovement(Vessel) = true, I) :-
+holdsFor(inSAR(Vessel) = true, I) :- % changed from sarMovement to inSAR.
     holdsFor(change_in_heading(Vessel) = true, Ich),  
     holdsFor(lowSpeed(Vessel) = true, Ils),  
     intersect_all([Ich, Ils], I).  

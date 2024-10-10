@@ -123,16 +123,16 @@ terminatedAt(drifting(Vessel) = true, T) :-
 
 %---------------- trawlSpeed -----------------%
 
-initiatedAt(trawlingSpeed(Vessel) = true, T) :-
+initiatedAt(trawlSpeed(Vessel) = true, T) :-
   happensAt(velocity(Vessel, Speed, _, _), T),
   Speed >= 1.0,
   Speed =< 9.0.
 
-terminatedAt(trawlingSpeed(Vessel) = true, T) :-
+terminatedAt(trawlSpeed(Vessel) = true, T) :-
   happensAt(velocity(Vessel, Speed, _, _), T),
   Speed < 1.0.
 
-terminatedAt(trawlingSpeed(Vessel) = true, T) :-
+terminatedAt(trawlSpeed(Vessel) = true, T) :-
   happensAt(velocity(Vessel, Speed, _, _), T),
   Speed > 9.0.
 
@@ -140,18 +140,18 @@ terminatedAt(trawlingSpeed(Vessel) = true, T) :-
 
 initiatedAt(trawlingMovement(Vessel) = true, T) :-
   happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),
-  holdsAt(trawlingSpeed(Vessel) = true, T),
+  holdsAt(trawlSpeed(Vessel) = true, T),
   checkHeadingVariability(Vessel, T).
 
 terminatedAt(trawlingMovement(Vessel) = true, T) :-
   happensAt(velocity(Vessel, Speed, _CoG, _TrueHeading), T),
-  not holdsAt(trawlingSpeed(Vessel) = true, T).
+  not holdsAt(trawlSpeed(Vessel) = true, T).
 
 terminatedAt(trawlingMovement(Vessel) = true, T) :-
   not checkHeadingVariability(Vessel, T).
 
 holdsFor(trawling(Vessel) = true, I) :-
-  holdsFor(velocity(Vessel, Speed) = trawlingSpeed, I1),
+  holdsFor(velocity(Vessel, Speed) = trawlSpeed, I1),
   holdsFor(withinArea(Vessel, fishingArea) = true, I2),
   intersect_all([I1, I2], I).
 
@@ -175,7 +175,7 @@ holdsFor(tugging(Vessel1, Vessel2) = true, I) :-
 
 %-------- pilotOps ---------------------------%
 
-holdsFor(piloting(PilotBoat, NavigatedVessel) = true, I) :-
+holdsFor(pilotOps(PilotBoat, NavigatedVessel) = true, I) :-
   holdsFor(proximity(PilotBoat, NavigatedVessel) = true, Ip),
   holdsFor(pilotOps(PilotBoat, NavigatedVessel) = true, Io),
   intersect_all([Ip, Io], I).

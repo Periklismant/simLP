@@ -180,17 +180,17 @@ def event_description_distance(event_description1, event_description2, logger):
 
 	m, k = get_lists_size_and_pad(rules1, rules2, Rule(Atom("_dummy_rule", []), []))
 
-	print("Event Description 1: ")
+	print("Generated Event Description: ")
 	print(event_description1)
 	print()
-	print("Event Description 2: ")
+	print("Ground Event Description: ")
 	print(event_description2)
 	print()
 
-	logger.info("Event Description 1: ")
+	logger.info("Generated Event Description: ")
 	logger.info(event_description1)
 	logger.info("")
-	logger.info("Event Description 2: ")
+	logger.info("Ground Event Description: ")
 	logger.info(event_description2)
 	logger.info("")
 
@@ -230,6 +230,7 @@ def event_description_distance(event_description1, event_description2, logger):
 	event_description_similarity = 1 - event_description_distance
 	logger.info("Event Description Similarity: ")
 	logger.info(event_description_similarity)
+	logger.info("")
 
 	return col_ind, c_array[row_ind, col_ind], event_description_similarity
 

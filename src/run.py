@@ -21,7 +21,6 @@ def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file
 
 		return logger
 
-	print("Log file: " + log_file)
 	logger = setup_logger(log_file)
 
 	# init lexer and parsers for RTEC programs
@@ -65,15 +64,16 @@ def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file
 	both_eds_keys = list(set(ground_ed_keys) & set(gen_ed_keys))
 
 	print()
-	print("Keys in both event descriptions: ")
+	print("Partition keys in both event descriptions: ")
 	print(both_eds_keys)
 	print()
 	
 	similarities = dict()
 	for key in both_eds_keys:
 		print()
-		print("Key: ")
+		print("Partition Key: ")
 		print(key)
+		print()
 		optimal_matching, distances, similarity = event_description_distance(gen_ed_partitions[key], ground_ed_partitions[key], logger)
 		print()
 		print("Optimal Matching: ")
@@ -91,13 +91,13 @@ def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file
 
 	gen_ed_only_keys = list(set(gen_ed_keys) - set(ground_ed_keys))
 	print()
-	print("Keys only in generated event description: ")
+	print("Partition keys only in generated event description: ")
 	print(gen_ed_only_keys)
 	print()
 
 	ground_ed_only_keys = list(set(ground_ed_keys) - set(gen_ed_keys))
 	print()
-	print("Keys only in ground event description: ")
+	print("Partition keys only in ground event description: ")
 	print(ground_ed_only_keys)
 	print()
 	for key in ground_ed_only_keys:
