@@ -211,7 +211,6 @@ holdsFor(rendezVous(Vessel1, Vessel2)=true, I) :-
 %---------------- trawlSpeed -----------------%
 
 initiatedAt(trawlSpeed(Vessel)=true, T):-
-    %vesselType(Vessel, fishing),
     happensAt(velocity(Vessel, Speed, _Heading,_), T),
     thresholds(trawlspeedMin, TrawlspeedMin),
     thresholds(trawlspeedMax, TrawlspeedMax),
@@ -219,7 +218,6 @@ initiatedAt(trawlSpeed(Vessel)=true, T):-
     holdsAt(withinArea(Vessel, fishing)=true, T).
 
 terminatedAt(trawlSpeed(Vessel)=true, T):-
-    %vesselType(Vessel, fishing),
     happensAt(velocity(Vessel, Speed, _Heading,_), T),
     thresholds(trawlspeedMin, TrawlspeedMin),
     thresholds(trawlspeedMax, TrawlspeedMax),
