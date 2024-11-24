@@ -14,3 +14,5 @@
 - Added unit tests.
 
 - Added logger.
+
+- Added support for disjunction in rule bodies.

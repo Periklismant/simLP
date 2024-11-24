@@ -69,6 +69,12 @@ class RTECParser:
 		''' atom : list '''
 		p[0] = p[1]
 
+	def p_atom_disj(self, p):
+		''' atom : atom DISJ atom '''
+		#print("Atom name: " + p[2])
+		#print("Args: " + str(p[1]) + " and " + str(p[3]))
+		p[0] = Atom(p[2], [p[1], p[3]])
+
 	def p_atom_comp(self, p):
 		''' atom : atom comp atom '''
 		#print("Atom name: " + p[2])

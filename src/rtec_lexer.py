@@ -36,7 +36,8 @@ class RTECLexer():
 		'PLUS',
 		'MINUS',
 		'TIMES',
-		'DIV'
+		'DIV',
+		'DISJ'
 	)
 	# Regex patterns for tokens
 	#t_INITIATEDAT = r'initiatedAt'
@@ -81,6 +82,8 @@ class RTECLexer():
 	t_MINUS = r'\-'
 	t_TIMES = r'\*'
 	t_DIV = r'\/'
+
+	t_DISJ = r';'
 
 	t_ignore_NL = r'\n'
 	t_ignore_LINECOMMENT = r'%.*\n'

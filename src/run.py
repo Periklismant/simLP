@@ -61,7 +61,7 @@ def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file
 		#print("Key: " + str(key))
 		#print("Event Description: " + str(ground_ed_partitions[key]))
 
-	both_eds_keys = list(set(ground_ed_keys) & set(gen_ed_keys))
+	both_eds_keys = sorted(list(set(ground_ed_keys) & set(gen_ed_keys)))
 
 	print()
 	print("Partition keys in both event descriptions: ")
@@ -107,7 +107,7 @@ def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file
 		print("Similarity for key: " + str(key) + " is " + str(similarities[key]))
 
 	print("Average Event Description Similarity is: ")
-	print(sum(similarities.values())/(len(both_eds_keys)+len(gen_ed_only_keys)))
+	print(sum(similarities.values())/(len(both_eds_keys)+len(ground_ed_only_keys)))
 
 	return
 	#return optimal_matching, distances, similarity

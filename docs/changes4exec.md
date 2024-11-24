@@ -81,3 +81,36 @@
 - missing right paren
 
 ## RTEC maritime event description: (51 rules)
+
+# RULES (24 NOV)
+
+## gpt4-cot 
+
+- comparison symbols
+- disjunction
+- holdsAt wrapper in proximity
+- tugging speed is defined twice (not changed yet).
+- both trawlSpeed and trawlingSpeed are defined (not changed yet).
+
+## gpt4-fewshot
+
+- comparison symbols
+- disjunctions
+
+## gpt4o-cot
+
+- disjunctions
+- HighSpeedNearCoast with capital
+
+## gpt4o-fewshot
+
+- disjunctions
+
+.
+.
+.
+
+## gpto1_cot
+
+## gpto1_fewshot
+
