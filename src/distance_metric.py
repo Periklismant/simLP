@@ -180,12 +180,12 @@ def event_description_distance(event_description1, event_description2, logger):
 
 	m, k = get_lists_size_and_pad(rules1, rules2, Rule(Atom("_dummy_rule", []), []))
 
-	print("Generated Event Description: ")
-	print(event_description1)
-	print()
-	print("Ground Event Description: ")
-	print(event_description2)
-	print()
+	#print("Generated Event Description: ")
+	#print(event_description1)
+	#print()
+	#print("Ground Event Description: ")
+	#print(event_description2)
+	#print()
 
 	logger.info("Generated Event Description: ")
 	logger.info(event_description1)

@@ -1,299 +1,334 @@
 %--------------- communication gap -----------%
 
-start_communication_gap(NearPort) :-
-    receiving_messages(false), 
-    port_distance(Vessel, NearPort, Distance),
-    nearCoast(Distance). 
+initiatedAt(gap_start_nearPort(Vessel)=true, I1) :-
+    holdsFor(stopped(Vessel), I2),
+    holdsFor(nearPort(Vessel), I3),
+    \+ holdsFor(gap_start_farFromAllPorts(Vessel), I4),
+    I2 < I1,
+    I3 =< I1.
 
-start_communication_gap_far(AllPorts) :-
-    receiving_messages(false),
-    not(nearAnyPort(AllPorts)). 
+initiatedAt(gap_start_farFromAllPorts(Vessel)=true, I1) :-
+    holdsFor(stopped(Vessel), I2),
+    \+ holdsFor(nearPort(_), I3),
+    \+ holdsFor(gap_start_nearPort(Vessel), I4),
+    I2 < I1.
 
-end_communication_gap :-
-    receiving_messages(true).
+initiatedAt(gap_end(Vessel)=true, I1) :-
+    holdsFor(proximity(_, Vessel), I2),
+    \+ holdsFor(stopped(Vessel), I3),
+    I < I2.
 
 %-------------- lowspeed----------------------%
 
-start_low_speed :-
-    vesselMoving,
-    currentSpeed(Speed),
-    Speed < MinimumLowSpeed.
+holdsFor(lowSpeedLimit=true, I) :-
+    LowSpeedLimit = LowSpeedThreshold.
 
-low_speed :-
-    vesselMoving,
-    currentSpeed(Speed),
-    Speed < MinimumLowSpeed.
+holdsFor(highSpeedLimit=true, I) :-
+    HighSpeedLimit = HighSpeedThreshold.
 
-end_low_speed :-
-    not vesselMoving,
-    \+ previousVesselMoving.
+initiatedAt(lowSpeed(Vessel)=true, I1) :-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    Speed_Vessel < LowSpeedLimit.
 
-end_low_speed :-
-    signalTransmissionGap.
+initiatedAt(normalSpeed(Vessel)=true, I1) :-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    LowSpeedLimit =< Speed_Vessel, Speed_Vessel < HighSpeedLimit.
+
+initiatedAt(highSpeed(Vessel)=true , I1):-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    Speed_Vessel >= HighSpeedLimit.
+
+initiatedAt(noLowSpeed(Vessel)=true, I1) :-
+    ( \+ initiatedAt(lowSpeed(Vessel), _) ; \+ initiatedAt(stopped(Vessel), _) ).
 
 %-------------- changingSpeed ----------------%
 
-start_changing_speed :-
-    currentSpeed(PreviousSpeed),
-    \+ (currentSpeed(CurrentSpeed) = PreviousSpeed),
-    vesselMoving.
+holdsFor(changingSpeedThreshold=true, I) :-
+    MaximumChangeRate =< Speed_Change_Rate.
 
-changing_speed :-
-    currentSpeed(PreviousSpeed),
-    \+ (currentSpeed(CurrentSpeed) = PreviousSpeed),
-    vesselMoving.
+initiatedAt(changingSpeed(Vessel)=true, I1) :-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel1, _), I3),
+    holdsFor(velocity(_, _, Speed_Vessel2, I4), I4 > I3),
+    DeltaT = (I4 - I3) / 60,
+    Speed_Change_Rate > DeltaT.
 
-end_changing_speed :-
-    currentSpeed(PreviousSpeed),
-    (currentSpeed(CurrentSpeed) = PreviousSpeed),
-    vesselMoving.
+initiatedAt(noChangingSpeed(Vessel)=true, I1) :-
+    (holdsFor(moving(Vessel), _), holdsFor(velocity(_, _, Speed_Vessel1, _), I2), holdsFor(velocity(_, _,
+Speed_Vessel2, I3), I3 > I2), DeltaT = (I3 - I2) / 60, Speed_Change_Rate =< DeltaT).
 
 %------------ highSpeedNearCoast -------------%
 
-start_high_speed_near_coast :-
-    inCoastalArea,
-    currentSpeed(Speed),
-    Speed > CoastalSpeedLimit.
+initiatedAt(highSpeedNearCoast(Vessel)=true, I1) :-
+    holdsFor(withinCoastalArea(Vessel, Region), I2),
+    holdsFor(speedLimit(Speed), I3),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I4),
+    Speed_Vessel > Speed.
 
-high_speed_near_coast :-
-    inCoastalArea,
-    currentSpeed(Speed),
-    Speed > CoastalSpeedLimit.
+initiatedAt(exitedCoastalArea(Region)=true, I1) :-
+    holdsFor(withinCoastalArea(Vessel, Region), I2),
+    \+ holdsFor(Position(_, X_Vessel, Y_Vessel), I3),
+    I2 < I1.
 
-end_high_speed_near_coast :-
-    \+ inCoastalArea,
-    currentSpeed(Speed),
-    Speed < CoastalSpeedLimit.
+initiatedAt(lowSpeedNearCoast(Vessel)=true, I1) :-
+    ( holdsFor(speedLimit(Speed), I2), holdsFor(velocity(_, _, Speed_Vessel, _), I3), Speed_Vessel < Speed ;
+      holdsFor(exitedCoastalArea(Region), I4) ).
 
 %--------------- movingSpeed -----------------%
 
-start_moving_speed(VesselType) :-
-    vessel_type(VesselType),
-    vesselMoving,
-    vessel_type(VesselType).
+holdsFor(minSpeedExpectedForType=true, I) :-
+    MinimumSpeedExpectedForType =< Speed_Min.
 
-moving_speed_below_min(VesselType) :-
-    vessel_type(VesselType),
-    vesselMoving,
-    vessel_type(VesselType),
-    currentSpeed(CurrentSpeed),
-    min_speed(VesselType, MinimumSpeed),
-    CurrentSpeed < MinimumSpeed.
+holdsFor(maxSpeedExpectedForType=true, I) :-
+    MaximumSpeedExpectedForType >= Speed_Max.
 
-moving_speed_normal(VesselType) :-
-    vessel_type(VesselType),
-    vesselMoving,
-    vessel_type(VesselType),
-    currentSpeed(CurrentSpeed),
-    min_speed(VesselType, MinimumSpeed),
-    max_speed(VesselType, MaximumSpeed),
-    MinimumSpeed =< CurrentSpeed,
-    CurrentSpeed =< MaximumSpeed.
+initiatedAt(belowMinSpeed(Vessel)=true, I1) :-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    Speed_Vessel < Speed_Min.
 
-moving_speed_above_max(VesselType) :-
-    vessel_type(VesselType),
-    vesselMoving,
-    vessel_type(VesselType),
-    currentSpeed(CurrentSpeed),
-    max_speed(VesselType, MaximumSpeed),
-    CurrentSpeed > MaximumSpeed.
+initiatedAt(normalSpeed(Vessel)=true, I1) :-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    Speed_Min =< Speed_Vessel,
+    Speed_Vessel < Speed_Max.
 
-end_moving_speed :-
-    currentSpeed(CurrentSpeed),
-    min_speed(VesselType, MinimumSpeed),
-    CurrentSpeed < MinimumSpeed.
+initiatedAt(aboveMaxSpeed(Vessel)=true, I1) :-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    Speed_Vessel > Speed_Max.
+
+initiatedAt(noMovement=true, I1) :-
+    holdsFor(velocity(_, _, Speed_Vessel, _), I2),
+    Speed_Vessel < MinimumSpeedExpectedForType.
 
 %----------------- drifitng ------------------%
 
-start_drifting :-
-    angle_difference(Angle) > max_angle_limit, .
-    moving(Vessel). 
+holdsFor(drifting(Vessel)=true, I) :-
+    angleDiff(_, AngleDiff, Vessel, _), AngleDiff > MaxDriftAngle.
 
-end_drifting :-
-    ( angle_difference(Angle) <= max_angle_limit ; not(moving(Vessel)) ). 
+holdsFor(notStopped(Vessel)=true, I) :-
+    \+holdsFor(stopped(Vessel), I).
+
+holdsFor(stopped(Vessel)=true, I) :-
+    \+ holdsFor(velocity(_, _, _, _), I).
+
+initiatedAt(driftingStarted=true, I1) :-
+    (holdsFor(drifting(Vessel), _); holdsFor(notStopped(Vessel), _)).
+
+initiatedAt(driftingEnded=true, I1) :-
+    (holdsFor(\+ drifting(Vessel), I2); holdsFor(stopped(Vessel), I2)),
+    I1 >= I2.
 
 %---------------- trawlSpeed -----------------%
 
-start_trawl_speed :-
-    inFishingArea,
-    currentSpeed(Speed),
-    Speed > MinTrawlSpeed,
-    Speed < MaxTrawlSpeed.
+holdsFor(trawlSpeedLowerLimit=true, I) :-
+    TrawlLowerLimit = LowerTrawlSpeed.
 
-trawl_speed :-
-    inFishingArea,
-    currentSpeed(Speed),
-    Speed > MinTrawlSpeed,
-    Speed < MaxTrawlSpeed.
+holdsFor(trawlSpeedUpperLimit=true , I) :-
+    TrawlUpperLimit = UpperTrawlSpeed.
 
-end_trawl_speed :-
-    currentSpeed(Speed),
-    Speed < MinTrawlSpeed,
-    Speed > MaxTrawlSpeed,
-    \+ signalTransmissionGap.
+initiatedAt(trawling(Vessel)=true, I1) :-
+    holdsFor(withinFishingArea(Vessel, Region), I2),
+    holdsFor(speedLimit(TrawlSpeed), I3),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I4),
+    TrawlLowerLimit =< Speed_Vessel,
+    Speed_Vessel =< TrawlUpperLimit.
 
-end_trawl_speed :-
-    signalTransmissionGap.
+initiatedAt(noTrawling(Vessel)=true, I1) :-
+    ( ( \+ holdsFor(trawlSpeedLowerLimit, I2) ; \+ holdsFor(velocity(_, _, Speed_Vessel, _), I3) ;
+Speed_Vessel < TrawlLowerLimit ; Speed_Vessel > TrawlUpperLimit ) ; gapInTransmission ).
 
 %--------------- trawling --------------------%
 
-start_trawling_movement :-
-    inFishingArea,
-    headingChanged,
-    \+ previousHeadingChanged.
+initiatedAt(trawlingMovement(Vessel)=true, I1) :-
+    holdsFor(withinFishingArea(Vessel, Region), I2),
+    initiatedAt(changingHeading, I3),
+    I3 < I1.
 
-trawling_movement :-
-    inFishingArea,
-    headingChanged,
-    \+ previousHeadingChanged.
+initiatedAt(leavingFishingArea(Vessel)=true, I1) :-
+    \+ holdsFor(withinFishingArea(Vessel, Region), I2).
 
-end_trawling_movement :-
-    not inFishingArea.
+initiatedAt(noTrawlingMovement(Vessel)=true, I1) :-
+    ( \+ initiatedAt(trawlingMovement(Vessel), _) ; \+ holdsFor(withinFishingArea(Vessel, Region), _) ).
 
-start_trawling :-
-    in_fishing_area,
-    currentSpeed(CurrentSpeed),
-    min_speed_trawling(MinimumSpeed),
-    max_speed_trawling(MaximumSpeed),
-    CurrentSpeed >= MinimumSpeed,
-    CurrentSpeed <= MaximumSpeed,
-    sailing_manner_trawling.
+initiatedAt(trawlingActivity=true, I1) :-
+    holdsFor(sailingInFishingArea(Vessel), I2),
+    holdsFor(speedWithinBounds(Vessel, MinTrawlSpeed, MaxTrawlSpeed), I3),
+    holdsFor(sailingTypicallyForTrawling(Vessel), I4),
+    I1 > I2,
+    I1 > I3,
+    I1 > I4.
 
-continuing_trawling :-
-    in_fishing_area,
-    currentSpeed(CurrentSpeed),
-    min_speed_trawling(MinimumSpeed),
-    max_speed_trawling(MaximumSpeed),
-    CurrentSpeed >= MinimumSpeed,
-    CurrentSpeed <= MaximumSpeed,
-    sailing_manner_trawling,
-    time_elapsed(Duration),
-    Duration > minimum_duration_trawling.
+initiatedAt(\+ trawlingActivity=true, I1) :-
+    (holdsFor(\+ sailingInFishingArea(Vessel), I2); holdsFor(speedOutsideBounds(Vessel, MinTrawlSpeed,
+MaxTrawlSpeed), I3); holdsFor(\+ sailingTypicallyForTrawling(Vessel), I4)),
+    I1 < I2,
+    I1 < I3,
+    I1 < I4.
 
-end_trawling :-
-    not(in_fishing_area),
-    currentSpeed(CurrentSpeed),
-    min_speed_trawling(MinimumSpeed),
-    max_speed_trawling(MaximumSpeed),
-    ( CurrentSpeed < MinimumSpeed ; CurrentSpeed > MaximumSpeed ),
-    not(sailing_manner_trawling).
+initiatedAt(temporalThresholdExceeded=true, I1) :-
+    holdsFor(trawlingActivity, I2),
+    I1 - I2 > MinTrawlDuration.
 
 %-------------- anchoredOrMoored ---------------%
 
-start_anchoredOrMoored :-
-    vessel_stopped,
-    ( not(near_port) ; in_anchorage ).
+holdsFor(anchorageArea(Location)=true, I) :-
+    withinAnchorage(_, Location, I).
 
-in_anchorage :-
-    not(near_port), 
-    in_anchorage_area. 
+holdsFor(mooringArea(Location)=true, I) :-
+    withinMooring(_, Location, I).
 
-end_anchoredOrMoored :-
-    not(vessel_stopped).
+holdsFor(idle(Vessel)=true , I):-
+    holdsFor(\+ moving(Vessel), I).
+
+holdsFor(farFromPort(Location, DistanceFromPort)=true, I) :-
+    DistanceFromPort >= MinDistanceToPort,
+    \+ (withinPort(_, _, _), I).
+
+holdsFor(nearPort(Location, Port)=true, I) :-
+    DistanceToPort =< MaxDistanceToPort,
+    withinPort(Port, _, _).
+
+initiatedAt(anchoredOrMoored=true, I1) :-
+    (holdsFor(idle(Vessel), I2); holdsFor(\+ idle(Vessel), I2)),
+    (holdsFor(farFromPort(_, Distance), I3), holdsFor(anchoredOrMoored, I1));
+    (holdsFor(nearPort(_, Port), I4), holdsFor(anchoredOrMoored, I1)).
 
 %---------------- tugging (B) ----------------%
 
-start_tugging_speed :-
-    vesselMoving,
-    currentSpeed(Speed),
-    Speed >= MinimumTuggingSpeed,
-    Speed <= MaximumTuggingSpeed.
+holdsFor(tuggingSpeedLimit=true, I) :-
+    LowerBound =< Speed_TuggingThreshold1,
+    UpperBound >= Speed_TuggingThreshold2.
 
-tugging_speed :-
-    vesselMoving,
-    currentSpeed(Speed),
-    Speed >= MinimumTuggingSpeed,
-    Speed <= MaximumTuggingSpeed.
+initiatedAt(withinTuggingSpeed(Vessel)=true, I1) :-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    Speed_TuggingThreshold1 =< Speed_Vessel, Speed_Vessel < Speed_TuggingThreshold2.
 
-end_tugging_speed :-
-    not (vesselMoving and currentSpeed(Speed) between MinimumTuggingSpeed and MaximumTuggingSpeed),
-    \+ previousVesselMoving.
+initiatedAt(noWithinTuggingSpeed(Vessel)=true, I1) :-
+    ( \+ initiatedAt(withinTuggingSpeed(Vessel), _) ; \+ initiatedAt(stopped(Vessel), _) ).
 
-end_tugging_speed :-
-    signalTransmissionGap.
+holdsFor(tugboat(Vessel)=true, I) :-
+    (isTugboat(_, _, Vessel, _)).
 
-start_tugging :-
-    ( vessel_1(X) ; vessel_2(X) ), 
-    tugboat(X),
-    close_to(vessel_1(X), vessel_2(X)),
-    ( speed_within_bounds(vessel_1(X)) ; speed_within_bounds(vessel_2(X)) ).
 
-continuing_tugging :-
-    ( vessel_1(X) ; vessel_2(X) ), 
-    close_to(vessel_1(X), vessel_2(X)),
-    ( speed_within_bounds(vessel_1(X)) ; speed_within_bounds(vessel_2(X)) ),
-    duration_exceeds_threshold.
+holdsFor(otherVessel(Vessel)=true, I) :-
+    \+tugboat(Vessel).
 
-end_tugging :-
-    ( vessel_1(X) ; vessel_2(X) ), 
-    not(close_to(vessel_1(X), vessel_2(X))),
-    not(speed_within_bounds(vessel_1(X))),
-    not(speed_within_bounds(vessel_2(X))).
+holdsFor(closeToEachOther(Vessel1, Vessel2)=true, I) :-
+    distanceBetween(_, Distance, Vessel1, Vessel2, _, _) -> (Distance <= MaxDistanceTug).
+
+holdsFor(speedWithinBounds(Vessel, MinSpeedTug, MaxSpeedTug)=true, I) :-
+    holdsFor(velocity(_, _, Speed, _), I),
+    (MinSpeedTug =< Speed; Speed =< MaxSpeedTug).
+
+initiatedAt(tugging=true, I1) :-
+    (holdsFor(tugboat(Vessel1), _); holdsFor(otherVessel(Vessel2), _)),
+    (holdsFor(closeToEachOther(Vessel1, Vessel2), _); holdsFor(speedWithinBounds(Vessel1, MinSpeedTug, MaxSpeedTug), _)).
+
+initiatedAt(tuggingDurationExceeded=true, I1) :-
+    holdsFor(tugging, I2),
+    I1 - I2 > MinTugDuration.
 
 %-------- pilotOps ---------------------------%
 
-start_pilot_ops :-
-    ( pilot_vessel(X) ; guided_vessel(X) ),
-    pilot(X),
-    close_to(pilot_vessel(X), guided_vessel(X)),
-    ( low_speed(pilot_vessel(X)) ; idle(guided_vessel(X)) ),
-    not_in_coastal_area(pilot_vessel(X)).
+holdsFor(maritimePilot(Vessel)=true, I) :-
+    (isPilotBoat(_, _, Vessel, _)).
+
+holdsFor(closeToEachOther(Vessel1, Vessel2)=true, I) :-
+    distanceBetween(_, Distance, Vessel1, Vessel2, _, _) -> (Distance <= MaxDistancePilot).
+
+holdsFor(lowSpeedOrIdle(Vessel)=true, I) :-
+    (holdsFor(velocity(_, _, Speed, _), I); holdsFor(idle(Vessel), I)); Speed <= MinSpeedPilot.
+
+holdsFor(notWithinCoastalArea(Vessel)=true, I) :-
+    \+withinCoastalArea(_, _, Vessel).
+
+initiatedAt(pilotOps=true, I1) :-
+    (holdsFor(maritimePilot(Vessel1), _); holdsFor(otherVessel(Vessel2), _)),
+    (holdsFor(closeToEachOther(Vessel1, Vessel2), _); holdsFor(lowSpeedOrIdle(Vessel1), _);
+holdsFor(lowSpeedOrIdle(Vessel2), _); holdsFor(notWithinCoastalArea(Vessel1), _)).
 
 %-------------------------- SAR --------------%
 
-start_sar_speed :-
-    vesselMoving,
-    currentSpeed(Speed),
-    Speed >= MinimumSarSpeed.
+holdsFor(SARSpeedThreshold=true, I) :-
+    MinimumSARSpeed =< Speed_SAR_Threshold.
 
-sar_speed :-
-    vesselMoving,
-    currentSpeed(Speed),
-    Speed >= MinimumSarSpeed.
+initiatedAt(withinSARSpeed(Vessel)=true, I1) :-
+    holdsFor(moving(Vessel), I2),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    Speed_Vessel >= Speed_SAR_Threshold.
 
-end_sar_speed :-
-    not (vesselMoving and currentSpeed(Speed) >= MinimumSarSpeed),
-    \+ previousVesselMoving.
+initiatedAt(noWithinSARSpeed(Vessel)=true, I1) :-
+    ( \+ initiatedAt(moving(Vessel), _) ; (holdsFor(moving(Vessel), _), holdsFor(velocity(_, _, Speed_Vessel,
+_), I3), Speed_Vessel < Speed_SAR_Threshold) ).
 
-end_sar_speed :-
-    signalTransmissionGap.
+initiatedAt(sarActivity=true, I1) :-
+    (holdsFor(changeSpeed(Vessel), I2); holdsFor(changeHeading(Vessel), I2)).
 
-start_sar_movement :-
-    ( speed_changed ; heading_changed ).
+initiatedAt(sarInactive=true, I1) :-
+    (holdsFor(\+ changeSpeed(Vessel), I2); holdsFor(\+ changeHeading(Vessel), I2)),
+    holdsFor(velocity(_, _, Speed_Vessel, _), I3),
+    Speed_Vessel < MinimumSpeedExpectedForType.
 
-end_sar_movement :-
-    gap_in_signal_transmissions.
+holdsFor(SARVessel(Vessel)=true, I) :-
+    (isPilotVessel(_, _, Vessel, _)).
 
-start_inSAR :-
-    ( pilot_vessel(Vessel) ; rescue_vessel(Vessel) ), 
-    typical_speed(Speed), 
-    moving(Vessel), 
-    typical_pattern(Pattern). 
+holdsFor(typicalSARSpeed(Vessel, Speed)=true, I) :-
+    (holdsFor(velocity(_, _, Speed, _), I); Speed >= MinSpeedSAR; Speed =< MaxSpeedSAR).
 
-continuous_inSAR :-
-    ( pilot_vessel(Vessel) ; rescue_vessel(Vessel) ),
-    typical_speed(Speed),
-    moving(Vessel),
-    typical_pattern(Pattern).
+holdsFor(typicalSARManner(Vessel)=true, I) :-
+    (maneuvering(_, _, Vessel, _)).
 
-end_inSAR :-
-    ( \+ typical_speed(Speed) ; \+ moving(Vessel) ; \+ typical_pattern(Pattern) ). 
+initiatedAt(inSAR=true, I1) :-
+    (holdsFor(SARVessel(Vessel), _); holdsFor(typicalSARSpeed(Vessel, Speed), _);
+holdsFor(typicalSARManner(Vessel), _)),
+    I1 = initial_time.
+
+initiatedAt(inSARContinues=true, I1) :-
+    (holdsFor(SARVessel(Vessel), _); holdsFor(typicalSARSpeed(Vessel, Speed), _);
+holdsFor(typicalSARManner(Vessel), _)),
+    \+ends_at(inSARContinues, I2).
+
+initiatedAt(inSAREnded=true, I1) :-
+    (\+holdsFor(typicalSARSpeed(_, Speed), _); \+holdsFor(typicalSARManner(Vessel), _)),
+    I1 = final_time.
 
 %-------- loitering --------------------------%
 
-start_loitering :-
-    ( \+ near_port(Vessel) ; \+ near_coast(Vessel) ), 
-    idle_or_low_speed(Idle), 
-    \+ anchored(Vessel). 
-    \+ moored(Vessel). 
-    ( duration_since_entered_area(Time) > min_loitering_duration ).
+holdsFor(loitering(Vessel)=true, I) :-
+    \+isAnchored(Vessel, _); \+isMoorred(Vessel, _).
 
-continuous_loitering :-
-    ( \+ near_port(Vessel) ; \+ near_coast(Vessel) ),
-    idle_or_low_speed(Idle),
-    \+ anchored(Vessel).
-    \+ moored(Vessel). 
+holdsFor(lowSpeed(Vessel, Speed)=true, I) :-
+    (Speed =< MinSpeedLoitering; Speed = 0).
 
-end_loitering :-
-    ( idle_or_low_speed(\+ Idle) ; duration_since_left_area(Time) > min_loitering_duration ), 
-    ( near_port(Vessel) ; near_coast(Vessel) ; anchored(Vessel) ; moored(Vessel) ). 
+holdsFor(farFromPorts(Vessel)=true, I) :-
+    \+nearAnyPort(Vessel, _).
+
+holdsFor(notNearCoast(Vessel)=true, I) :-
+    \+nearCoast(Vessel, _).
+
+holdsFor(loiteringTimeThreshold(I1, I2)=true, I) :-
+    (I2 - I1) >= MinLoiteringTime.
+
+initiatedAt(loitering=true, I1) :-
+    (holdsFor(lowSpeed(_, Speed), _); holdsFor(farFromPorts(Vessel), _); 
+
+holdsFor(notNearCoast(Vessel), _)),
+    \+isAnchored(_, _); \+isMoorred(_, _),
+    loiteringTimeThreshold(Istart, I1).
+
+initiatedAt(loiteringContinues=true , I1):-
+    (holdsFor(lowSpeed(_, Speed), _); holdsFor(farFromPorts(Vessel), _); holdsFor(notNearCoast(Vessel), _)),
+    \+isAnchored(_, _); \+isMoorred(_, _),
+    loiteringTimeThreshold(Istart, I1),
+    \+ends_at(loiteringContinues, I2).
+
+initiatedAt(loiteringEnded=true, I1) :-
+    \+holdsFor(lowSpeed(_, Speed), _); \+holdsFor(farFromPorts(Vessel), _); \+holdsFor(notNearCoast(Vessel), _),
+    \+isAnchored(_, _); \+isMoorred(_, _),
+    I1 = final_time.
