@@ -1,60 +1,12 @@
-Generated Event Description: 
-holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
-	union_all(list(I_anchoredFarFromPorts,I_mooredNearPorts),I).
+Concepts defined in both event descriptions: 
+[('changingSpeed', 'initiatedAt'), ('changingSpeed', 'terminatedAt'), ('drifting', 'initiatedAt'), ('drifting', 'terminatedAt'), ('gap', 'initiatedAt'), ('gap', 'terminatedAt'), ('highSpeedNearCoast', 'initiatedAt'), ('highSpeedNearCoast', 'terminatedAt'), ('loitering', 'holdsFor'), ('lowSpeed', 'initiatedAt'), ('lowSpeed', 'terminatedAt'), ('movingSpeed', 'initiatedAt'), ('movingSpeed', 'terminatedAt'), ('sarMovement', 'initiatedAt'), ('sarMovement', 'terminatedAt'), ('sarSpeed', 'initiatedAt'), ('sarSpeed', 'terminatedAt'), ('trawlSpeed', 'initiatedAt'), ('trawlSpeed', 'terminatedAt'), ('trawling', 'holdsFor'), ('trawlingMovement', 'initiatedAt'), ('trawlingMovement', 'terminatedAt'), ('tugging', 'holdsFor'), ('tuggingSpeed', 'initiatedAt'), ('tuggingSpeed', 'terminatedAt')]
 
-
-Ground Event Description: 
-holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
-	holdsFor(=(stopped(Vessel),farFromPorts),Istfp),
-	holdsFor(=(withinArea(Vessel,anchorage),true),Ia),
-	intersect_all(list(Istfp,Ia),Ista),
-	holdsFor(=(stopped(Vessel),nearPorts),Istnp),
-	union_all(list(Ista,Istnp),Ii),
-	thresholds(aOrMTime,AOrMTime),
-	intDurGreater(Ii,AOrMTime,I).
-
-
-Rule distances: 
-[[0.83203125]]
-
-
-Optimal Rule Assignment: 
-[0]
-
-
-We matched rule:
-holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
-	union_all(list(I_anchoredFarFromPorts,I_mooredNearPorts),I).
-
-which has the distance array: [0.83203125]
-
-with the following rule: 
-holdsFor(=(anchoredOrMoored(Vessel),true),I) :- 
-	holdsFor(=(stopped(Vessel),farFromPorts),Istfp),
-	holdsFor(=(withinArea(Vessel,anchorage),true),Ia),
-	intersect_all(list(Istfp,Ia),Ista),
-	holdsFor(=(stopped(Vessel),nearPorts),Istnp),
-	union_all(list(Ista,Istnp),Ii),
-	thresholds(aOrMTime,AOrMTime),
-	intDurGreater(Ii,AOrMTime,I).
-
-Their distance is: 0.83203125
-
-
-
-Sum of distances for optimal rule assignment: 
-0.83203125
-Distance between event descriptions: 
-0.83203125
-Event Description Similarity: 
-0.16796875
-
-Generated Event Description: 
+Generated Definition: 
 initiatedAt(=(changingSpeed(Vessel),true),T) :- 
 	happensAt(change_in_speed_start(Vessel),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(changingSpeed(Vessel),true),T) :- 
 	happensAt(change_in_speed_start(Vessel),T).
 
@@ -83,12 +35,12 @@ Their distance is: 0.0
 
 Sum of distances for optimal rule assignment: 
 0.0
-Distance between event descriptions: 
+Distance between definitions: 
 0.0
-Event Description Similarity: 
+Definition Similarity: 
 1.0
 
-Generated Event Description: 
+Generated Definition: 
 terminatedAt(=(changingSpeed(Vessel),true),T) :- 
 	happensAt(change_in_speed_end(Vessel),T).
 
@@ -96,7 +48,7 @@ terminatedAt(=(changingSpeed(Vessel),true),T) :-
 	happensAt(gap_start(Vessel),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 terminatedAt(=(changingSpeed(Vessel),true),T) :- 
 	happensAt(change_in_speed_end(Vessel),T).
 
@@ -143,19 +95,19 @@ Their distance is: 0.0
 
 Sum of distances for optimal rule assignment: 
 0.0
-Distance between event descriptions: 
+Distance between definitions: 
 0.0
-Event Description Similarity: 
+Definition Similarity: 
 1.0
 
-Generated Event Description: 
+Generated Definition: 
 initiatedAt(=(drifting(Vessel),true),T) :- 
-	holdsAt(=(currentAngleDifference(Vessel),Difference),T),
+	happensAt(velocity(Vessel,_,CourseOverGround,TrueHeading),T),
 	thresholds(adriftAngThr,AdriftAngThr),
-	>(Difference,AdriftAngThr).
+	>(abs(-(CourseOverGround,TrueHeading)),AdriftAngThr).
 
 
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(drifting(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
 	=\=(TrueHeading,511.0),
@@ -166,7 +118,7 @@ initiatedAt(=(drifting(Vessel),true),T) :-
 
 
 Rule distances: 
-[[0.55803571]]
+[[0.55357143]]
 
 
 Optimal Rule Assignment: 
@@ -175,11 +127,11 @@ Optimal Rule Assignment:
 
 We matched rule:
 initiatedAt(=(drifting(Vessel),true),T) :- 
-	holdsAt(=(currentAngleDifference(Vessel),Difference),T),
+	happensAt(velocity(Vessel,_,CourseOverGround,TrueHeading),T),
 	thresholds(adriftAngThr,AdriftAngThr),
-	>(Difference,AdriftAngThr).
+	>(abs(-(CourseOverGround,TrueHeading)),AdriftAngThr).
 
-which has the distance array: [0.55803571]
+which has the distance array: [0.55357143]
 
 with the following rule: 
 initiatedAt(=(drifting(Vessel),true),T) :- 
@@ -190,31 +142,29 @@ initiatedAt(=(drifting(Vessel),true),T) :-
 	>(AngleDiff,AdriftAngThr),
 	holdsAt(=(underWay(Vessel),true),T).
 
-Their distance is: 0.5580357142857143
+Their distance is: 0.5535714285714285
 
 
 
 Sum of distances for optimal rule assignment: 
-0.5580357142857143
-Distance between event descriptions: 
-0.5580357142857143
-Event Description Similarity: 
-0.4419642857142857
+0.5535714285714285
+Distance between definitions: 
+0.5535714285714285
+Definition Similarity: 
+0.4464285714285715
 
-Generated Event Description: 
+Generated Definition: 
 terminatedAt(=(drifting(Vessel),true),T) :- 
-	holdsAt(=(currentAngleDifference(Vessel),Difference),T),
-	thresholds(adriftAngThr,AdriftAngThr),
-	=<(Difference,AdriftAngThr).
+	happensAt(stop_end(Vessel),T).
 
-terminatedAt(=(drifting(Vessel),true),T) :- 
-	happensAt(stop_start(Vessel),T).
+_dummy_rule :- 
+	.
 
 _dummy_rule :- 
 	.
 
 
-Ground Event Description: 
+Ground Definition: 
 terminatedAt(=(drifting(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
 	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
@@ -229,37 +179,18 @@ terminatedAt(=(drifting(Vessel),true),T) :-
 
 
 Rule distances: 
-[[0.50625   0.8203125 0.8203125]
- [0.65625   0.140625  0.140625 ]
- [1.        1.        1.       ]]
+[[0.65625  0.140625 0.140625]
+ [1.       1.       1.      ]
+ [1.       1.       1.      ]]
 
 
 Optimal Rule Assignment: 
-[0 1 2]
+[1 0 2]
 
 
 We matched rule:
 terminatedAt(=(drifting(Vessel),true),T) :- 
-	holdsAt(=(currentAngleDifference(Vessel),Difference),T),
-	thresholds(adriftAngThr,AdriftAngThr),
-	=<(Difference,AdriftAngThr).
-
-which has the distance array: [0.50625   0.8203125 0.8203125]
-
-with the following rule: 
-terminatedAt(=(drifting(Vessel),true),T) :- 
-	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
-	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
-	thresholds(adriftAngThr,AdriftAngThr),
-	=<(AngleDiff,AdriftAngThr).
-
-Their distance is: 0.50625
-
-
-
-We matched rule:
-terminatedAt(=(drifting(Vessel),true),T) :- 
-	happensAt(stop_start(Vessel),T).
+	happensAt(stop_end(Vessel),T).
 
 which has the distance array: [0.65625  0.140625 0.140625]
 
@@ -279,6 +210,23 @@ which has the distance array: [1. 1. 1.]
 
 with the following rule: 
 terminatedAt(=(drifting(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,_Speed,CourseOverGround,TrueHeading),T),
+	absoluteAngleDiff(CourseOverGround,TrueHeading,AngleDiff),
+	thresholds(adriftAngThr,AdriftAngThr),
+	=<(AngleDiff,AdriftAngThr).
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+_dummy_rule :- 
+	.
+
+which has the distance array: [1. 1. 1.]
+
+with the following rule: 
+terminatedAt(=(drifting(Vessel),true),T) :- 
 	happensAt(end(=(underWay(Vessel),true)),T).
 
 Their distance is: 1.0
@@ -286,23 +234,23 @@ Their distance is: 1.0
 
 
 Sum of distances for optimal rule assignment: 
-1.646875
-Distance between event descriptions: 
-0.5489583333333333
-Event Description Similarity: 
-0.4510416666666667
+2.140625
+Distance between definitions: 
+0.7135416666666666
+Definition Similarity: 
+0.28645833333333337
 
-Generated Event Description: 
-initiatedAt(=(gap(Vessel),nearPorts),T) :- 
+Generated Definition: 
+initiatedAt(=(gap(Vessel,nearPorts),true),T) :- 
 	happensAt(gap_start(Vessel),T),
 	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
 
-initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
+initiatedAt(=(gap(Vessel,farFromPorts),true),T) :- 
 	happensAt(gap_start(Vessel),T),
 	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
 
 
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(gap(Vessel),nearPorts),T) :- 
 	happensAt(gap_start(Vessel),T),
 	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
@@ -313,8 +261,8 @@ initiatedAt(=(gap(Vessel),farFromPorts),T) :-
 
 
 Rule distances: 
-[[0.         0.57291667]
- [0.57291667 0.        ]]
+[[0.04166667 0.58333333]
+ [0.58333333 0.04166667]]
 
 
 Optimal Rule Assignment: 
@@ -322,112 +270,63 @@ Optimal Rule Assignment:
 
 
 We matched rule:
+initiatedAt(=(gap(Vessel,nearPorts),true),T) :- 
+	happensAt(gap_start(Vessel),T),
+	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
+
+which has the distance array: [0.04166667 0.58333333]
+
+with the following rule: 
 initiatedAt(=(gap(Vessel),nearPorts),T) :- 
 	happensAt(gap_start(Vessel),T),
 	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
 
-which has the distance array: [0.         0.57291667]
-
-with the following rule: 
-initiatedAt(=(gap(Vessel),nearPorts),T) :- 
-	happensAt(gap_start(Vessel),T),
-	holdsAt(=(withinArea(Vessel,nearPorts),true),T).
-
-Their distance is: 0.0
+Their distance is: 0.041666666666666664
 
 
 
 We matched rule:
-initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
+initiatedAt(=(gap(Vessel,farFromPorts),true),T) :- 
 	happensAt(gap_start(Vessel),T),
 	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
 
-which has the distance array: [0.57291667 0.        ]
+which has the distance array: [0.58333333 0.04166667]
 
 with the following rule: 
 initiatedAt(=(gap(Vessel),farFromPorts),T) :- 
 	happensAt(gap_start(Vessel),T),
 	-(holdsAt(=(withinArea(Vessel,nearPorts),true),T)).
 
-Their distance is: 0.0
+Their distance is: 0.041666666666666664
 
 
 
 Sum of distances for optimal rule assignment: 
-0.0
-Distance between event descriptions: 
-0.0
-Event Description Similarity: 
-1.0
+0.08333333333333333
+Distance between definitions: 
+0.041666666666666664
+Definition Similarity: 
+0.9583333333333334
 
-Generated Event Description: 
-terminatedAt(=(gap(Vessel),_Status),T) :- 
+Generated Definition: 
+terminatedAt(=(gap(Vessel,nearPorts),true),T) :- 
+	happensAt(gap_end(Vessel),T).
+
+terminatedAt(=(gap(Vessel,farFromPorts),true),T) :- 
 	happensAt(gap_end(Vessel),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 terminatedAt(=(gap(Vessel),_PortStatus),T) :- 
 	happensAt(gap_end(Vessel),T).
-
-
-Rule distances: 
-[[0.]]
-
-
-Optimal Rule Assignment: 
-[0]
-
-
-We matched rule:
-terminatedAt(=(gap(Vessel),_Status),T) :- 
-	happensAt(gap_end(Vessel),T).
-
-which has the distance array: [0.]
-
-with the following rule: 
-terminatedAt(=(gap(Vessel),_PortStatus),T) :- 
-	happensAt(gap_end(Vessel),T).
-
-Their distance is: 0.0
-
-
-
-Sum of distances for optimal rule assignment: 
-0.0
-Distance between event descriptions: 
-0.0
-Event Description Similarity: 
-1.0
-
-Generated Event Description: 
-initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(velocity(Vessel,Speed,_,_),T),
-	holdsAt(=(withinArea(Vessel,nearCoast),true),T),
-	thresholds(hcNearCoastMax,HcNearCoastMax),
-	>(Speed,HcNearCoastMax).
-
-initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(entersArea(Vessel,AreaID),T),
-	areaType(AreaID,nearCoast),
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(hcNearCoastMax,HcNearCoastMax),
-	>(Speed,HcNearCoastMax).
-
-
-Ground Event Description: 
-initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(velocity(Vessel,Speed,_,_),T),
-	thresholds(hcNearCoastMax,HcNearCoastMax),
-	>(Speed,HcNearCoastMax),
-	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
 
 _dummy_rule :- 
 	.
 
 
 Rule distances: 
-[[0.         1.        ]
- [0.27604167 1.        ]]
+[[0.0625 1.    ]
+ [0.0625 1.    ]]
 
 
 Optimal Rule Assignment: 
@@ -435,34 +334,24 @@ Optimal Rule Assignment:
 
 
 We matched rule:
-initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(velocity(Vessel,Speed,_,_),T),
-	holdsAt(=(withinArea(Vessel,nearCoast),true),T),
-	thresholds(hcNearCoastMax,HcNearCoastMax),
-	>(Speed,HcNearCoastMax).
+terminatedAt(=(gap(Vessel,nearPorts),true),T) :- 
+	happensAt(gap_end(Vessel),T).
 
-which has the distance array: [0. 1.]
+which has the distance array: [0.0625 1.    ]
 
 with the following rule: 
-initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(velocity(Vessel,Speed,_,_),T),
-	thresholds(hcNearCoastMax,HcNearCoastMax),
-	>(Speed,HcNearCoastMax),
-	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+terminatedAt(=(gap(Vessel),_PortStatus),T) :- 
+	happensAt(gap_end(Vessel),T).
 
-Their distance is: 0.0
+Their distance is: 0.0625
 
 
 
 We matched rule:
-initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(entersArea(Vessel,AreaID),T),
-	areaType(AreaID,nearCoast),
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(hcNearCoastMax,HcNearCoastMax),
-	>(Speed,HcNearCoastMax).
+terminatedAt(=(gap(Vessel,farFromPorts),true),T) :- 
+	happensAt(gap_end(Vessel),T).
 
-which has the distance array: [0.27604167 1.        ]
+which has the distance array: [0.0625 1.    ]
 
 with the following rule: 
 _dummy_rule :- 
@@ -473,24 +362,74 @@ Their distance is: 1.0
 
 
 Sum of distances for optimal rule assignment: 
-1.0
-Distance between event descriptions: 
-0.5
-Event Description Similarity: 
-0.5
+1.0625
+Distance between definitions: 
+0.53125
+Definition Similarity: 
+0.46875
 
-Generated Event Description: 
+Generated Definition: 
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	>(Speed,HcNearCoastMax).
+
+
+Ground Definition: 
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	>(Speed,HcNearCoastMax),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+
+Rule distances: 
+[[0.]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	>(Speed,HcNearCoastMax).
+
+which has the distance array: [0.]
+
+with the following rule: 
+initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(hcNearCoastMax,HcNearCoastMax),
+	>(Speed,HcNearCoastMax),
+	holdsAt(=(withinArea(Vessel,nearCoast),true),T).
+
+Their distance is: 0.0
+
+
+
+Sum of distances for optimal rule assignment: 
+0.0
+Distance between definitions: 
+0.0
+Definition Similarity: 
+1.0
+
+Generated Definition: 
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(hcNearCoastMax,HcNearCoastMax),
-	=<(Speed,HcNearCoastMax).
+	<(Speed,HcNearCoastMax).
 
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(leavesArea(Vessel,AreaID),T),
-	areaType(AreaID,nearCoast).
+	happensAt(leavesArea(Vessel,nearCoast),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(hcNearCoastMax,HcNearCoastMax),
@@ -501,8 +440,8 @@ terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :-
 
 
 Rule distances: 
-[[0.3203125  0.5703125 ]
- [0.5703125  0.42708333]]
+[[0.        0.5703125]
+ [0.5703125 0.140625 ]]
 
 
 Optimal Rule Assignment: 
@@ -513,9 +452,9 @@ We matched rule:
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(hcNearCoastMax,HcNearCoastMax),
-	=<(Speed,HcNearCoastMax).
+	<(Speed,HcNearCoastMax).
 
-which has the distance array: [0.3203125 0.5703125]
+which has the distance array: [0.        0.5703125]
 
 with the following rule: 
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
@@ -523,94 +462,39 @@ terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :-
 	thresholds(hcNearCoastMax,HcNearCoastMax),
 	<(Speed,HcNearCoastMax).
 
-Their distance is: 0.3203125
+Their distance is: 0.0
 
 
 
 We matched rule:
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(leavesArea(Vessel,AreaID),T),
-	areaType(AreaID,nearCoast).
+	happensAt(leavesArea(Vessel,nearCoast),T).
 
-which has the distance array: [0.5703125  0.42708333]
+which has the distance array: [0.5703125 0.140625 ]
 
 with the following rule: 
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
 	happensAt(end(=(withinArea(Vessel,nearCoast),true)),T).
 
-Their distance is: 0.4270833333333333
+Their distance is: 0.140625
 
 
 
 Sum of distances for optimal rule assignment: 
-0.7473958333333333
-Distance between event descriptions: 
-0.37369791666666663
-Event Description Similarity: 
-0.6263020833333334
+0.140625
+Distance between definitions: 
+0.0703125
+Definition Similarity: 
+0.9296875
 
-Generated Event Description: 
-holdsFor(=(inSAR(Vessel),true),I) :- 
-	vesselType(Vessel,pilotVessel),
-	holdsFor(=(sarSpeed(Vessel),true),I1),
-	holdsFor(=(sarMovement(Vessel),true),I2),
-	intersect_all(list(I1,I2),I).
-
-
-Ground Event Description: 
-holdsFor(=(inSAR(Vessel),true),I) :- 
-	holdsFor(=(sarSpeed(Vessel),true),Iss),
-	holdsFor(=(sarMovement(Vessel),true),Isc),
-	intersect_all(list(Iss,Isc),Ii),
-	intDurGreater(Ii,3600,I).
-
-
-Rule distances: 
-[[0.31875]]
-
-
-Optimal Rule Assignment: 
-[0]
-
-
-We matched rule:
-holdsFor(=(inSAR(Vessel),true),I) :- 
-	vesselType(Vessel,pilotVessel),
-	holdsFor(=(sarSpeed(Vessel),true),I1),
-	holdsFor(=(sarMovement(Vessel),true),I2),
-	intersect_all(list(I1,I2),I).
-
-which has the distance array: [0.31875]
-
-with the following rule: 
-holdsFor(=(inSAR(Vessel),true),I) :- 
-	holdsFor(=(sarSpeed(Vessel),true),Iss),
-	holdsFor(=(sarMovement(Vessel),true),Isc),
-	intersect_all(list(Iss,Isc),Ii),
-	intDurGreater(Ii,3600,I).
-
-Their distance is: 0.31875000000000003
-
-
-
-Sum of distances for optimal rule assignment: 
-0.31875000000000003
-Distance between event descriptions: 
-0.31875000000000003
-Event Description Similarity: 
-0.6812499999999999
-
-Generated Event Description: 
+Generated Definition: 
 holdsFor(=(loitering(Vessel),true),I) :- 
-	holdsFor(=(lowSpeedOrStoppedFar(Vessel),true),I1),
-	holdsFor(=(anchoredOrMoored(Vessel),true),I_anchorMoored),
-	holdsFor(=(withinArea(Vessel,nearCoast),true),I_nearCoast),
-	relative_complement_all(I1,list(I_anchorMoored,I_nearCoast),I_temp),
+	holdsFor(=(lowSpeed(Vessel),;(true,=(stopped(Vessel),farFromPorts))),I1),
 	thresholds(loiteringTime,LoiteringTime),
-	intDurGreater(I_temp,LoiteringTime,I).
+	intDurGreater(I1,LoiteringTime,I).
 
 
-Ground Event Description: 
+Ground Definition: 
 holdsFor(=(loitering(Vessel),true),I) :- 
 	holdsFor(=(lowSpeed(Vessel),true),Il),
 	holdsFor(=(stopped(Vessel),farFromPorts),Is),
@@ -623,7 +507,7 @@ holdsFor(=(loitering(Vessel),true),I) :-
 
 
 Rule distances: 
-[[0.29282407]]
+[[0.61574074]]
 
 
 Optimal Rule Assignment: 
@@ -632,14 +516,11 @@ Optimal Rule Assignment:
 
 We matched rule:
 holdsFor(=(loitering(Vessel),true),I) :- 
-	holdsFor(=(lowSpeedOrStoppedFar(Vessel),true),I1),
-	holdsFor(=(anchoredOrMoored(Vessel),true),I_anchorMoored),
-	holdsFor(=(withinArea(Vessel,nearCoast),true),I_nearCoast),
-	relative_complement_all(I1,list(I_anchorMoored,I_nearCoast),I_temp),
+	holdsFor(=(lowSpeed(Vessel),;(true,=(stopped(Vessel),farFromPorts))),I1),
 	thresholds(loiteringTime,LoiteringTime),
-	intDurGreater(I_temp,LoiteringTime,I).
+	intDurGreater(I1,LoiteringTime,I).
 
-which has the distance array: [0.29282407]
+which has the distance array: [0.61574074]
 
 with the following rule: 
 holdsFor(=(loitering(Vessel),true),I) :- 
@@ -652,23 +533,23 @@ holdsFor(=(loitering(Vessel),true),I) :-
 	thresholds(loiteringTime,LoiteringTime),
 	intDurGreater(Ii,LoiteringTime,I).
 
-Their distance is: 0.292824074074074
+Their distance is: 0.6157407407407407
 
 
 
 Sum of distances for optimal rule assignment: 
-0.292824074074074
-Distance between event descriptions: 
-0.292824074074074
-Event Description Similarity: 
-0.707175925925926
+0.6157407407407407
+Distance between definitions: 
+0.6157407407407407
+Definition Similarity: 
+0.3842592592592593
 
-Generated Event Description: 
+Generated Definition: 
 initiatedAt(=(lowSpeed(Vessel),true),T) :- 
 	happensAt(slow_motion_start(Vessel),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(lowSpeed(Vessel),true),T) :- 
 	happensAt(slow_motion_start(Vessel),T).
 
@@ -697,12 +578,12 @@ Their distance is: 0.0
 
 Sum of distances for optimal rule assignment: 
 0.0
-Distance between event descriptions: 
+Distance between definitions: 
 0.0
-Event Description Similarity: 
+Definition Similarity: 
 1.0
 
-Generated Event Description: 
+Generated Definition: 
 terminatedAt(=(lowSpeed(Vessel),true),T) :- 
 	happensAt(slow_motion_end(Vessel),T).
 
@@ -710,7 +591,7 @@ terminatedAt(=(lowSpeed(Vessel),true),T) :-
 	happensAt(gap_start(Vessel),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 terminatedAt(=(lowSpeed(Vessel),true),T) :- 
 	happensAt(slow_motion_end(Vessel),T).
 
@@ -757,35 +638,33 @@ Their distance is: 0.0
 
 Sum of distances for optimal rule assignment: 
 0.0
-Distance between event descriptions: 
+Distance between definitions: 
 0.0
-Event Description Similarity: 
+Definition Similarity: 
 1.0
 
-Generated Event Description: 
+Generated Definition: 
 initiatedAt(=(movingSpeed(Vessel),below),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
+	happensAt(velocity(Vessel,Speed,_,_),T),
 	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,_,_),
-	>=(Speed,MovingMin),
-	<(Speed,MinSpeed).
+	typeSpeed(Type,Min,Max,_),
+	<(Speed,Min).
 
 initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
+	happensAt(velocity(Vessel,Speed,_,_),T),
 	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,MaxSpeed,_),
-	>=(Speed,MinSpeed),
-	=<(Speed,MaxSpeed).
+	typeSpeed(Type,Min,Max,_),
+	>=(Speed,Min),
+	=<(Speed,Max).
 
 initiatedAt(=(movingSpeed(Vessel),above),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
+	happensAt(velocity(Vessel,Speed,_,_),T),
 	vesselType(Vessel,Type),
-	typeSpeed(Type,_,MaxSpeed,_),
-	>(Speed,MaxSpeed).
+	typeSpeed(Type,Min,Max,_),
+	>(Speed,Max).
 
 
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(movingSpeed(Vessel),below),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	vesselType(Vessel,Type),
@@ -809,9 +688,9 @@ initiatedAt(=(movingSpeed(Vessel),above),T) :-
 
 
 Rule distances: 
-[[0.43303571 0.62053571 0.69196429]
- [0.69196429 0.63020833 0.640625  ]
- [0.62053571 0.55729167 0.35625   ]]
+[[0.32589286 0.30729167 0.26875   ]
+ [0.47767857 0.38020833 0.390625  ]
+ [0.40625    0.30729167 0.        ]]
 
 
 Optimal Rule Assignment: 
@@ -820,14 +699,12 @@ Optimal Rule Assignment:
 
 We matched rule:
 initiatedAt(=(movingSpeed(Vessel),below),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
+	happensAt(velocity(Vessel,Speed,_,_),T),
 	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,_,_),
-	>=(Speed,MovingMin),
-	<(Speed,MinSpeed).
+	typeSpeed(Type,Min,Max,_),
+	<(Speed,Min).
 
-which has the distance array: [0.43303571 0.62053571 0.69196429]
+which has the distance array: [0.32589286 0.30729167 0.26875   ]
 
 with the following rule: 
 initiatedAt(=(movingSpeed(Vessel),below),T) :- 
@@ -838,19 +715,19 @@ initiatedAt(=(movingSpeed(Vessel),below),T) :-
 	>(Speed,MovingMin),
 	<(Speed,Min).
 
-Their distance is: 0.43303571428571425
+Their distance is: 0.32589285714285715
 
 
 
 We matched rule:
 initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
+	happensAt(velocity(Vessel,Speed,_,_),T),
 	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,MaxSpeed,_),
-	>=(Speed,MinSpeed),
-	=<(Speed,MaxSpeed).
+	typeSpeed(Type,Min,Max,_),
+	>=(Speed,Min),
+	=<(Speed,Max).
 
-which has the distance array: [0.69196429 0.63020833 0.640625  ]
+which has the distance array: [0.47767857 0.38020833 0.390625  ]
 
 with the following rule: 
 initiatedAt(=(movingSpeed(Vessel),normal),T) :- 
@@ -860,18 +737,18 @@ initiatedAt(=(movingSpeed(Vessel),normal),T) :-
 	>(Speed,Min),
 	<(Speed,Max).
 
-Their distance is: 0.6302083333333333
+Their distance is: 0.3802083333333333
 
 
 
 We matched rule:
 initiatedAt(=(movingSpeed(Vessel),above),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
+	happensAt(velocity(Vessel,Speed,_,_),T),
 	vesselType(Vessel,Type),
-	typeSpeed(Type,_,MaxSpeed,_),
-	>(Speed,MaxSpeed).
+	typeSpeed(Type,Min,Max,_),
+	>(Speed,Max).
 
-which has the distance array: [0.62053571 0.55729167 0.35625   ]
+which has the distance array: [0.40625    0.30729167 0.        ]
 
 with the following rule: 
 initiatedAt(=(movingSpeed(Vessel),above),T) :- 
@@ -880,68 +757,18 @@ initiatedAt(=(movingSpeed(Vessel),above),T) :-
 	typeSpeed(Type,_Min,Max,_Avg),
 	>(Speed,Max).
 
-Their distance is: 0.35625
+Their distance is: 0.0
 
 
 
 Sum of distances for optimal rule assignment: 
-1.4194940476190474
-Distance between event descriptions: 
-0.47316468253968247
-Event Description Similarity: 
-0.5268353174603175
+0.7061011904761905
+Distance between definitions: 
+0.2353670634920635
+Definition Similarity: 
+0.7646329365079365
 
-Generated Event Description: 
-terminatedAt(=(movingSpeed(Vessel),below),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,_,_),
-	<(Speed,MovingMin).
-
-terminatedAt(=(movingSpeed(Vessel),below),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,_,_),
-	>=(Speed,MinSpeed).
-
-terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,MaxSpeed,_),
-	<(Speed,MinSpeed).
-
-terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,MaxSpeed,_),
-	>(Speed,MaxSpeed).
-
-terminatedAt(=(movingSpeed(Vessel),above),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,_,MaxSpeed,_),
-	<(Speed,MovingMin).
-
-terminatedAt(=(movingSpeed(Vessel),above),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,_,MaxSpeed,_),
-	=<(Speed,MaxSpeed).
-
-terminatedAt(=(movingSpeed(Vessel),_),T) :- 
-	happensAt(gap_start(Vessel),T).
-
-terminatedAt(=(movingSpeed(Vessel),_),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
-	<(Speed,MovingMin).
-
-
-Ground Event Description: 
+Generated Definition: 
 terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(movingMin,MovingMin),
@@ -950,179 +777,33 @@ terminatedAt(=(movingSpeed(Vessel),_Status),T) :-
 terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
 	happensAt(gap_start(Vessel),T).
 
-_dummy_rule :- 
-	.
 
-_dummy_rule :- 
-	.
-
-_dummy_rule :- 
-	.
-
-_dummy_rule :- 
-	.
-
-_dummy_rule :- 
-	.
-
-_dummy_rule :- 
-	.
-
-
-Rule distances: 
-[[0.59895833 0.890625   1.         1.         1.         1.
-  1.         1.        ]
- [0.765625   0.890625   1.         1.         1.         1.
-  1.         1.        ]
- [0.76875    0.86875    1.         1.         1.         1.
-  1.         1.        ]
- [0.86875    0.86875    1.         1.         1.         1.
-  1.         1.        ]
- [0.59895833 0.890625   1.         1.         1.         1.
-  1.         1.        ]
- [0.765625   0.890625   1.         1.         1.         1.
-  1.         1.        ]
- [0.5703125  0.         1.         1.         1.         1.
-  1.         1.        ]
- [0.3828125  0.8203125  1.         1.         1.         1.
-  1.         1.        ]]
-
-
-Optimal Rule Assignment: 
-[7 2 6 3 4 5 1 0]
-
-
-We matched rule:
-terminatedAt(=(movingSpeed(Vessel),below),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
+Ground Definition: 
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(movingMin,MovingMin),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,_,_),
 	<(Speed,MovingMin).
 
-which has the distance array: [0.59895833 0.890625   1.         1.         1.         1.
- 1.         1.        ]
-
-with the following rule: 
-_dummy_rule :- 
-	.
-
-Their distance is: 1.0
-
-
-
-We matched rule:
-terminatedAt(=(movingSpeed(Vessel),below),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,_,_),
-	>=(Speed,MinSpeed).
-
-which has the distance array: [0.765625 0.890625 1.       1.       1.       1.       1.       1.      ]
-
-with the following rule: 
-_dummy_rule :- 
-	.
-
-Their distance is: 1.0
-
-
-
-We matched rule:
-terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,MaxSpeed,_),
-	<(Speed,MinSpeed).
-
-which has the distance array: [0.76875 0.86875 1.      1.      1.      1.      1.      1.     ]
-
-with the following rule: 
-_dummy_rule :- 
-	.
-
-Their distance is: 1.0
-
-
-
-We matched rule:
-terminatedAt(=(movingSpeed(Vessel),normal),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,MinSpeed,MaxSpeed,_),
-	>(Speed,MaxSpeed).
-
-which has the distance array: [0.86875 0.86875 1.      1.      1.      1.      1.      1.     ]
-
-with the following rule: 
-_dummy_rule :- 
-	.
-
-Their distance is: 1.0
-
-
-
-We matched rule:
-terminatedAt(=(movingSpeed(Vessel),above),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,_,MaxSpeed,_),
-	<(Speed,MovingMin).
-
-which has the distance array: [0.59895833 0.890625   1.         1.         1.         1.
- 1.         1.        ]
-
-with the following rule: 
-_dummy_rule :- 
-	.
-
-Their distance is: 1.0
-
-
-
-We matched rule:
-terminatedAt(=(movingSpeed(Vessel),above),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(movingMin,MovingMin),
-	vesselType(Vessel,Type),
-	typeSpeed(Type,_,MaxSpeed,_),
-	=<(Speed,MaxSpeed).
-
-which has the distance array: [0.765625 0.890625 1.       1.       1.       1.       1.       1.      ]
-
-with the following rule: 
-_dummy_rule :- 
-	.
-
-Their distance is: 1.0
-
-
-
-We matched rule:
-terminatedAt(=(movingSpeed(Vessel),_),T) :- 
-	happensAt(gap_start(Vessel),T).
-
-which has the distance array: [0.5703125 0.        1.        1.        1.        1.        1.
- 1.       ]
-
-with the following rule: 
 terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
 	happensAt(gap_start(Vessel),T).
 
-Their distance is: 0.0
 
+Rule distances: 
+[[0.        0.5703125]
+ [0.5703125 0.       ]]
+
+
+Optimal Rule Assignment: 
+[0 1]
 
 
 We matched rule:
-terminatedAt(=(movingSpeed(Vessel),_),T) :- 
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(movingMin,MovingMin),
 	<(Speed,MovingMin).
 
-which has the distance array: [0.3828125 0.8203125 1.        1.        1.        1.        1.
- 1.       ]
+which has the distance array: [0.        0.5703125]
 
 with the following rule: 
 terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
@@ -1130,142 +811,19 @@ terminatedAt(=(movingSpeed(Vessel),_Status),T) :-
 	thresholds(movingMin,MovingMin),
 	<(Speed,MovingMin).
 
-Their distance is: 0.3828125
-
-
-
-Sum of distances for optimal rule assignment: 
-6.3828125
-Distance between event descriptions: 
-0.7978515625
-Event Description Similarity: 
-0.2021484375
-
-Generated Event Description: 
-holdsFor(=(pilotOps(Vessel1,Vessel2),true),I) :- 
-	holdsFor(=(proximity(Vessel1,Vessel2),true),I_proximity),
-	oneIsPilot(Vessel1,Vessel2),
-	holdsFor(=(lowSpeedOrStoppedFar(Vessel1),true),I_movement1),
-	holdsFor(=(lowSpeedOrStoppedFar(Vessel2),true),I_movement2),
-	intersect_all(list(I_proximity,I_movement1,I_movement2),I_temp),
-	holdsFor(=(withinArea(Vessel1,nearCoast),true),I_nearCoast1),
-	holdsFor(=(withinArea(Vessel2,nearCoast),true),I_nearCoast2),
-	relative_complement_all(I_temp,list(I_nearCoast1,I_nearCoast2),I).
-
-
-Ground Event Description: 
-holdsFor(=(pilotOps(Vessel1,Vessel2),true),I) :- 
-	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
-	oneIsPilot(Vessel1,Vessel2),
-	holdsFor(=(lowSpeed(Vessel1),true),Il1),
-	holdsFor(=(lowSpeed(Vessel2),true),Il2),
-	holdsFor(=(stopped(Vessel1),farFromPorts),Is1),
-	holdsFor(=(stopped(Vessel2),farFromPorts),Is2),
-	union_all(list(Il1,Is1),I1b),
-	union_all(list(Il2,Is2),I2b),
-	intersect_all(list(I1b,I2b,Ip),Ii),
-	\=(Ii,list),
-	holdsFor(=(withinArea(Vessel1,nearCoast),true),Iw1),
-	holdsFor(=(withinArea(Vessel2,nearCoast),true),Iw2),
-	relative_complement_all(Ii,list(Iw1,Iw2),I).
-
-
-Rule distances: 
-[[0.48214286]]
-
-
-Optimal Rule Assignment: 
-[0]
-
-
-We matched rule:
-holdsFor(=(pilotOps(Vessel1,Vessel2),true),I) :- 
-	holdsFor(=(proximity(Vessel1,Vessel2),true),I_proximity),
-	oneIsPilot(Vessel1,Vessel2),
-	holdsFor(=(lowSpeedOrStoppedFar(Vessel1),true),I_movement1),
-	holdsFor(=(lowSpeedOrStoppedFar(Vessel2),true),I_movement2),
-	intersect_all(list(I_proximity,I_movement1,I_movement2),I_temp),
-	holdsFor(=(withinArea(Vessel1,nearCoast),true),I_nearCoast1),
-	holdsFor(=(withinArea(Vessel2,nearCoast),true),I_nearCoast2),
-	relative_complement_all(I_temp,list(I_nearCoast1,I_nearCoast2),I).
-
-which has the distance array: [0.48214286]
-
-with the following rule: 
-holdsFor(=(pilotOps(Vessel1,Vessel2),true),I) :- 
-	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
-	oneIsPilot(Vessel1,Vessel2),
-	holdsFor(=(lowSpeed(Vessel1),true),Il1),
-	holdsFor(=(lowSpeed(Vessel2),true),Il2),
-	holdsFor(=(stopped(Vessel1),farFromPorts),Is1),
-	holdsFor(=(stopped(Vessel2),farFromPorts),Is2),
-	union_all(list(Il1,Is1),I1b),
-	union_all(list(Il2,Is2),I2b),
-	intersect_all(list(I1b,I2b,Ip),Ii),
-	\=(Ii,list),
-	holdsFor(=(withinArea(Vessel1,nearCoast),true),Iw1),
-	holdsFor(=(withinArea(Vessel2,nearCoast),true),Iw2),
-	relative_complement_all(Ii,list(Iw1,Iw2),I).
-
-Their distance is: 0.4821428571428572
-
-
-
-Sum of distances for optimal rule assignment: 
-0.4821428571428572
-Distance between event descriptions: 
-0.4821428571428572
-Event Description Similarity: 
-0.5178571428571428
-
-Generated Event Description: 
-initiatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_speed_start(Vessel),T).
-
-initiatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_heading(Vessel),T).
-
-
-Ground Event Description: 
-initiatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_heading(Vessel),T).
-
-initiatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_speed_start(Vessel),T).
-
-
-Rule distances: 
-[[0.140625 0.      ]
- [0.       0.140625]]
-
-
-Optimal Rule Assignment: 
-[1 0]
-
-
-We matched rule:
-initiatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_speed_start(Vessel),T).
-
-which has the distance array: [0.140625 0.      ]
-
-with the following rule: 
-initiatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_speed_start(Vessel),T).
-
 Their distance is: 0.0
 
 
 
 We matched rule:
-initiatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_heading(Vessel),T).
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(gap_start(Vessel),T).
 
-which has the distance array: [0.       0.140625]
+which has the distance array: [0.5703125 0.       ]
 
 with the following rule: 
-initiatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_heading(Vessel),T).
+terminatedAt(=(movingSpeed(Vessel),_Status),T) :- 
+	happensAt(gap_start(Vessel),T).
 
 Their distance is: 0.0
 
@@ -1273,20 +831,122 @@ Their distance is: 0.0
 
 Sum of distances for optimal rule assignment: 
 0.0
-Distance between event descriptions: 
+Distance between definitions: 
 0.0
-Event Description Similarity: 
+Definition Similarity: 
 1.0
 
-Generated Event Description: 
+Generated Definition: 
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+
+Ground Definition: 
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
+
+
+Rule distances: 
+[[0.140625 0.       1.       1.      ]
+ [0.       0.140625 1.       1.      ]
+ [0.140625 0.       1.       1.      ]
+ [0.       0.140625 1.       1.      ]]
+
+
+Optimal Rule Assignment: 
+[1 0 2 3]
+
+
+We matched rule:
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+which has the distance array: [0.140625 0.       1.       1.      ]
+
+with the following rule: 
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+which has the distance array: [0.       0.140625 1.       1.      ]
+
+with the following rule: 
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+Their distance is: 0.0
+
+
+
+We matched rule:
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_speed_start(Vessel),T).
+
+which has the distance array: [0.140625 0.       1.       1.      ]
+
+with the following rule: 
+_dummy_rule :- 
+	.
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+initiatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T).
+
+which has the distance array: [0.       0.140625 1.       1.      ]
+
+with the following rule: 
+_dummy_rule :- 
+	.
+
+Their distance is: 1.0
+
+
+
+Sum of distances for optimal rule assignment: 
+2.0
+Distance between definitions: 
+0.5
+Definition Similarity: 
+0.5
+
+Generated Definition: 
 terminatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_speed_end(Vessel),T).
+	happensAt(gap_start(Vessel),T).
 
 terminatedAt(=(sarMovement(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 terminatedAt(=(sarMovement(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
@@ -1295,26 +955,12 @@ _dummy_rule :-
 
 
 Rule distances: 
-[[0.140625 1.      ]
- [0.       1.      ]]
+[[0. 1.]
+ [0. 1.]]
 
 
 Optimal Rule Assignment: 
-[1 0]
-
-
-We matched rule:
-terminatedAt(=(sarMovement(Vessel),true),T) :- 
-	happensAt(change_in_speed_end(Vessel),T).
-
-which has the distance array: [0.140625 1.      ]
-
-with the following rule: 
-_dummy_rule :- 
-	.
-
-Their distance is: 1.0
-
+[0 1]
 
 
 We matched rule:
@@ -1331,33 +977,56 @@ Their distance is: 0.0
 
 
 
+We matched rule:
+terminatedAt(=(sarMovement(Vessel),true),T) :- 
+	happensAt(gap_start(Vessel),T).
+
+which has the distance array: [0. 1.]
+
+with the following rule: 
+_dummy_rule :- 
+	.
+
+Their distance is: 1.0
+
+
+
 Sum of distances for optimal rule assignment: 
 1.0
-Distance between event descriptions: 
+Distance between definitions: 
 0.5
-Event Description Similarity: 
+Definition Similarity: 
 0.5
 
-Generated Event Description: 
+Generated Definition: 
+initiatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(sarMinSpeed,SarMinSpeed),
+	>=(Speed,SarMinSpeed).
+
 initiatedAt(=(sarSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(sarMinSpeed,SarMinSpeed),
 	>=(Speed,SarMinSpeed).
 
 
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(sarSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(sarMinSpeed,SarMinSpeed),
 	>(Speed,SarMinSpeed).
 
+_dummy_rule :- 
+	.
+
 
 Rule distances: 
-[[0.3203125]]
+[[0.3203125 1.       ]
+ [0.3203125 1.       ]]
 
 
 Optimal Rule Assignment: 
-[0]
+[0 1]
 
 
 We matched rule:
@@ -1366,7 +1035,7 @@ initiatedAt(=(sarSpeed(Vessel),true),T) :-
 	thresholds(sarMinSpeed,SarMinSpeed),
 	>=(Speed,SarMinSpeed).
 
-which has the distance array: [0.3203125]
+which has the distance array: [0.3203125 1.       ]
 
 with the following rule: 
 initiatedAt(=(sarSpeed(Vessel),true),T) :- 
@@ -1378,14 +1047,30 @@ Their distance is: 0.3203125
 
 
 
+We matched rule:
+initiatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(sarMinSpeed,SarMinSpeed),
+	>=(Speed,SarMinSpeed).
+
+which has the distance array: [0.3203125 1.       ]
+
+with the following rule: 
+_dummy_rule :- 
+	.
+
+Their distance is: 1.0
+
+
+
 Sum of distances for optimal rule assignment: 
-0.3203125
-Distance between event descriptions: 
-0.3203125
-Event Description Similarity: 
-0.6796875
+1.3203125
+Distance between definitions: 
+0.66015625
+Definition Similarity: 
+0.33984375
 
-Generated Event Description: 
+Generated Definition: 
 terminatedAt(=(sarSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(sarMinSpeed,SarMinSpeed),
@@ -1394,8 +1079,13 @@ terminatedAt(=(sarSpeed(Vessel),true),T) :-
 terminatedAt(=(sarSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
+terminatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(sarMinSpeed,SarMinSpeed),
+	<(Speed,SarMinSpeed).
 
-Ground Event Description: 
+
+Ground Definition: 
 terminatedAt(=(sarSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(sarMinSpeed,SarMinSpeed),
@@ -1403,15 +1093,19 @@ terminatedAt(=(sarSpeed(Vessel),true),T) :-
 
 terminatedAt(=(sarSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
+
+_dummy_rule :- 
+	.
 
 
 Rule distances: 
-[[0.        0.5703125]
- [0.5703125 0.       ]]
+[[0.        0.5703125 1.       ]
+ [0.5703125 0.        1.       ]
+ [0.        0.5703125 1.       ]]
 
 
 Optimal Rule Assignment: 
-[0 1]
+[0 1 2]
 
 
 We matched rule:
@@ -1420,7 +1114,7 @@ terminatedAt(=(sarSpeed(Vessel),true),T) :-
 	thresholds(sarMinSpeed,SarMinSpeed),
 	<(Speed,SarMinSpeed).
 
-which has the distance array: [0.        0.5703125]
+which has the distance array: [0.        0.5703125 1.       ]
 
 with the following rule: 
 terminatedAt(=(sarSpeed(Vessel),true),T) :- 
@@ -1436,24 +1130,40 @@ We matched rule:
 terminatedAt(=(sarSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
-which has the distance array: [0.5703125 0.       ]
+which has the distance array: [0.5703125 0.        1.       ]
 
 with the following rule: 
 terminatedAt(=(sarSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
 Their distance is: 0.0
+
+
+
+We matched rule:
+terminatedAt(=(sarSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(sarMinSpeed,SarMinSpeed),
+	<(Speed,SarMinSpeed).
+
+which has the distance array: [0.        0.5703125 1.       ]
+
+with the following rule: 
+_dummy_rule :- 
+	.
+
+Their distance is: 1.0
 
 
 
 Sum of distances for optimal rule assignment: 
-0.0
-Distance between event descriptions: 
-0.0
-Event Description Similarity: 
 1.0
+Distance between definitions: 
+0.3333333333333333
+Definition Similarity: 
+0.6666666666666667
 
-Generated Event Description: 
+Generated Definition: 
 initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	holdsAt(=(withinArea(Vessel,fishingArea),true),T),
@@ -1462,17 +1172,8 @@ initiatedAt(=(trawlSpeed(Vessel),true),T) :-
 	>=(Speed,TrawlspeedMin),
 	=<(Speed,TrawlspeedMax).
 
-initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
-	happensAt(entersArea(Vessel,AreaID),T),
-	areaType(AreaID,fishingArea),
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(trawlspeedMin,TrawlspeedMin),
-	thresholds(trawlspeedMax,TrawlspeedMax),
-	>=(Speed,TrawlspeedMin),
-	=<(Speed,TrawlspeedMax).
 
-
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_Heading,_),T),
 	thresholds(trawlspeedMin,TrawlspeedMin),
@@ -1481,17 +1182,13 @@ initiatedAt(=(trawlSpeed(Vessel),true),T) :-
 	<(Speed,TrawlspeedMax),
 	holdsAt(=(withinArea(Vessel,fishing),true),T).
 
-_dummy_rule :- 
-	.
-
 
 Rule distances: 
-[[0.36383929 1.        ]
- [0.48828125 1.        ]]
+[[0.36383929]]
 
 
 Optimal Rule Assignment: 
-[0 1]
+[0]
 
 
 We matched rule:
@@ -1503,7 +1200,7 @@ initiatedAt(=(trawlSpeed(Vessel),true),T) :-
 	>=(Speed,TrawlspeedMin),
 	=<(Speed,TrawlspeedMax).
 
-which has the distance array: [0.36383929 1.        ]
+which has the distance array: [0.36383929]
 
 with the following rule: 
 initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
@@ -1518,34 +1215,14 @@ Their distance is: 0.3638392857142857
 
 
 
-We matched rule:
-initiatedAt(=(trawlSpeed(Vessel),true),T) :- 
-	happensAt(entersArea(Vessel,AreaID),T),
-	areaType(AreaID,fishingArea),
-	holdsAt(=(currentSpeed(Vessel),Speed),T),
-	thresholds(trawlspeedMin,TrawlspeedMin),
-	thresholds(trawlspeedMax,TrawlspeedMax),
-	>=(Speed,TrawlspeedMin),
-	=<(Speed,TrawlspeedMax).
-
-which has the distance array: [0.48828125 1.        ]
-
-with the following rule: 
-_dummy_rule :- 
-	.
-
-Their distance is: 1.0
-
-
-
 Sum of distances for optimal rule assignment: 
-1.3638392857142856
-Distance between event descriptions: 
-0.6819196428571428
-Event Description Similarity: 
-0.3180803571428572
+0.3638392857142857
+Distance between definitions: 
+0.3638392857142857
+Definition Similarity: 
+0.6361607142857143
 
-Generated Event Description: 
+Generated Definition: 
 terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(trawlspeedMin,TrawlspeedMin),
@@ -1559,14 +1236,13 @@ terminatedAt(=(trawlSpeed(Vessel),true),T) :-
 	>(Speed,TrawlspeedMax).
 
 terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
-	happensAt(leavesArea(Vessel,AreaID),T),
-	areaType(AreaID,fishingArea).
+	happensAt(leavesArea(Vessel,fishingArea),T).
 
 terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_Heading,_),T),
 	thresholds(trawlspeedMin,TrawlspeedMin),
@@ -1587,10 +1263,10 @@ terminatedAt(=(trawlSpeed(Vessel),true),T) :-
 
 
 Rule distances: 
-[[0.         0.30625    0.65625    0.65625   ]
- [0.30625    0.         0.65625    0.65625   ]
- [0.65625    0.65625    0.42708333 0.42708333]
- [0.65625    0.65625    0.         0.140625  ]]
+[[0.       0.30625  0.65625  0.65625 ]
+ [0.30625  0.       0.65625  0.65625 ]
+ [0.65625  0.65625  0.140625 0.140625]
+ [0.65625  0.65625  0.       0.140625]]
 
 
 Optimal Rule Assignment: 
@@ -1639,16 +1315,15 @@ Their distance is: 0.0
 
 We matched rule:
 terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
-	happensAt(leavesArea(Vessel,AreaID),T),
-	areaType(AreaID,fishingArea).
+	happensAt(leavesArea(Vessel,fishingArea),T).
 
-which has the distance array: [0.65625    0.65625    0.42708333 0.42708333]
+which has the distance array: [0.65625  0.65625  0.140625 0.140625]
 
 with the following rule: 
 terminatedAt(=(trawlSpeed(Vessel),true),T) :- 
 	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
 
-Their distance is: 0.4270833333333333
+Their distance is: 0.140625
 
 
 
@@ -1667,23 +1342,20 @@ Their distance is: 0.0
 
 
 Sum of distances for optimal rule assignment: 
-0.4270833333333333
-Distance between event descriptions: 
-0.10677083333333333
-Event Description Similarity: 
-0.8932291666666666
+0.140625
+Distance between definitions: 
+0.03515625
+Definition Similarity: 
+0.96484375
 
-Generated Event Description: 
+Generated Definition: 
 holdsFor(=(trawling(Vessel),true),I) :- 
-	holdsFor(=(trawlSpeed(Vessel),true),I1),
-	holdsFor(=(trawlingMovement(Vessel),true),I2),
-	holdsFor(=(withinArea(Vessel,fishingArea),true),I3),
-	intersect_all(list(I1,I2,I3),I_temp),
+	holdsFor(=(trawlingSpeed(Vessel),true),Is),
 	thresholds(trawlingTime,TrawlingTime),
-	intDurGreater(I_temp,TrawlingTime,I).
+	intDurGreater(Is,TrawlingTime,I).
 
 
-Ground Event Description: 
+Ground Definition: 
 holdsFor(=(trawling(Vessel),true),I) :- 
 	holdsFor(=(trawlSpeed(Vessel),true),It),
 	holdsFor(=(trawlingMovement(Vessel),true),Itc),
@@ -1693,7 +1365,7 @@ holdsFor(=(trawling(Vessel),true),I) :-
 
 
 Rule distances: 
-[[0.19196429]]
+[[0.41840278]]
 
 
 Optimal Rule Assignment: 
@@ -1702,14 +1374,11 @@ Optimal Rule Assignment:
 
 We matched rule:
 holdsFor(=(trawling(Vessel),true),I) :- 
-	holdsFor(=(trawlSpeed(Vessel),true),I1),
-	holdsFor(=(trawlingMovement(Vessel),true),I2),
-	holdsFor(=(withinArea(Vessel,fishingArea),true),I3),
-	intersect_all(list(I1,I2,I3),I_temp),
+	holdsFor(=(trawlingSpeed(Vessel),true),Is),
 	thresholds(trawlingTime,TrawlingTime),
-	intDurGreater(I_temp,TrawlingTime,I).
+	intDurGreater(Is,TrawlingTime,I).
 
-which has the distance array: [0.19196429]
+which has the distance array: [0.41840278]
 
 with the following rule: 
 holdsFor(=(trawling(Vessel),true),I) :- 
@@ -1719,24 +1388,24 @@ holdsFor(=(trawling(Vessel),true),I) :-
 	thresholds(trawlingTime,TrawlingTime),
 	intDurGreater(Ii,TrawlingTime,I).
 
-Their distance is: 0.1919642857142857
+Their distance is: 0.41840277777777773
 
 
 
 Sum of distances for optimal rule assignment: 
-0.1919642857142857
-Distance between event descriptions: 
-0.1919642857142857
-Event Description Similarity: 
-0.8080357142857143
+0.41840277777777773
+Distance between definitions: 
+0.41840277777777773
+Definition Similarity: 
+0.5815972222222223
 
-Generated Event Description: 
+Generated Definition: 
 initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
 	happensAt(change_in_heading(Vessel),T),
 	holdsAt(=(withinArea(Vessel,fishingArea),true),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
 	happensAt(change_in_heading(Vessel),T),
 	holdsAt(=(withinArea(Vessel,fishing),true),T).
@@ -1768,24 +1437,23 @@ Their distance is: 0.005208333333333333
 
 Sum of distances for optimal rule assignment: 
 0.005208333333333333
-Distance between event descriptions: 
+Distance between definitions: 
 0.005208333333333333
-Event Description Similarity: 
+Definition Similarity: 
 0.9947916666666666
 
-Generated Event Description: 
+Generated Definition: 
 terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
-	happensAt(leavesArea(Vessel,AreaID),T),
-	areaType(AreaID,fishingArea).
+	happensAt(leavesArea(Vessel,fishingArea),T).
 
 
-Ground Event Description: 
+Ground Definition: 
 terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
 	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
 
 
 Rule distances: 
-[[0.42708333]]
+[[0.140625]]
 
 
 Optimal Rule Assignment: 
@@ -1794,38 +1462,35 @@ Optimal Rule Assignment:
 
 We matched rule:
 terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
-	happensAt(leavesArea(Vessel,AreaID),T),
-	areaType(AreaID,fishingArea).
+	happensAt(leavesArea(Vessel,fishingArea),T).
 
-which has the distance array: [0.42708333]
+which has the distance array: [0.140625]
 
 with the following rule: 
 terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
 	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
 
-Their distance is: 0.4270833333333333
+Their distance is: 0.140625
 
 
 
 Sum of distances for optimal rule assignment: 
-0.4270833333333333
-Distance between event descriptions: 
-0.4270833333333333
-Event Description Similarity: 
-0.5729166666666667
+0.140625
+Distance between definitions: 
+0.140625
+Definition Similarity: 
+0.859375
 
-Generated Event Description: 
+Generated Definition: 
 holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
-	holdsFor(=(proximity(Vessel1,Vessel2),true),I_proximity),
-	holdsFor(=(tuggingSpeed(Vessel1),true),I_speed1),
-	holdsFor(=(tuggingSpeed(Vessel2),true),I_speed2),
-	intersect_all(list(I_proximity,I_speed1,I_speed2),I_temp),
-	oneIsTug(Vessel1,Vessel2),
+	holdsFor(=(tuggingSpeed(Vessel1),true),Is1),
+	holdsFor(=(tuggingSpeed(Vessel2),true),Is2),
 	thresholds(tuggingTime,TuggingTime),
-	intDurGreater(I_temp,TuggingTime,I).
+	intersect_all(list(Is1,Is2),Iintersect),
+	intDurGreater(Iintersect,TuggingTime,I).
 
 
-Ground Event Description: 
+Ground Definition: 
 holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
 	holdsFor(=(proximity(Vessel1,Vessel2),true),Ip),
 	oneIsTug(Vessel1,Vessel2),
@@ -1839,7 +1504,7 @@ holdsFor(=(tugging(Vessel1,Vessel2),true),I) :-
 
 
 Rule distances: 
-[[0.2625]]
+[[0.4375]]
 
 
 Optimal Rule Assignment: 
@@ -1848,15 +1513,13 @@ Optimal Rule Assignment:
 
 We matched rule:
 holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
-	holdsFor(=(proximity(Vessel1,Vessel2),true),I_proximity),
-	holdsFor(=(tuggingSpeed(Vessel1),true),I_speed1),
-	holdsFor(=(tuggingSpeed(Vessel2),true),I_speed2),
-	intersect_all(list(I_proximity,I_speed1,I_speed2),I_temp),
-	oneIsTug(Vessel1,Vessel2),
+	holdsFor(=(tuggingSpeed(Vessel1),true),Is1),
+	holdsFor(=(tuggingSpeed(Vessel2),true),Is2),
 	thresholds(tuggingTime,TuggingTime),
-	intDurGreater(I_temp,TuggingTime,I).
+	intersect_all(list(Is1,Is2),Iintersect),
+	intDurGreater(Iintersect,TuggingTime,I).
 
-which has the distance array: [0.2625]
+which has the distance array: [0.4375]
 
 with the following rule: 
 holdsFor(=(tugging(Vessel1,Vessel2),true),I) :- 
@@ -1870,18 +1533,25 @@ holdsFor(=(tugging(Vessel1,Vessel2),true),I) :-
 	thresholds(tuggingTime,TuggingTime),
 	intDurGreater(Ii,TuggingTime,I).
 
-Their distance is: 0.2625
+Their distance is: 0.4375
 
 
 
 Sum of distances for optimal rule assignment: 
-0.2625
-Distance between event descriptions: 
-0.2625
-Event Description Similarity: 
-0.7375
+0.4375
+Distance between definitions: 
+0.4375
+Definition Similarity: 
+0.5625
 
-Generated Event Description: 
+Generated Definition: 
+initiatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	>=(Speed,TuggingMin),
+	=<(Speed,TuggingMax).
+
 initiatedAt(=(tuggingSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(tuggingMin,TuggingMin),
@@ -1890,7 +1560,7 @@ initiatedAt(=(tuggingSpeed(Vessel),true),T) :-
 	=<(Speed,TuggingMax).
 
 
-Ground Event Description: 
+Ground Definition: 
 initiatedAt(=(tuggingSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(tuggingMin,TuggingMin),
@@ -1898,13 +1568,17 @@ initiatedAt(=(tuggingSpeed(Vessel),true),T) :-
 	>(Speed,TuggingMin),
 	<(Speed,TuggingMax).
 
+_dummy_rule :- 
+	.
+
 
 Rule distances: 
-[[0.421875]]
+[[0.421875 1.      ]
+ [0.421875 1.      ]]
 
 
 Optimal Rule Assignment: 
-[0]
+[0 1]
 
 
 We matched rule:
@@ -1915,7 +1589,7 @@ initiatedAt(=(tuggingSpeed(Vessel),true),T) :-
 	>=(Speed,TuggingMin),
 	=<(Speed,TuggingMax).
 
-which has the distance array: [0.421875]
+which has the distance array: [0.421875 1.      ]
 
 with the following rule: 
 initiatedAt(=(tuggingSpeed(Vessel),true),T) :- 
@@ -1929,14 +1603,32 @@ Their distance is: 0.421875
 
 
 
+We matched rule:
+initiatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	>=(Speed,TuggingMin),
+	=<(Speed,TuggingMax).
+
+which has the distance array: [0.421875 1.      ]
+
+with the following rule: 
+_dummy_rule :- 
+	.
+
+Their distance is: 1.0
+
+
+
 Sum of distances for optimal rule assignment: 
-0.421875
-Distance between event descriptions: 
-0.421875
-Event Description Similarity: 
-0.578125
+1.421875
+Distance between definitions: 
+0.7109375
+Definition Similarity: 
+0.2890625
 
-Generated Event Description: 
+Generated Definition: 
 terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(tuggingMin,TuggingMin),
@@ -1952,8 +1644,20 @@ terminatedAt(=(tuggingSpeed(Vessel),true),T) :-
 terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
+terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	<(Speed,TuggingMin).
 
-Ground Event Description: 
+terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	>(Speed,TuggingMax).
+
+
+Ground Definition: 
 terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	thresholds(tuggingMin,TuggingMin),
@@ -1968,16 +1672,24 @@ terminatedAt(=(tuggingSpeed(Vessel),true),T) :-
 
 terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
+
+_dummy_rule :- 
+	.
+
+_dummy_rule :- 
+	.
 
 
 Rule distances: 
-[[0.      0.30625 0.65625]
- [0.30625 0.      0.65625]
- [0.65625 0.65625 0.     ]]
+[[0.      0.30625 0.65625 1.      1.     ]
+ [0.30625 0.      0.65625 1.      1.     ]
+ [0.65625 0.65625 0.      1.      1.     ]
+ [0.      0.30625 0.65625 1.      1.     ]
+ [0.30625 0.      0.65625 1.      1.     ]]
 
 
 Optimal Rule Assignment: 
-[0 1 2]
+[0 1 2 3 4]
 
 
 We matched rule:
@@ -1987,7 +1699,7 @@ terminatedAt(=(tuggingSpeed(Vessel),true),T) :-
 	thresholds(tuggingMax,TuggingMax),
 	<(Speed,TuggingMin).
 
-which has the distance array: [0.      0.30625 0.65625]
+which has the distance array: [0.      0.30625 0.65625 1.      1.     ]
 
 with the following rule: 
 terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
@@ -2007,7 +1719,7 @@ terminatedAt(=(tuggingSpeed(Vessel),true),T) :-
 	thresholds(tuggingMax,TuggingMax),
 	>(Speed,TuggingMax).
 
-which has the distance array: [0.30625 0.      0.65625]
+which has the distance array: [0.30625 0.      0.65625 1.      1.     ]
 
 with the following rule: 
 terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
@@ -2024,20 +1736,93 @@ We matched rule:
 terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
-which has the distance array: [0.65625 0.65625 0.     ]
+which has the distance array: [0.65625 0.65625 0.      1.      1.     ]
 
 with the following rule: 
 terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
 	happensAt(gap_start(Vessel),T).
 
 Their distance is: 0.0
+
+
+
+We matched rule:
+terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	<(Speed,TuggingMin).
+
+which has the distance array: [0.      0.30625 0.65625 1.      1.     ]
+
+with the following rule: 
+_dummy_rule :- 
+	.
+
+Their distance is: 1.0
+
+
+
+We matched rule:
+terminatedAt(=(tuggingSpeed(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	thresholds(tuggingMin,TuggingMin),
+	thresholds(tuggingMax,TuggingMax),
+	>(Speed,TuggingMax).
+
+which has the distance array: [0.30625 0.      0.65625 1.      1.     ]
+
+with the following rule: 
+_dummy_rule :- 
+	.
+
+Their distance is: 1.0
 
 
 
 Sum of distances for optimal rule assignment: 
-0.0
-Distance between event descriptions: 
-0.0
-Event Description Similarity: 
-1.0
+2.0
+Distance between definitions: 
+0.4
+Definition Similarity: 
+0.6
 
+Computed similarity values: 
+{('changingSpeed', 'initiatedAt'): 1.0, ('changingSpeed', 'terminatedAt'): 1.0, ('drifting', 'initiatedAt'): 0.4464285714285715, ('drifting', 'terminatedAt'): 0.28645833333333337, ('gap', 'initiatedAt'): 0.9583333333333334, ('gap', 'terminatedAt'): 0.46875, ('highSpeedNearCoast', 'initiatedAt'): 1.0, ('highSpeedNearCoast', 'terminatedAt'): 0.9296875, ('loitering', 'holdsFor'): 0.3842592592592593, ('lowSpeed', 'initiatedAt'): 1.0, ('lowSpeed', 'terminatedAt'): 1.0, ('movingSpeed', 'initiatedAt'): 0.7646329365079365, ('movingSpeed', 'terminatedAt'): 1.0, ('sarMovement', 'initiatedAt'): 0.5, ('sarMovement', 'terminatedAt'): 0.5, ('sarSpeed', 'initiatedAt'): 0.33984375, ('sarSpeed', 'terminatedAt'): 0.6666666666666667, ('trawlSpeed', 'initiatedAt'): 0.6361607142857143, ('trawlSpeed', 'terminatedAt'): 0.96484375, ('trawling', 'holdsFor'): 0.5815972222222223, ('trawlingMovement', 'initiatedAt'): 0.9947916666666666, ('trawlingMovement', 'terminatedAt'): 0.859375, ('tugging', 'holdsFor'): 0.5625, ('tuggingSpeed', 'initiatedAt'): 0.2890625, ('tuggingSpeed', 'terminatedAt'): 0.6}
+
+Concepts defined only in generated event description: 
+[('anchoredOrMoored', 'terminatedAt'), ('trawlingSpeed', 'terminatedAt'), ('tugging', 'initiatedAt'), ('anchoredOrMoored', 'initiatedAt'), ('tugging', 'terminatedAt'), ('trawling', 'initiatedAt'), ('pilotOps', 'initiatedAt'), ('inSAR', 'initiatedAt'), ('inSAR', 'terminatedAt'), ('trawling', 'terminatedAt'), ('loitering', 'initiatedAt'), ('trawlingSpeed', 'initiatedAt'), ('loitering', 'terminatedAt')]
+
+Concepts defined only in ground event description: 
+[('pilotOps', 'holdsFor'), ('inSAR', 'holdsFor'), ('anchoredOrMoored', 'holdsFor')]
+
+Similarity for definition: ('changingSpeed', 'initiatedAt') is 1.0
+Similarity for definition: ('changingSpeed', 'terminatedAt') is 1.0
+Similarity for definition: ('drifting', 'initiatedAt') is 0.4464285714285715
+Similarity for definition: ('drifting', 'terminatedAt') is 0.28645833333333337
+Similarity for definition: ('gap', 'initiatedAt') is 0.9583333333333334
+Similarity for definition: ('gap', 'terminatedAt') is 0.46875
+Similarity for definition: ('highSpeedNearCoast', 'initiatedAt') is 1.0
+Similarity for definition: ('highSpeedNearCoast', 'terminatedAt') is 0.9296875
+Similarity for definition: ('loitering', 'holdsFor') is 0.3842592592592593
+Similarity for definition: ('lowSpeed', 'initiatedAt') is 1.0
+Similarity for definition: ('lowSpeed', 'terminatedAt') is 1.0
+Similarity for definition: ('movingSpeed', 'initiatedAt') is 0.7646329365079365
+Similarity for definition: ('movingSpeed', 'terminatedAt') is 1.0
+Similarity for definition: ('sarMovement', 'initiatedAt') is 0.5
+Similarity for definition: ('sarMovement', 'terminatedAt') is 0.5
+Similarity for definition: ('sarSpeed', 'initiatedAt') is 0.33984375
+Similarity for definition: ('sarSpeed', 'terminatedAt') is 0.6666666666666667
+Similarity for definition: ('trawlSpeed', 'initiatedAt') is 0.6361607142857143
+Similarity for definition: ('trawlSpeed', 'terminatedAt') is 0.96484375
+Similarity for definition: ('trawling', 'holdsFor') is 0.5815972222222223
+Similarity for definition: ('trawlingMovement', 'initiatedAt') is 0.9947916666666666
+Similarity for definition: ('trawlingMovement', 'terminatedAt') is 0.859375
+Similarity for definition: ('tugging', 'holdsFor') is 0.5625
+Similarity for definition: ('tuggingSpeed', 'initiatedAt') is 0.2890625
+Similarity for definition: ('tuggingSpeed', 'terminatedAt') is 0.6
+Similarity for definition: ('pilotOps', 'holdsFor') is 0
+Similarity for definition: ('inSAR', 'holdsFor') is 0
+Similarity for definition: ('anchoredOrMoored', 'holdsFor') is 0
+Average Event Description Similarity is: 
+0.6333354001322752

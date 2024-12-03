@@ -1,53 +1,43 @@
-Event Description 1: 
+Generated Event Description: 
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed),T),
 	leq(Speed,5).
 
 
-Event Description 2: 
+Ground Event Description: 
 terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	leq(Speed,5).
 
 
-
-Comparing rules:
- terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(velocity(Vessel,Speed),T),
-	leq(Speed,5).
- and
-terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
-	happensAt(velocity(Vessel,Speed,_,_),T),
-	leq(Speed,5).
-
-Var routes for the first rule: 
-{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('leq', 0)]]}
-
-Var routes for the second rule: 
-{'Vessel': [[('terminatedAt', 0), ('=', 0), ('highSpeedNearCoast', 0)], [('happensAt', 0), ('velocity', 0)]], 'T': [[('terminatedAt', 1)], [('happensAt', 1)]], 'Speed': [[('happensAt', 0), ('velocity', 1)], [('leq', 0)]]}
-
-Distance between rule heads: 
-0.0
-Body atom distances: 
-[[0.25 1.  ]
- [1.   0.  ]]
-Optimal Body Condition Assignment: 
-[0 1]
-Sum of distances for optimal body condition assignment: 
-0.25
-Distance between rule bodies: 
-0.125
-Distance between rules: 
-0.08333333333333333
-Similarity of rules: 
-0.9166666666666666
 Rule distances: 
 [[0.08333333]]
+
+
 Optimal Rule Assignment: 
 [0]
+
+
+We matched rule:
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed),T),
+	leq(Speed,5).
+
+which has the distance array: [0.08333333]
+
+with the following rule: 
+terminatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
+	happensAt(velocity(Vessel,Speed,_,_),T),
+	leq(Speed,5).
+
+Their distance is: 0.08333333333333333
+
+
+
 Sum of distances for optimal rule assignment: 
 0.08333333333333333
 Distance between event descriptions: 
 0.08333333333333333
 Event Description Similarity: 
 0.9166666666666666
+

@@ -5,9 +5,8 @@ from partitioner import partition_event_description
 from sys import argv
 import logging
 
-def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file='log.txt'):
+def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file='../logs/log.txt'):
 	
-	# Set logger
 	def setup_logger(log_file, level=logging.INFO):
 		"""To setup as many loggers as you want"""
 
@@ -20,7 +19,6 @@ def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file
 		logger.addHandler(handler)
 
 		return logger
-
 	logger = setup_logger(log_file)
 
 	# init lexer and parsers for RTEC programs
@@ -50,67 +48,57 @@ def parse_and_compute_distance(generated_rules_file, ground_rules_file, log_file
 	gen_ed_partitions = partition_event_description(generated_event_description)
 	gen_ed_keys = gen_ed_partitions.keys()
 
-	#for key in gen_ed_keys:
-	#	print("Key: " + str(key))
-	#	print("Event Description: " + str(gen_ed_partitions[key]))
-
 	ground_ed_partitions = partition_event_description(ground_event_description)
 	ground_ed_keys = ground_ed_partitions.keys()
 
-	#for key in ground_ed_keys:
-		#print("Key: " + str(key))
-		#print("Event Description: " + str(ground_ed_partitions[key]))
-
 	both_eds_keys = sorted(list(set(ground_ed_keys) & set(gen_ed_keys)))
 
-	print()
-	print("Partition keys in both event descriptions: ")
-	print(both_eds_keys)
-	print()
-	
 	similarities = dict()
 	for key in both_eds_keys:
-		#print()
-		#print("Partition Key: ")
-		#print(key)
-		#print()
 		optimal_matching, distances, similarity = event_description_distance(gen_ed_partitions[key], ground_ed_partitions[key], logger)
-		#print()
-		#print("Optimal Matching: ")
-		#print(optimal_matching)
-		#print()
-		#print("Rule Distances: ")
-		#print(distances)
-		#print()
-		#print("Similarity: ")
-		#print(similarity)
-		#print()
 		similarities[key]=similarity
 
-	print(similarities)
+	logger.info("Computed similarity values: ")
+	logger.info(similarities)
+	logger.info("")
+
+	logger.info("Concepts defined in both event descriptions: ")
+	logger.info(both_eds_keys)
+	logger.info("")
+	print("Concepts defined in both event descriptions: ")
+	print(both_eds_keys)
+	print("")
 
 	gen_ed_only_keys = list(set(gen_ed_keys) - set(ground_ed_keys))
-	print()
-	print("Partition keys only in generated event description: ")
+	logger.info("Concepts defined only in generated event description: ")
+	logger.info(gen_ed_only_keys)
+	logger.info("")
+	print("Concepts defined only in generated event description: ")
 	print(gen_ed_only_keys)
-	print()
+	print("")
 
 	ground_ed_only_keys = list(set(ground_ed_keys) - set(gen_ed_keys))
-	print()
-	print("Partition keys only in ground event description: ")
+	logger.info("Concepts defined only in ground event description: ")
+	logger.info(ground_ed_only_keys)
+	logger.info("")
+	print("Concepts defined only in ground event description: ")
 	print(ground_ed_only_keys)
-	print()
+	print("")
+
+
 	for key in ground_ed_only_keys:
 		similarities[key]=0
 
 	for key in similarities:
-		print("Similarity for key: " + str(key) + " is " + str(similarities[key]))
+		print("Similarity for definition: " + str(key) + " is " + str(similarities[key]))
+		logger.info("Similarity for definition: " + str(key) + " is " + str(similarities[key]))
 
-	print("Average Event Description Similarity is: ")
+	print("Event Description Similarity is: ")
 	print(sum(similarities.values())/(len(both_eds_keys)+len(ground_ed_only_keys)))
+	logger.info("Event Description Similarity is: ")
+	logger.info(sum(similarities.values())/(len(both_eds_keys)+len(ground_ed_only_keys)))
 
-	return
-	#return optimal_matching, distances, similarity
+	return optimal_matching, distances, similarity
 
 
 if __name__=="__main__":
@@ -118,5 +106,5 @@ if __name__=="__main__":
 	rules_file1 = argv[1]
 	rules_file2 = argv[2]
 	# optional 
-	log_file = argv[3]
+	log_file = argv[3] if len(argv)>3 else '../logs/log.txt'
 	parse_and_compute_distance(rules_file1, rules_file2, log_file)

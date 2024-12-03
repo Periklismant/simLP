@@ -9,6 +9,10 @@ if __name__=="__main__":
 	subfolders = list(walk('.'))[0][1]
 	for subfolder in sorted(subfolders):
 		matching, distances, similarity = run.parse_and_compute_distance(subfolder + "/generated.prolog", subfolder + "/ground.prolog", subfolder + "/log.txt")
+		print(subfolder)
+		print(matching)
+		print(distances)
+		print(similarity)
 		f = open(subfolder + "/results.csv", 'r')
 		flag = 0
 		i = 0

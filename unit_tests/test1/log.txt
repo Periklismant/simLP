@@ -1,11 +1,11 @@
-Event Description 1: 
+Generated Event Description: 
 initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed),T),
 	holdsAt(=(nearCoast(Vessel),true),T),
 	greater(Speed,5).
 
 
-Event Description 2: 
+Ground Event Description: 
 initiatedAt(=(highSpeedNearCoast(Vessel),true),T) :- 
 	happensAt(velocity(Vessel,Speed,_,_),T),
 	greater(Speed,5),
@@ -44,3 +44,4 @@ Distance between event descriptions:
 0.0859375
 Event Description Similarity: 
 0.9140625
+

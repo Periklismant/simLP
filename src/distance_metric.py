@@ -39,7 +39,6 @@ def comp_atom_distance(atom1, atom2, var_routes1, var_routes2, logger):
 		distances_sum=0
 		for i in range(len(atom1.args)):
 			my_distance = atom_distance(atom1.args[i], atom2.args[i], var_routes1, var_routes2, logger) 
-			#logger.info("Distance between " + str(atom1) + " and " + str(atom2) + " is: " + str(my_distance))
 			distances_sum += my_distance
 		return 1/(2*len(atom1.args)) * distances_sum
 	else:
@@ -87,10 +86,6 @@ def compute_var_routes(rule):
 	var_routes = dict()
 	
 	def find_var_routes_in_atom(atom, route):
-		#print("Atom: " + str(atom))
-		##print("Route: " + str(route))
-		#print("Var Routes: " + str(var_routes))
-		#print()
 		# For free variables, we do nothing.
 		if atom.predicateName[0].isupper(): 
 			if atom.predicateName in var_routes:
@@ -102,24 +97,15 @@ def compute_var_routes(rule):
 				find_var_routes_in_atom(atom.args[arg_index], route + [(atom.predicateName, arg_index)])
 
 	find_var_routes_in_atom(rule.head, list())
-	#print()
 	for atom in rule.body:
 		find_var_routes_in_atom(atom, list())
-		#print()
 	return var_routes
 
 
 def rule_distance(rule1, rule2, logger):
 
 	var_routes1 = compute_var_routes(rule1)
-	#logger.info("Var routes for the first rule: ")
-	#logger.info(var_routes1)
-	#logger.info("")
-
 	var_routes2 = compute_var_routes(rule2)
-	#logger.info("Var routes for the second rule: ")
-	#logger.info(var_routes2)
-	#logger.info("")
 
 	head1 = rule1.head
 	head2 = rule2.head
@@ -132,20 +118,12 @@ def rule_distance(rule1, rule2, logger):
 	body2 = deepcopy(rule2.body)
 
 	m, k = get_lists_size_and_pad(body1, body2, Atom("&", []))
-
-	#print(body1)
-	#print(body2)
-	#print(m)
-	#print(k)
 	
-	#c_dict = init_cost_dict(body1, body2)
-
 	c_array = np.array([[0.0 for _ in range(m)] for _ in range(m)])
 
 	for i in range(m):
 		for j in range(m):
 			c_array[i][j] = atom_distance(body1[i], body2[j], var_routes1, var_routes2, logger)
-
 	#logger.info("Body atom distances: ")
 	#logger.info(c_array)
 
@@ -180,17 +158,10 @@ def event_description_distance(event_description1, event_description2, logger):
 
 	m, k = get_lists_size_and_pad(rules1, rules2, Rule(Atom("_dummy_rule", []), []))
 
-	#print("Generated Event Description: ")
-	#print(event_description1)
-	#print()
-	#print("Ground Event Description: ")
-	#print(event_description2)
-	#print()
-
-	logger.info("Generated Event Description: ")
+	logger.info("Generated Definition: ")
 	logger.info(event_description1)
 	logger.info("")
-	logger.info("Ground Event Description: ")
+	logger.info("Ground Definition: ")
 	logger.info(event_description2)
 	logger.info("")
 
@@ -224,11 +195,11 @@ def event_description_distance(event_description1, event_description2, logger):
 	logger.info(optimal_dist_sum)
 	
 	event_description_distance = 1/m*(optimal_dist_sum)
-	logger.info("Distance between event descriptions: ")
+	logger.info("Distance between definitions: ")
 	logger.info(event_description_distance)
 
 	event_description_similarity = 1 - event_description_distance
-	logger.info("Event Description Similarity: ")
+	logger.info("Definition Similarity: ")
 	logger.info(event_description_similarity)
 	logger.info("")
 
