@@ -1,10 +1,10 @@
 # simLP: A Similarity Metric for Logic Programs
 
-A Python program that calculates the syntactic similarity between two Prolog programs. This similarity metric has been employed in the following paper, which is under review at EDBT 2025.
+A Python program that calculates the syntactic similarity between two Prolog programs. This similarity metric has been employed in the following paper, which has been accepted at EDBT 2025.
 
-- Kouvaras A., Mantenoglou P., Artikis A., Generating Activity Definitions with Large Language Models.
+- Kouvaras A., Mantenoglou P., Artikis A., [Generating Activity Definitions with Large Language Models](https://openproceedings.org/2025/conf/edbt/paper-295.pdf)
 
-There, the task was to compare logic programs specifying composite activity definitions in the language of the Run-Time Event Calculus ([RTEC](https://github.com/aartikis/rtec)), i.e., a formal composite activity recognition framework written in Prolog.
+In this work, we used our metric to assess the quality of LLM-generated logic programs, specifying composite activity definitions in the language of the composite activity recognition framework [RTEC](https://github.com/aartikis/rtec), by comparing them with hand-crafted ones.
 
 # License
 
