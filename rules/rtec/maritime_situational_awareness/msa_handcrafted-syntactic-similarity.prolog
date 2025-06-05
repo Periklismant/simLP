@@ -1,34 +1,3 @@
-
-%--------------- movingSpeed -----------------%
-
-initiatedAt(movingSpeed(Vessel)=below, T) :-
-    happensAt(velocity(Vessel, Speed, _, _), T),
-    vesselType(Vessel, Type),
-    typeSpeed(Type, Min, _Max, _Avg),
-    thresholds(movingMin, MovingMin),
-    inRange(Speed, MovingMin, Min).
-
-initiatedAt(movingSpeed(Vessel)=normal, T) :-
-    happensAt(velocity(Vessel, Speed, _, _), T),
-    vesselType(Vessel, Type),
-    typeSpeed(Type, Min, Max, _Avg),
-    inRange(Speed, Min, Max).
-
-initiatedAt(movingSpeed(Vessel)=above, T) :-
-    happensAt(velocity(Vessel, Speed, _,_), T),
-    vesselType(Vessel, Type),
-    typeSpeed(Type, _Min, Max,_Avg),
-    inRange(Speed, Max, inf).
-
-terminatedAt(movingSpeed(Vessel)=_Status, T) :-
-    happensAt(velocity(Vessel, Speed, _,_), T),
-    thresholds(movingMin,MovingMin),
-    \+inRange(Speed, MovingMin, inf).
-
-terminatedAt(movingSpeed(Vessel)=_Status, T) :-
-    happensAt(start(gap(Vessel)=_GapStatus), T).
-
-
 %--------------- communication gap -----------%
 
 initiatedAt(gap(Vessel)=nearPorts, T) :-
