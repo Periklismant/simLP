@@ -1,4 +1,3 @@
-
 %----------------within area -----------------%
 
 initiatedAt(withinArea(Vessel, AreaType)=true, T) :-
