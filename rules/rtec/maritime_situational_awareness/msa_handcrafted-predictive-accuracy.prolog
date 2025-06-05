@@ -28,43 +28,6 @@ terminatedAt(stopped(Vessel)=_Status, T) :-
 terminatedAt(stopped(Vessel)=_Status, T) :-
     happensAt(start(gap(Vessel)=_GapStatus), T).
 
-%--------------- movingSpeed -----------------%
-
-initiatedAt(movingSpeed(Vessel)=below, T) :-
-    happensAt(velocity(Vessel, Speed, _, _), T),
-    vesselType(Vessel, Type),
-    typeSpeed(Type, Min, _Max, _Avg),
-    thresholds(movingMin, MovingMin),
-    inRange(Speed, MovingMin, Min).
-
-initiatedAt(movingSpeed(Vessel)=normal, T) :-
-    happensAt(velocity(Vessel, Speed, _, _), T),
-    vesselType(Vessel, Type),
-    typeSpeed(Type, Min, Max, _Avg),
-    inRange(Speed, Min, Max).
-
-initiatedAt(movingSpeed(Vessel)=above, T) :-
-    happensAt(velocity(Vessel, Speed, _,_), T),
-    vesselType(Vessel, Type),
-    typeSpeed(Type, _Min, Max,_Avg),
-    inRange(Speed, Max, inf).
-
-terminatedAt(movingSpeed(Vessel)=_Status, T) :-
-    happensAt(velocity(Vessel, Speed, _,_), T),
-    thresholds(movingMin,MovingMin),
-    \+inRange(Speed, MovingMin, inf).
-
-terminatedAt(movingSpeed(Vessel)=_Status, T) :-
-    happensAt(start(gap(Vessel)=_GapStatus), T).
-
-%----------------- underWay ------------------%
-
-holdsFor(underWay(Vessel)=true, I) :-
-	holdsFor(movingSpeed(Vessel)=below, I1),
-	holdsFor(movingSpeed(Vessel)=normal, I2),
-	holdsFor(movingSpeed(Vessel)=above, I3),
-	union_all([I1,I2,I3], I).
-
 %---------------- rendezVous -----------------%
 
 holdsFor(rendezVous(Vessel1, Vessel2)=true, I) :-
