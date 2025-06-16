@@ -59,9 +59,8 @@ initiatedAt(person(Id)=true, T) :-
 	happensAt(start(abrupt(Id)=true), T),
 	\+ happensAt(disappear(Id), T).
 
-initiatedAt(person(Id)=false, T) :-
+terminatedAt(person(Id)=true, T) :-
 	happensAt(disappear(Id), T).
-
 
 /****************************************************************
  *		     LEAVING OBJECT				*
