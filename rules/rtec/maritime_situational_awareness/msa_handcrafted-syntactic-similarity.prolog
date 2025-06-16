@@ -103,36 +103,36 @@ holdsFor(tugging(Vessel1, Vessel2)=true, I) :-
     thresholds(tuggingTime, TuggingTime),
     intDurGreater(Ii, TuggingTime, I).
 
-%---------------- trawlSpeed -----------------%
+%---------------- trawlingSpeed -----------------%
 
-initiatedAt(trawlSpeed(Vessel)=true, T):-
+initiatedAt(trawlingSpeed(Vessel)=true, T):-
     happensAt(velocity(Vessel, Speed, _Heading,_), T),
-    thresholds(trawlspeedMin, TrawlspeedMin),
-    thresholds(trawlspeedMax, TrawlspeedMax),
-    Speed > TrawlspeedMin,
-    Speed < TrawlspeedMax,
-    %inRange(Speed, TrawlspeedMin, TrawlspeedMax),
+    thresholds(trawlingspeedMin, TrawlingspeedMin),
+    thresholds(trawlingspeedMax, TrawlingspeedMax),
+    Speed > TrawlingspeedMin,
+    Speed < TrawlingspeedMax,
+    %inRange(Speed, TrawlingspeedMin, TrawlingspeedMax),
     holdsAt(withinArea(Vessel, fishing)=true, T).
 
-terminatedAt(trawlSpeed(Vessel)=true, T):-
+terminatedAt(trawlingSpeed(Vessel)=true, T):-
     happensAt(velocity(Vessel, Speed, _Heading,_), T),
-    thresholds(trawlspeedMin, TrawlspeedMin),
-    thresholds(trawlspeedMax, TrawlspeedMax),
-    Speed < TrawlspeedMin.
+    thresholds(trawlingspeedMin, TrawlingspeedMin),
+    thresholds(trawlingspeedMax, TrawlingspeedMax),
+    Speed < TrawlingspeedMin.
 
-terminatedAt(trawlSpeed(Vessel)=true, T):-
+terminatedAt(trawlingSpeed(Vessel)=true, T):-
     happensAt(velocity(Vessel, Speed, _Heading,_), T),
-    thresholds(trawlspeedMin, TrawlspeedMin),
-    thresholds(trawlspeedMax, TrawlspeedMax),
-    Speed > TrawlspeedMax.
+    thresholds(trawlingspeedMin, TrawlingspeedMin),
+    thresholds(trawlingspeedMax, TrawlingspeedMax),
+    Speed > TrawlingspeedMax.
 
-    %\+inRange(Speed, TrawlspeedMin, TrawlspeedMax).
+    %\+inRange(Speed, TrawlingspeedMin, TrawlingspeedMax).
 
-terminatedAt(trawlSpeed(Vessel)=true, T):-
+terminatedAt(trawlingSpeed(Vessel)=true, T):-
     happensAt(gap_start(Vessel), T).
     %happensAt(start(gap(Vessel)=_Status), T).
 
-terminatedAt(trawlSpeed(Vessel)=true, T):-
+terminatedAt(trawlingSpeed(Vessel)=true, T):-
     happensAt(end(withinArea(Vessel, fishing)=true), T).
 
 
