@@ -1,17 +1,41 @@
 %--------------- internal_temperature -----------%
 
-initiatedAt(internal_temperature(Id, VehicleType)=Value,T) :-
-	happensAt(internal_temperature_change(Id,VehicleType, Value), T). 
+initiatedAt(internal_temperature(Id, VehicleType)=very_warm,T) :-
+	happensAt(internal_temperature_change(Id,VehicleType, very_warm), T). 
+
+initiatedAt(internal_temperature(Id, VehicleType)=warm,T) :-
+	happensAt(internal_temperature_change(Id,VehicleType, warm), T). 
+
+initiatedAt(internal_temperature(Id, VehicleType)=normal,T) :-
+	happensAt(internal_temperature_change(Id,VehicleType, normal), T). 
+
+initiatedAt(internal_temperature(Id, VehicleType)=cold,T) :-
+	happensAt(internal_temperature_change(Id,VehicleType, cold), T). 
+
+initiatedAt(internal_temperature(Id, VehicleType)=very_cold,T) :-
+	happensAt(internal_temperature_change(Id,VehicleType, very_cold), T). 
 
 %--------------- noise_level -----------%
 
-initiatedAt(noise_level(Id, VehicleType)=Value, T) :-
-	happensAt(noise_level_change(Id, VehicleType, Value), T).
+initiatedAt(noise_level(Id, VehicleType)=low, T) :-
+	happensAt(noise_level_change(Id, VehicleType, low), T).
+
+initiatedAt(noise_level(Id, VehicleType)=normal, T) :-
+	happensAt(noise_level_change(Id, VehicleType, normal), T).
+
+initiatedAt(noise_level(Id, VehicleType)=high, T) :-
+	happensAt(noise_level_change(Id, VehicleType, high), T).
 
 %--------------- passenger_density -----------%
 
-initiatedAt(passenger_density(Id, VehicleType)=Value, T) :-
-	happensAt(passenger_density_change(Id, VehicleType, Value), T).
+initiatedAt(passenger_density(Id, VehicleType)=low, T) :-
+	happensAt(passenger_density_change(Id, VehicleType, low), T). 
+
+initiatedAt(passenger_density(Id, VehicleType)=normal, T) :-
+	happensAt(passenger_density_change(Id, VehicleType, normal), T). 
+
+initiatedAt(passenger_density(Id, VehicleType)=high, T) :-
+	happensAt(passenger_density_change(Id, VehicleType, high), T). 
 
 %--------------- punctuality -----------%
 
