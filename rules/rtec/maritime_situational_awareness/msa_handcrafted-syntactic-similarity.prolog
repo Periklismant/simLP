@@ -21,19 +21,6 @@ terminatedAt(lowSpeed(Vessel)=true, T) :-
     happensAt(slow_motion_end(Vessel), T).
 
 terminatedAt(lowSpeed(Vessel)=true, T) :-
-    %happensAt(start(gap(Vessel)=_Status), T).
-    happensAt(gap_start(Vessel), T).
-
-%-------------- changingSpeed ----------------%
-
-initiatedAt(changingSpeed(Vessel)=true, T) :-
-    happensAt(change_in_speed_start(Vessel), T).
-
-terminatedAt(changingSpeed(Vessel)=true, T) :-
-    happensAt(change_in_speed_end(Vessel), T).
-
-terminatedAt(changingSpeed(Vessel)=true, T) :-
-    %happensAt(start(gap(Vessel)=_Status), T).
     happensAt(gap_start(Vessel), T).
 
 %------------ highSpeedNearCoast -------------%
@@ -42,13 +29,11 @@ initiatedAt(highSpeedNearCoast(Vessel)=true, T):-
     happensAt(velocity(Vessel, Speed, _, _), T),
     thresholds(hcNearCoastMax, HcNearCoastMax),
     Speed > HcNearCoastMax,
-    %\+ inRange(Speed, 0, HcNearCoastMax),
     holdsAt(withinArea(Vessel, nearCoast)=true, T).
 
 terminatedAt(highSpeedNearCoast(Vessel)=true, T):-
     happensAt(velocity(Vessel, Speed, _, _), T),
     thresholds(hcNearCoastMax, HcNearCoastMax),
-    %inRange(Speed, 0, HcNearCoastMax),
     Speed < HcNearCoastMax.
 
 terminatedAt(highSpeedNearCoast(Vessel)=true, T):-
@@ -74,7 +59,6 @@ initiatedAt(tuggingSpeed(Vessel)=true , T) :-
     thresholds(tuggingMax, TuggingMax),
     Speed > TuggingMin,
     Speed < TuggingMax.
-    %inRange(Speed, TuggingMin, TuggingMax).
 
 terminatedAt(tuggingSpeed(Vessel)=true , T) :-
     happensAt(velocity(Vessel, Speed, _, _), T),
@@ -86,7 +70,6 @@ terminatedAt(tuggingSpeed(Vessel)=true , T) :-
     thresholds(tuggingMin, TuggingMin),
     thresholds(tuggingMax, TuggingMax),
     Speed > TuggingMax.
-    %\+inRange(Speed, TuggingMin, TuggingMax).
 
 terminatedAt(tuggingSpeed(Vessel)=true , T) :-
     happensAt(gap_start(Vessel), T).
@@ -111,7 +94,6 @@ initiatedAt(trawlingSpeed(Vessel)=true, T):-
     thresholds(trawlingspeedMax, TrawlingspeedMax),
     Speed > TrawlingspeedMin,
     Speed < TrawlingspeedMax,
-    %inRange(Speed, TrawlingspeedMin, TrawlingspeedMax),
     holdsAt(withinArea(Vessel, fishing)=true, T).
 
 terminatedAt(trawlingSpeed(Vessel)=true, T):-
@@ -126,8 +108,6 @@ terminatedAt(trawlingSpeed(Vessel)=true, T):-
     thresholds(trawlingspeedMax, TrawlingspeedMax),
     Speed > TrawlingspeedMax.
 
-    %\+inRange(Speed, TrawlingspeedMin, TrawlingspeedMax).
-
 terminatedAt(trawlingSpeed(Vessel)=true, T):-
     happensAt(gap_start(Vessel), T).
     %happensAt(start(gap(Vessel)=_Status), T).
@@ -139,16 +119,11 @@ terminatedAt(trawlingSpeed(Vessel)=true, T):-
 %--------------- trawling --------------------%
 
 initiatedAt(trawlingMovement(Vessel)=true , T):-
-    %vesselType(Vessel, fishing),
     happensAt(change_in_heading(Vessel), T),
     holdsAt(withinArea(Vessel, fishing)=true, T).
 
 terminatedAt(trawlingMovement(Vessel)=true, T):-
     happensAt(end(withinArea(Vessel, fishing)=true), T).
-
-%fi(trawlingMovement(Vessel)=true, trawlingMovement(Vessel)=false, TrawlingCrs):-
-	%thresholds(trawlingCrs, TrawlingCrs).
-%p(trawlingMovement(_Vessel)=true).
 
 holdsFor(trawling(Vessel)=true, I):-
     holdsFor(trawlSpeed(Vessel)=true, It),
@@ -164,35 +139,24 @@ initiatedAt(sarSpeed(Vessel)=true , T):-
     happensAt(velocity(Vessel, Speed, _, _), T),
     thresholds(sarMinSpeed, SarMinSpeed),
     Speed > SarMinSpeed.
-    %inRange(Speed,SarMinSpeed,inf).
 
 terminatedAt(sarSpeed(Vessel)=true, T):-
     %vesselType(Vessel, sar),
     happensAt(velocity(Vessel, Speed, _, _), T),
     thresholds(sarMinSpeed, SarMinSpeed),
     Speed < SarMinSpeed.
-    %inRange(Speed,0,SarMinSpeed).
 
 terminatedAt(sarSpeed(Vessel)=true, T):-
     happensAt(gap_start(Vessel), T).
-    %happensAt(start(gap(Vessel)=_Status), T).
 
 initiatedAt(sarMovement(Vessel)=true, T):-
-    %vesselType(Vessel, sar),
     happensAt(change_in_heading(Vessel), T).
 
 initiatedAt(sarMovement(Vessel)=true , T):-
-    %vesselType(Vessel, sar),
     happensAt(change_in_speed_start(Vessel), T).
-    %happensAt(start(changingSpeed(Vessel)=true), T).
 
 terminatedAt(sarMovement(Vessel)=true, T):-
-    %vesselType(Vessel, sar),
     happensAt(gap_start(Vessel), T).
-    %happensAt(start(gap(Vessel)=_Status), T).
-
-%fi(sarMovement(Vessel)=true, sarMovement(Vessel)=false, 1800).
-%p(sarMovement(_Vessel)=true).
 
 holdsFor(inSAR(Vessel)=true, I):-
     holdsFor(sarSpeed(Vessel)=true, Iss),
