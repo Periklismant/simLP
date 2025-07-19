@@ -27,27 +27,6 @@ terminatedAt(stopped(Vessel)=_Status, T) :-
 terminatedAt(stopped(Vessel)=_Status, T) :-
     happensAt(start(gap(Vessel)=_GapStatus), T).
 
-%---------------- rendezVous -----------------%
-
-holdsFor(rendezVous(Vessel1, Vessel2)=true, I) :-
-    holdsFor(proximity(Vessel1, Vessel2)=true, Ip),
-    \+oneIsTug(Vessel1, Vessel2),
-    \+oneIsPilot(Vessel1, Vessel2),
-    holdsFor(lowSpeed(Vessel1)=true, Il1),
-    holdsFor(lowSpeed(Vessel2)=true, Il2),
-    holdsFor(stopped(Vessel1)=farFromPorts, Is1),
-    holdsFor(stopped(Vessel2)=farFromPorts, Is2),
-    union_all([Il1, Is1], I1b),
-    union_all([Il2, Is2], I2b),
-    intersect_all([I1b, I2b, Ip], If), If\=[],
-    holdsFor(withinArea(Vessel1, nearPorts)=true, Iw1),
-    holdsFor(withinArea(Vessel2, nearPorts)=true, Iw2),
-    holdsFor(withinArea(Vessel1, nearCoast)=true, Iw3),
-    holdsFor(withinArea(Vessel2, nearCoast)=true, Iw4),
-    relative_complement_all(If,[Iw1, Iw2, Iw3, Iw4], Ii),
-    thresholds(rendezvousTime, RendezvousTime),
-    intDurGreater(Ii, RendezvousTime, I).
-
 %--------------- communication gap -----------%
 
 initiatedAt(gap(Vessel)=nearPorts, T) :-
