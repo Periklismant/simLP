@@ -65,6 +65,7 @@ terminatedAt(tuggingSpeed(Vessel)=true , T) :-
     thresholds(tuggingMin, TuggingMin),
     thresholds(tuggingMax, TuggingMax),
     Speed < TuggingMin.
+
 terminatedAt(tuggingSpeed(Vessel)=true , T) :-
     happensAt(velocity(Vessel, Speed, _, _), T),
     thresholds(tuggingMin, TuggingMin),
@@ -73,7 +74,6 @@ terminatedAt(tuggingSpeed(Vessel)=true , T) :-
 
 terminatedAt(tuggingSpeed(Vessel)=true , T) :-
     happensAt(gap_start(Vessel), T).
-    %happensAt(start(gap(Vessel)=_Status), T).
 
 holdsFor(tugging(Vessel1, Vessel2)=true, I) :-
     holdsFor(proximity(Vessel1, Vessel2)=true, Ip),
@@ -110,7 +110,6 @@ terminatedAt(trawlingSpeed(Vessel)=true, T):-
 
 terminatedAt(trawlingSpeed(Vessel)=true, T):-
     happensAt(gap_start(Vessel), T).
-    %happensAt(start(gap(Vessel)=_Status), T).
 
 terminatedAt(trawlingSpeed(Vessel)=true, T):-
     happensAt(end(withinArea(Vessel, fishing)=true), T).
@@ -162,7 +161,8 @@ holdsFor(inSAR(Vessel)=true, I):-
     holdsFor(sarSpeed(Vessel)=true, Iss),
     holdsFor(sarMovement(Vessel)=true, Isc),
     intersect_all([Iss, Isc], Ii),
-    intDurGreater(Ii, 3600, I).
+    thresholds(sarTime, SarTime),
+    intDurGreater(Ii, SarTime, I).
 
 %-------- loitering --------------------------%
 
