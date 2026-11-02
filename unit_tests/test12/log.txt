@@ -1,0 +1,218 @@
+Generated Definition: 
+happensAt(trawlingStop(Vessel),T) :- 
+	happensAt(end(=(trawlingMovement(Vessel),true)),T).
+
+
+Ground Definition: 
+happensAt(trawlingStop(Vessel),T) :- 
+	happensAt(end(=(trawlingMovement(Vessel),true)),T).
+
+
+Rule distances: 
+[[0.]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+happensAt(trawlingStop(Vessel),T) :- 
+	happensAt(end(=(trawlingMovement(Vessel),true)),T).
+
+which has the distance array: [0.]
+
+with the following rule: 
+happensAt(trawlingStop(Vessel),T) :- 
+	happensAt(end(=(trawlingMovement(Vessel),true)),T).
+
+Their distance is: 0.0
+
+
+
+Sum of distances for optimal rule assignment: 
+0.0
+Distance between definitions: 
+0.0
+Definition Similarity: 
+1.0
+
+Generated Definition: 
+fi(=(trawlingMovement(Vessel),true),=(trawlingMovement(Vessel),false),TrawlingCrs) :- 
+	thresholds(trawlingCrs,TrawlingCrs).
+
+
+Ground Definition: 
+fi(=(trawlingMovement(Vessel),true),=(trawlingMovement(Vessel),false),TrawlingCrs) :- 
+	thresholds(trawlingCrs,TrawlingCrs).
+
+
+Rule distances: 
+[[0.]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+fi(=(trawlingMovement(Vessel),true),=(trawlingMovement(Vessel),false),TrawlingCrs) :- 
+	thresholds(trawlingCrs,TrawlingCrs).
+
+which has the distance array: [0.]
+
+with the following rule: 
+fi(=(trawlingMovement(Vessel),true),=(trawlingMovement(Vessel),false),TrawlingCrs) :- 
+	thresholds(trawlingCrs,TrawlingCrs).
+
+Their distance is: 0.0
+
+
+
+Sum of distances for optimal rule assignment: 
+0.0
+Distance between definitions: 
+0.0
+Definition Similarity: 
+1.0
+
+Generated Definition: 
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+
+Ground Definition: 
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+
+Rule distances: 
+[[0.]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+which has the distance array: [0.]
+
+with the following rule: 
+initiatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(change_in_heading(Vessel),T),
+	holdsAt(=(withinArea(Vessel,fishing),true),T).
+
+Their distance is: 0.0
+
+
+
+Sum of distances for optimal rule assignment: 
+0.0
+Distance between definitions: 
+0.0
+Definition Similarity: 
+1.0
+
+Generated Definition: 
+p(=(trawlingMovement(_Vessel),true)) :- 
+	.
+
+
+Ground Definition: 
+p(=(trawlingMovement(_Vessel),true)) :- 
+	.
+
+
+Rule distances: 
+[[0.]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+p(=(trawlingMovement(_Vessel),true)) :- 
+	.
+
+which has the distance array: [0.]
+
+with the following rule: 
+p(=(trawlingMovement(_Vessel),true)) :- 
+	.
+
+Their distance is: 0.0
+
+
+
+Sum of distances for optimal rule assignment: 
+0.0
+Distance between definitions: 
+0.0
+Definition Similarity: 
+1.0
+
+Generated Definition: 
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+
+Ground Definition: 
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+
+Rule distances: 
+[[0.]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+which has the distance array: [0.]
+
+with the following rule: 
+terminatedAt(=(trawlingMovement(Vessel),true),T) :- 
+	happensAt(end(=(withinArea(Vessel,fishing),true)),T).
+
+Their distance is: 0.0
+
+
+
+Sum of distances for optimal rule assignment: 
+0.0
+Distance between definitions: 
+0.0
+Definition Similarity: 
+1.0
+
+Computed similarity values: 
+{('other', 'other'): np.float64(1.0), ('trawlingMovement', 'fi'): np.float64(1.0), ('trawlingMovement', 'initiatedAt'): np.float64(1.0), ('trawlingMovement', 'p'): np.float64(1.0), ('trawlingMovement', 'terminatedAt'): np.float64(1.0)}
+
+Concepts defined in both event descriptions: 
+[('other', 'other'), ('trawlingMovement', 'fi'), ('trawlingMovement', 'initiatedAt'), ('trawlingMovement', 'p'), ('trawlingMovement', 'terminatedAt')]
+
+Concepts defined only in generated event description: 
+[]
+
+Concepts defined only in ground event description: 
+[]
+
+Similarity for definition: ('other', 'other') is 1.0
+Similarity for definition: ('trawlingMovement', 'fi') is 1.0
+Similarity for definition: ('trawlingMovement', 'initiatedAt') is 1.0
+Similarity for definition: ('trawlingMovement', 'p') is 1.0
+Similarity for definition: ('trawlingMovement', 'terminatedAt') is 1.0
+Event Description Similarity is: 
+1.0

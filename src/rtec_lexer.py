@@ -86,8 +86,9 @@ class RTECLexer():
 	t_DISJ = r';'
 
 	t_ignore_NL = r'\n'
-	t_ignore_LINECOMMENT = r'%.*\n'
-	t_ignore_MULTILINECOMMENT= r'/\*[\s\S]*\*/'
+	# A line comment may end the file without a newline; a block comment ends at its first */.
+	t_ignore_LINECOMMENT = r'%[^\n]*'
+	t_ignore_MULTILINECOMMENT= r'/\*[\s\S]*?\*/'
 
 	#t_OPER = r'(\=)|(\=\\\=)'
 

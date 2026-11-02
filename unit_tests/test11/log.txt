@@ -1,0 +1,54 @@
+Generated Definition: 
+fi(=(trawlingMovement(Vessel),true),=(trawlingMovement(Vessel),false),600) :- 
+	.
+
+
+Ground Definition: 
+fi(=(trawlingMovement(Vessel),true),=(trawlingMovement(Vessel),false),TrawlingCrs) :- 
+	thresholds(trawlingCrs,TrawlingCrs).
+
+
+Rule distances: 
+[[0.58333333]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+fi(=(trawlingMovement(Vessel),true),=(trawlingMovement(Vessel),false),600) :- 
+	.
+
+which has the distance array: [0.58333333]
+
+with the following rule: 
+fi(=(trawlingMovement(Vessel),true),=(trawlingMovement(Vessel),false),TrawlingCrs) :- 
+	thresholds(trawlingCrs,TrawlingCrs).
+
+Their distance is: 0.5833333333333334
+
+
+
+Sum of distances for optimal rule assignment: 
+0.5833333333333334
+Distance between definitions: 
+0.5833333333333334
+Definition Similarity: 
+0.41666666666666663
+
+Computed similarity values: 
+{('trawlingMovement', 'fi'): np.float64(0.41666666666666663)}
+
+Concepts defined in both event descriptions: 
+[('trawlingMovement', 'fi')]
+
+Concepts defined only in generated event description: 
+[]
+
+Concepts defined only in ground event description: 
+[]
+
+Similarity for definition: ('trawlingMovement', 'fi') is 0.41666666666666663
+Event Description Similarity is: 
+0.41666666666666663

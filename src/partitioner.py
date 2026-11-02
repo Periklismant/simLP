@@ -2,14 +2,12 @@ from event_description import EventDescription
 
 
 def get_defined_concept_key(atom):
-	if atom.predicateName=="initiatedAt":
-		return (atom.args[0].args[0].predicateName, "initiatedAt")
-	elif atom.predicateName=="terminatedAt":
-		return (atom.args[0].args[0].predicateName, "terminatedAt")
-	elif atom.predicateName=="holdsFor":
-		return (atom.args[0].args[0].predicateName, "holdsFor")
-	else:
-		return "other"
+	# Rules and facts on an FVP, e.g. initiatedAt(F=V, T) or fi(F=V, F=V2, D), are keyed by the fluent of F=V and the head predicate.
+	if atom.predicateName in ["initiatedAt", "terminatedAt", "holdsFor", "fi", "p", "initially"] and len(atom.args)>0:
+		fvp = atom.args[0]
+		if fvp.predicateName=="=" and len(fvp.args)==2:
+			return (fvp.args[0].predicateName, atom.predicateName)
+	return ("other", "other")
 
 def partition_event_description(event_description):
 	partitioned_event_description = dict()

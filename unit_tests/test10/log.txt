@@ -1,0 +1,54 @@
+Generated Definition: 
+initially(=(status(M),proposed)) :- 
+	.
+
+
+Ground Definition: 
+initially(=(status(_M),null)) :- 
+	.
+
+
+Rule distances: 
+[[0.125]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+initially(=(status(M),proposed)) :- 
+	.
+
+which has the distance array: [0.125]
+
+with the following rule: 
+initially(=(status(_M),null)) :- 
+	.
+
+Their distance is: 0.125
+
+
+
+Sum of distances for optimal rule assignment: 
+0.125
+Distance between definitions: 
+0.125
+Definition Similarity: 
+0.875
+
+Computed similarity values: 
+{('status', 'initially'): np.float64(0.875)}
+
+Concepts defined in both event descriptions: 
+[('status', 'initially')]
+
+Concepts defined only in generated event description: 
+[]
+
+Concepts defined only in ground event description: 
+[]
+
+Similarity for definition: ('status', 'initially') is 0.875
+Event Description Similarity is: 
+0.875
