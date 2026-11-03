@@ -1,0 +1,54 @@
+Generated Definition: 
+p(=(quote(Merch,Cons,GD),true)) :- 
+	.
+
+
+Ground Definition: 
+p(=(quote(_M,_C,_GD),true)) :- 
+	.
+
+
+Rule distances: 
+[[0.]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+p(=(quote(Merch,Cons,GD),true)) :- 
+	.
+
+which has the distance array: [0.]
+
+with the following rule: 
+p(=(quote(_M,_C,_GD),true)) :- 
+	.
+
+Their distance is: 0.0
+
+
+
+Sum of distances for optimal rule assignment: 
+0.0
+Distance between definitions: 
+0.0
+Definition Similarity: 
+1.0
+
+Computed similarity values: 
+{('quote', 'p'): np.float64(1.0)}
+
+Concepts defined in both event descriptions: 
+[('quote', 'p')]
+
+Concepts defined only in generated event description: 
+[]
+
+Concepts defined only in ground event description: 
+[]
+
+Similarity for definition: ('quote', 'p') is 1.0
+Event Description Similarity is: 
+1.0

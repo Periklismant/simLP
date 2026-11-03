@@ -119,6 +119,10 @@ def rule_distance(rule1, rule2, logger):
 
 	m, k = get_lists_size_and_pad(body1, body2, Atom("&", []))
 	
+	# Two facts (m=0): the rule distance below, 1/(m+1)*(head_distance + m*body_distance), is then the head distance.
+	if m==0:
+		return head_distance
+
 	c_array = np.array([[0.0 for _ in range(m)] for _ in range(m)])
 
 	for i in range(m):

@@ -1,0 +1,54 @@
+Generated Definition: 
+fi(=(quote(Merch,Cons,GD),true),=(quote(Merch,Cons,GD),false),10) :- 
+	.
+
+
+Ground Definition: 
+fi(=(quote(Merch,Cons,GD),true),=(quote(Merch,Cons,GD),false),5) :- 
+	.
+
+
+Rule distances: 
+[[0.16666667]]
+
+
+Optimal Rule Assignment: 
+[0]
+
+
+We matched rule:
+fi(=(quote(Merch,Cons,GD),true),=(quote(Merch,Cons,GD),false),10) :- 
+	.
+
+which has the distance array: [0.16666667]
+
+with the following rule: 
+fi(=(quote(Merch,Cons,GD),true),=(quote(Merch,Cons,GD),false),5) :- 
+	.
+
+Their distance is: 0.16666666666666666
+
+
+
+Sum of distances for optimal rule assignment: 
+0.16666666666666666
+Distance between definitions: 
+0.16666666666666666
+Definition Similarity: 
+0.8333333333333334
+
+Computed similarity values: 
+{('quote', 'fi'): np.float64(0.8333333333333334)}
+
+Concepts defined in both event descriptions: 
+[('quote', 'fi')]
+
+Concepts defined only in generated event description: 
+[]
+
+Concepts defined only in ground event description: 
+[]
+
+Similarity for definition: ('quote', 'fi') is 0.8333333333333334
+Event Description Similarity is: 
+0.8333333333333334

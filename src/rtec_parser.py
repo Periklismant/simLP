@@ -25,6 +25,16 @@ class RTECParser:
 								 body '''
 		self.event_description.add_rule(p[1],p[3])
 
+	def p_domain_fact(self,p):
+		''' domain_rule : atom DOT '''
+		# The fi, p and initially facts are rules with an empty body. Other facts, e.g., background knowledge, are skipped.
+		if p[1].predicateName in ["fi", "p", "initially"]:
+			self.event_description.add_rule(p[1],[])
+
+	def p_domain_rule_error(self,p):
+		''' domain_rule : error DOT '''
+		# A clause with a syntax error is skipped up to its final dot, so that no part of it is read as a fact.
+
 	def p_singleton_body(self,p):
 		''' body : literal DOT '''
 		p[0] = [p[1]]
